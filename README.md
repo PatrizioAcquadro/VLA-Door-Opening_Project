@@ -16,11 +16,11 @@
 
 ## Overview
 
-VLA-Door-Opening is a Master's thesis research project for contact-rich robotic door opening with the IHMC Alex humanoid upper body. The active task is articulated-object manipulation: perceiving a door, handle, hinge, latch state, and current opening angle, then producing continuous robot actions that unlatch and pull or push the door toward a target angle.
+VLA-Door-Opening is a Vision-Language-Action project for contact-rich robotic door opening with the IHMC Alex humanoid upper body. The system focuses on articulated-object manipulation: perceiving a door, handle, hinge, latch state, and current opening angle, then producing continuous robot actions that unlatch and pull or push the door toward a target angle.
 
 The repository was bootstrapped from an older manipulation codebase. The VLA backbone and action head (a flow-matching head derived from the EO-1 architecture), trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy code, assets, scripts, and tests from the prior task are archived under `archive/legacy/` for provenance only.
 
-## Research Goals
+## Project Goals
 
 - Replicate and adapt the EO-1 Vision-Language-Action architecture for door-opening manipulation.
 - Build MuJoCo door, handle, hinge, and latch environments for IHMC Alex.
@@ -268,17 +268,13 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Acknowledgments
 
-- **Politecnico di Milano** - Primary institution
-- **Purdue University** - Exchange program host
-- **Prof. Eugenio Culurciello** - Purdue University
-- **Prof. Marcello Restelli** - Politecnico di Milano
 - [EO-1](https://arxiv.org/abs/2508.21112) - Reference VLA architecture
 - [PyTorch](https://pytorch.org/), [Hydra](https://hydra.cc/), and [Weights & Biases](https://wandb.ai/)
 
 ---
 
 <div align="center">
-  <sub>Master's Thesis Research - Politecnico di Milano / Purdue University</sub>
+  <sub>Vision-Language-Action Door-Opening Project</sub>
   <br>
   <sub>Author: Patrizio Acquadro</sub>
 </div>

@@ -251,6 +251,7 @@ jobs:
           # - pyproject.toml: dependency specifications (deps extracted at build time)
           # - .dockerignore: affects build context
           # - scripts/container-entrypoint.sh: entrypoint script baked into image
+          # - this workflow: changes can affect container build behavior/resources
           #
           # NOTE: apptainer.def is NOT included here. CI builds Apptainer images
           # from the Docker image digest, not from apptainer.def. Edits to
@@ -261,6 +262,7 @@ jobs:
               - 'pyproject.toml'
               - '.dockerignore'
               - 'scripts/container-entrypoint.sh'
+              - '.github/workflows/ci-cd.yml'
 
   # --------------------------------------------------------------------------
   # Job: Determine if Container Build is Needed
@@ -325,6 +327,17 @@ jobs:
         id: date
         run: |
           echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false      # Keep tool cache for other jobs
+          android: true          # Remove Android SDK (~10GB)
+          dotnet: true           # Remove .NET (~2GB)
+          haskell: true          # Remove Haskell/GHC (~5GB)
+          large-packages: true   # Remove large apt packages (~5GB)
+          docker-images: true    # Remove preinstalled images before pulling CUDA/PyTorch layers
+          swap-storage: false    # Keep swap
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
