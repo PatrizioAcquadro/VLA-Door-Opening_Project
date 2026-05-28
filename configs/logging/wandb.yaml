@@ -1,0 +1,50 @@
+# Logging Configuration: Weights & Biases
+
+name: wandb
+
+wandb:
+  enabled: true
+  project: "vla-door-opening"
+  entity: null  # Your W&B username or team
+
+  # Run naming
+  name: ${experiment.name}
+  tags:
+    - ${model.name}
+    - ${cluster.name}
+
+  # What to log
+  log_model: false  # Don't upload model checkpoints to W&B
+  log_code: true    # Log code for reproducibility
+
+  # Offline mode (sync later)
+  offline: false
+
+  # Resume settings
+  resume: "allow"  # "allow", "must", "never", or run_id
+
+# Metrics to track
+metrics:
+  # Losses
+  - "train/loss"
+  - "train/loss_ar"
+  - "train/loss_fm"
+  - "val/loss"
+
+  # Learning rate & optimization
+  - "train/lr"
+  - "train/grad_norm"
+  - "train/grad_scale"  # For AMP
+
+  # Throughput
+  - "train/samples_per_sec"
+  - "train/tokens_per_sec"
+
+  # Memory
+  - "system/gpu_memory_used"
+  - "system/gpu_utilization"
+
+# Artifacts to save
+artifacts:
+  save_config: true
+  save_git_info: true

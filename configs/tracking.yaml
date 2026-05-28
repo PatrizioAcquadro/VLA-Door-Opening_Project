@@ -1,0 +1,75 @@
+# Experiment Tracking Configuration
+# Default configuration for W&B experiment tracking
+
+tracking:
+  # Enable/disable experiment tracking
+  enabled: true
+
+  # W&B project name
+  project: "vla-door-opening"
+
+  # W&B entity (username or team name)
+  # Set to null to use default entity from wandb login
+  entity: null
+
+  # Tracking mode:
+  # - "online": Real-time sync (with automatic offline fallback)
+  # - "offline": Local logging only (sync later with 'wandb sync')
+  # - "disabled": No tracking
+  mode: "online"
+
+  # Metric logging interval (log every N steps)
+  log_interval: 10
+
+  # Metrics configuration
+  metrics:
+    # Log GPU statistics (utilization, memory, temperature)
+    log_gpu_stats: true
+
+    # GPU stats logging interval (every N steps)
+    # Set higher than log_interval to reduce overhead
+    gpu_stats_interval: 50
+
+  # Artifact configuration
+  artifacts:
+    # Save training config as artifact
+    save_config: true
+
+    # Save checkpoints as artifacts
+    save_checkpoints: true
+
+    # Default checkpoint aliases
+    checkpoint_aliases:
+      - "latest"
+
+  # Run naming and tagging
+  run:
+    # Run name (auto-generated if null)
+    # Format: {model}_{objective}_{dataset}_{YYYYMMDD}_{HHMMSS}_{git_short}
+    name: null
+
+    # Required tags for experiment organization
+    # These should be set per-experiment
+    tags:
+      # Model architecture (e.g., "eo1", "vla-base")
+      model: null
+
+      # Training dataset (e.g., "lego", "lego-bimanual")
+      dataset: null
+
+      # Training objective (e.g., "ar", "fm", "ar+fm")
+      objective: null
+
+      # Experiment group for organizing related runs
+      # (e.g., "phase0-smoke", "ablation-lr", "baseline")
+      experiment_group: null
+
+
+# Example: Override for a specific experiment
+# tracking:
+#   run:
+#     tags:
+#       model: "eo1"
+#       dataset: "lego"
+#       objective: "ar+fm"
+#       experiment_group: "phase0-smoke"

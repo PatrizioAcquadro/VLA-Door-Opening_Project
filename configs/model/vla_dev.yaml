@@ -1,0 +1,73 @@
+# Model Configuration: VLA Dev (Qwen3.5-4B + Action Head)
+# Dev config for RTX 4090 24GB (lab PC)
+# Identical to vla.yaml except for attn_implementation and max_seq_length.
+
+name: vla_dev
+
+architecture:
+  type: "vla"                          # routes get_model() to VLA path
+
+# --- VLM backbone (same as vlm_dev.yaml) --------------------------------------
+vlm:
+  model_id: "Qwen/Qwen3.5-4B"
+  revision: null
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+  trust_remote_code: true
+  attn_implementation: "sdpa"          # no FlashAttention-2 dependency on lab PC
+  max_seq_length: 4096                 # shorter context for 24 GB headroom
+  cache_dir: "${oc.env:HF_HOME,${paths.root}/cache/huggingface}"
+
+  processor:
+    image_resolution: 320
+    padding: "longest"
+    truncation: true
+
+  freeze:
+    backbone: true
+    vision_encoder: true
+
+# --- Action head (identical to vla.yaml) --------------------------------------
+action_head:
+  chunk_size: 16
+  action_dim: 17
+  state_dim: 52
+  tokens_per_action_step: 1
+
+  projector:
+    hidden_dim: null
+    n_layers: 2
+    activation: "silu"
+    dropout: 0.0
+
+  timestep_embed_dim: 256
+
+  flow_matching:
+    n_denoising_steps: 10
+    solver: "euler"
+    sigma_min: 0.001
+    time_sampling: "beta"
+    time_alpha: 1.5
+    time_beta: 1.0
+    time_min: 0.001
+    time_max: 0.999
+
+  loss:
+    lambda_text: 1.0
+    lambda_action: 1.0
+    balancing_strategy: "fixed"        # fixed | normalized | uncertainty
+    ema_decay: 0.999                   # for "normalized" strategy
+    text:
+      ignore_index: -100
+      label_smoothing: 0.0
+    action:
+      reduction: "mean"               # mean over valid positions and dimensions
+
+  inference:
+    execute_steps: 8
+
+  float32_head: true
+
+# Estimated memory footprint
+_estimated_params_billions: 4.02
+_estimated_memory_gb_bf16: 8.5

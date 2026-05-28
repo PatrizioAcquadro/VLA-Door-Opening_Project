@@ -1,0 +1,15 @@
+<mujoco model="test_scene">
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+
+  <worldbody>
+    <light diffuse="0.8 0.8 0.8" pos="0 0 3" dir="0 0 -1"/>
+    <camera name="overhead" pos="0 -2 2" xyaxes="1 0 0 0 0.7 0.7"/>
+    <geom name="floor" type="plane" size="5 5 0.1" rgba="0.8 0.8 0.8 1"/>
+
+    <body name="box" pos="0 0 1">
+      <freejoint name="box_joint"/>
+      <geom name="box_geom" type="box" size="0.05 0.05 0.05"
+            mass="0.1" rgba="0.2 0.6 0.9 1"/>
+    </body>
+  </worldbody>
+</mujoco>

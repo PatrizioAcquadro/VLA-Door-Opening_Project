@@ -1,0 +1,42 @@
+# Trainer Configuration: Debug
+# Fast settings for debugging - runs in seconds
+
+name: debug
+
+optimizer:
+  name: "adamw"
+  lr: 1e-3  # Higher LR for faster convergence in tests
+  weight_decay: 0.01
+  betas: [0.9, 0.95]
+  eps: 1e-8
+
+scheduler:
+  name: "cosine"
+  warmup_steps: 10
+  min_lr_ratio: 0.1
+
+gradient:
+  max_norm: 1.0
+  accumulation_steps: 1
+
+training:
+  max_steps: 100  # Very short
+  batch_size_per_device: 2  # Small batch
+  precision: "fp32"  # fp32 for debugging (easier to spot NaNs)
+  compile: false
+
+checkpoint:
+  save_every_n_steps: 50
+  keep_last_n: 1
+  save_optimizer: false  # Skip for speed
+  resume_from: null  # Path to checkpoint, or "latest"
+
+validation:
+  every_n_steps: 50
+  num_samples: 10
+
+logging:
+  log_every_n_steps: 10
+  log_grad_norm: true
+  log_param_norm: true
+  log_memory: true

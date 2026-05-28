@@ -1,0 +1,37 @@
+# Cluster Configuration: Local
+# For local development and testing
+
+name: local
+
+hardware:
+  accelerator: "auto"  # Detect automatically
+  gpu_type: "auto"
+  gpus_per_node: 1
+
+  gpu_memory_gb: 8  # Conservative estimate
+  cpu_memory_gb: 32
+
+distributed:
+  backend: "nccl"  # Falls back to gloo if needed
+
+  deepspeed:
+    enabled: false  # Disable for local testing
+
+nccl:
+  debug: "WARN"
+  ib_disable: 1  # Disable InfiniBand (not available locally)
+  socket_ifname: "lo"  # Loopback
+
+slurm:
+  # Not applicable for local
+  account: null
+  partition: null
+
+cluster_paths:
+  scratch: "${paths.root}"
+  home: "${paths.root}"
+  checkpoints: "${paths.root}/checkpoints"
+  logs: "${paths.root}/logs"
+  cache: "${paths.root}/cache"
+
+modules: []  # No modules locally

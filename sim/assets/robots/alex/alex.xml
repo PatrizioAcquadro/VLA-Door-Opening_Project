@@ -1,0 +1,620 @@
+<mujoco model="alex_upper_body">
+    <!--
+        Alex V1 Upper-Body Fixed-Base Robot Model (Phase 1.1.1 + 1.1.2 + 1.1.3)
+
+        Source: ihmc-alex-sdk commit be25a395e35238bc6385a58bcc50aa047d936a25
+        Base file: alex_v1_full_body_mjx.xml
+
+        Modifications from source:
+        - Removed lower body (12 leg joints)
+        - Removed freejoint (fixed base at table height)
+        - Fixed neck joints (NECK_Z, NECK_Y removed — head is static)
+        - Added GRIPPER_Z joints (exist in URDF, missing from source MJCF)
+        - Added collision geoms (capsules/boxes) for all upper-body links
+        - Added EE sites (left_ee_site, right_ee_site)
+        - Added robot camera (robot_cam on head)
+        - Added self-collision exclusions for adjacent body pairs
+        - (1.1.3) Integrated SAKE EZGripper Gen2 end-effectors on both arms
+        - (1.1.3) Added equality constraints for underactuated finger coupling
+        - (1.1.3) Added tool frame sites (left_tool_frame, right_tool_frame)
+
+        Joints (23 = 15 arm + 8 EZGripper):
+          spine_z
+          left_shoulder_y, left_shoulder_x, left_shoulder_z, left_elbow_y,
+          left_wrist_z, left_wrist_x, left_gripper_z,
+          left_knuckle_palm_l1_1, left_knuckle_l1_l2_1,
+          left_knuckle_palm_l1_2, left_knuckle_l1_l2_2
+          right_shoulder_y, right_shoulder_x, right_shoulder_z, right_elbow_y,
+          right_wrist_z, right_wrist_x, right_gripper_z,
+          right_knuckle_palm_l1_1, right_knuckle_l1_l2_1,
+          right_knuckle_palm_l1_2, right_knuckle_l1_l2_2
+
+        Actuators (17 = 15 arm + 2 EZGripper):
+          15 arm position actuators + left_ezgripper + right_ezgripper
+    -->
+
+    <compiler angle="radian" eulerseq="XYZ" autolimits="true"
+              balanceinertia="true"/>
+
+    <option iterations="50" ls_iterations="10" timestep="0.002" integrator="implicitfast">
+        <flag energy="enable"/>
+    </option>
+
+    <default>
+        <default class="alex">
+            <joint damping="2" frictionloss="0.3"/>
+            <position inheritrange="1"/>
+            <default class="alex/spine">
+                <joint axis="0 0 1" range="-0.5235987756 0.5235987756"
+                       armature="0.01" damping="2.0" frictionloss="0.3"/>
+                <position forcerange="-150 150" kp="112"/>
+            </default>
+            <default class="alex/shoulder">
+                <default class="alex/shoulder/y">
+                    <joint axis="0 1 0" range="-3.141592 1.22173"
+                           armature="0.01" damping="2.0" frictionloss="0.3"/>
+                    <position forcerange="-150 150" kp="112.5"/>
+                </default>
+                <default class="alex/shoulder/x">
+                    <joint axis="1 0 0" armature="0.01" damping="2.0" frictionloss="0.3"/>
+                    <position forcerange="-100 100" kp="75"/>
+                    <default class="alex/shoulder/x/left">
+                        <joint range="-0.349066 2.79253"/>
+                    </default>
+                    <default class="alex/shoulder/x/right">
+                        <joint range="-2.79253 0.349066"/>
+                    </default>
+                </default>
+                <default class="alex/shoulder/z">
+                    <joint axis="0 0 1" armature="0.01" damping="1.5" frictionloss="0.2"/>
+                    <position forcerange="-80 80" kp="60"/>
+                    <default class="alex/shoulder/z/left">
+                        <joint range="-1.91986 1.22173"/>
+                    </default>
+                    <default class="alex/shoulder/z/right">
+                        <joint range="-1.22173 1.91986"/>
+                    </default>
+                </default>
+            </default>
+            <default class="alex/elbow">
+                <joint axis="0 1 0" range="-2.35619 0.174532925"
+                       armature="0.01" damping="1.5" frictionloss="0.2"/>
+                <position forcerange="-80 80" kp="60"/>
+            </default>
+            <default class="alex/wrist">
+                <position forcerange="-20 20" kp="15"/>
+                <default class="alex/wrist/z">
+                    <joint axis="0 0 1" range="-2.61799 2.61799"
+                           armature="0.01" damping="0.5" frictionloss="0.1"/>
+                </default>
+                <default class="alex/wrist/x">
+                    <joint axis="1 0 0" armature="0.01" damping="0.5" frictionloss="0.1"/>
+                    <default class="alex/wrist/x/left">
+                        <joint range="-1.8326 0.610865"/>
+                    </default>
+                    <default class="alex/wrist/x/right">
+                        <joint range="-0.610865 1.8326"/>
+                    </default>
+                </default>
+            </default>
+            <default class="alex/gripper">
+                <joint axis="0 0 1" range="-2.61799 2.61799"
+                       armature="0.01" damping="0.3" frictionloss="0.05"/>
+                <position forcerange="-20 20" kp="15"/>
+            </default>
+            <default class="alex/visual">
+                <geom contype="0" conaffinity="0" group="1" type="mesh"/>
+            </default>
+            <default class="alex/collision">
+                <geom group="3" contype="1" conaffinity="1" rgba="0 1 0 0.3"
+                      solref="0.005 1.0" solimp="0.9 0.95 0.001 0.5 2"/>
+            </default>
+            <!-- EZGripper Gen2 defaults (Phase 1.1.3) -->
+            <default class="alex/ezgripper">
+                <default class="alex/ezgripper/knuckle">
+                    <joint axis="0 1 0" range="0 1.94" armature="0.005"
+                           damping="0.2" frictionloss="0.02"/>
+                    <position forcerange="-8 8" kp="10" inheritrange="1"/>
+                </default>
+                <default class="alex/ezgripper/collision">
+                    <geom group="3" contype="1" conaffinity="1" rgba="0 0.8 0 0.3"
+                          friction="1.5 0.02 0.01"
+                          solref="0.005 1.0" solimp="0.9 0.95 0.001 0.5 2"/>
+                </default>
+                <default class="alex/ezgripper/visual">
+                    <geom contype="0" conaffinity="0" group="1" type="mesh"/>
+                </default>
+            </default>
+        </default>
+    </default>
+
+    <asset>
+        <material name="gray" rgba="0.671705 0.692426 0.774270 1"/>
+        <mesh name="pelvis" file="meshes/Pelvis.obj"/>
+        <mesh name="torso" file="meshes/torso.obj"/>
+        <mesh name="head" file="meshes/ALX02_01_A02_HeadLink.obj"/>
+        <mesh name="left_shoulder_y" file="meshes/LeftShoulderPitchLink.obj"/>
+        <mesh name="left_shoulder_x" file="meshes/LeftShoulderRollLink_longBicep.obj"/>
+        <mesh name="left_shoulder_z" file="meshes/LeftShoulderYawLink.obj"/>
+        <mesh name="left_elbow_y" file="meshes/LEFT_ELBOW_PITCH_LINK_413mm_LENGTH.obj"/>
+        <mesh name="left_wrist_z" file="meshes/LeftWristYawLink.obj"/>
+        <mesh name="left_wrist_x" file="meshes/LeftWristRollLink.obj"/>
+        <mesh name="left_gripper" file="meshes/nub.obj"/>
+        <mesh name="right_shoulder_y" file="meshes/RightShoulderPitchLink.obj"/>
+        <mesh name="right_shoulder_x" file="meshes/RightShoulderRollLink_longBicep.obj"/>
+        <mesh name="right_shoulder_z" file="meshes/RightShoulderYawLink.obj"/>
+        <mesh name="right_elbow_y" file="meshes/RIGHT_ELBOW_PITCH_LINK_413mm_LENGTH.obj"/>
+        <mesh name="right_wrist_z" file="meshes/RightWristYawLink.obj"/>
+        <mesh name="right_wrist_x" file="meshes/RightWristRollLink.obj"/>
+        <mesh name="right_gripper" file="meshes/nub.obj"/>
+        <!-- EZGripper Gen2 meshes (Phase 1.1.3) -->
+        <mesh name="ezgripper_palm" file="meshes/SAKE_Palm_Dual_Gen2.stl"/>
+        <mesh name="ezgripper_finger_l1" file="meshes/SAKE_Finger_L1_Gen2.stl"/>
+        <mesh name="ezgripper_finger_l2" file="meshes/SAKE_Finger_L2_Gen2.stl"/>
+    </asset>
+
+    <worldbody>
+        <body name="base_link" pos="0.0 0.0 1.0" childclass="alex">
+            <!-- No inertial needed: base_link is fixed to world (no joint) -->
+            <geom mesh="pelvis" material="gray" class="alex/visual"/>
+            <geom name="base_collision" type="box" size="0.18 0.12 0.12"
+                  pos="-0.08 0 -0.03" class="alex/collision"/>
+
+            <body name="torso" pos="0.0 0 0.018">
+                <inertial
+                    pos="-0.014 0.001 0.326"
+                    mass="11.478322779"
+                    fullinertia="0.1764967124 0.1237602 0.1109598365 2.329659e-05 0.00830355822 0.00072436338"
+                />
+                <joint name="spine_z" class="alex/spine"/>
+                <geom mesh="torso" pos="0.0 0.0 0.105063" material="gray" class="alex/visual"/>
+                <geom name="torso_collision" type="box" size="0.15 0.12 0.20"
+                      pos="-0.01 0 0.25" class="alex/collision"/>
+
+                <!-- ==================== LEFT ARM ==================== -->
+                <body name="left_shoulder_y" pos="-0.015 0.115474 0.352984" euler="0.698132 0.0 0.0">
+                    <inertial
+                        pos="-0.00264 0.12135 -0.006824"
+                        mass="3.0331992"
+                        fullinertia="0.01114656 0.00699715 0.0099942 0.00024166 0.0001507 0.00308767"
+                    />
+                    <joint name="left_shoulder_y" class="alex/shoulder/y"/>
+                    <geom mesh="left_shoulder_y" material="gray" class="alex/visual"/>
+                    <geom name="left_shoulder_y_collision" type="capsule"
+                          size="0.045 0.06" pos="0 0.08 -0.01" class="alex/collision"/>
+
+                    <body name="left_shoulder_x" pos="0.0 0.15676000 -0.01300000" euler="-0.698132 0.0 0.0">
+                        <inertial
+                            pos="0.01053 0.02124 -0.1052690"
+                            mass="1.16160776"
+                            fullinertia="0.00786831 0.00727049 0.0018045 0.00016417 -0.00075696 0.00099239"
+                        />
+                        <joint name="left_shoulder_x" class="alex/shoulder/x/left"/>
+                        <geom mesh="left_shoulder_x" material="gray" class="alex/visual"/>
+                        <geom name="left_shoulder_x_collision" type="capsule"
+                              size="0.04 0.10" pos="0.01 0.02 -0.10"
+                              euler="0 0 0" class="alex/collision"/>
+
+                        <body name="left_shoulder_z" pos="0.0 0.035 0.0">
+                            <inertial
+                                pos="0.00510403 0.00274 -0.21745"
+                                mass="3.134"
+                                fullinertia="0.02661157 0.02633278 0.00308445 2.97e-06 0.00147256 0.00039997"
+                            />
+                            <joint name="left_shoulder_z" class="alex/shoulder/z/left"/>
+                            <geom mesh="left_shoulder_z" pos="0.0 0.0 0.0867" material="gray" class="alex/visual"/>
+                            <geom name="left_shoulder_z_collision" type="capsule"
+                                  size="0.035 0.14" pos="0.005 0 -0.15"
+                                  class="alex/collision"/>
+
+                            <body name="left_elbow_y" pos="0.015 0.0 -0.3127">
+                                <inertial
+                                    pos="-0.01180322 -0.0035763 -0.04946747"
+                                    mass="0.45"
+                                    fullinertia="0.0008940385 0.0002691585 0.0002478294 0.0004472422 0.0003653737 0.0001357858"
+                                />
+                                <joint name="left_elbow_y" class="alex/elbow"/>
+                                <geom mesh="left_elbow_y" material="gray" class="alex/visual"/>
+                                <geom name="left_elbow_y_collision" type="capsule"
+                                      size="0.03 0.04" pos="-0.01 0 -0.05"
+                                      class="alex/collision"/>
+
+                                <body name="left_wrist_z" pos="-0.015 0.0 0.0">
+                                    <inertial
+                                        pos="-0.00263832 -0.00050534 -0.13018376"
+                                        mass="1.547"
+                                        fullinertia="0.004662587 0.001803105 0.0002966306 0.002825398 0.001028921 0.0006324909"
+                                    />
+                                    <joint name="left_wrist_z" class="alex/wrist/z"/>
+                                    <geom mesh="left_wrist_z" material="gray" class="alex/visual"/>
+                                    <geom name="left_wrist_z_collision" type="capsule"
+                                          size="0.025 0.10" pos="0 0 -0.13"
+                                          class="alex/collision"/>
+
+                                    <body name="left_wrist_x" pos="0.0 -0.013 -0.25">
+                                        <inertial
+                                            pos="0.00004053 0.01038395 0.00035532"
+                                            mass="0.909"
+                                            fullinertia="0.0006553625 0.0001645745 0.0001827797 0.0003160572 0.000334132 0.0001635935"
+                                        />
+                                        <joint name="left_wrist_x" class="alex/wrist/x/left"/>
+                                        <geom mesh="left_wrist_x" material="gray" class="alex/visual"/>
+                                        <geom name="left_wrist_x_collision" type="capsule"
+                                              size="0.025 0.02" pos="0 0.01 0"
+                                              class="alex/collision"/>
+
+                                        <body name="left_gripper" pos="0.0 0.013 -0.031">
+                                            <inertial
+                                                pos="-0.000217 -0.000349 0.009761"
+                                                mass="0.251"
+                                                fullinertia="8.862382e-05 3.167086e-05 7.770774e-06 5.132406e-05 2.139744e-05 1.195988e-05"
+                                            />
+                                            <joint name="left_gripper_z" class="alex/gripper"/>
+                                            <geom name="left_gripper_collision" type="capsule"
+                                                  size="0.02 0.02" pos="0 0 0.01"
+                                                  class="alex/collision"/>
+                                            <site name="left_ee_site" pos="0 0 0.03"
+                                                  type="sphere" size="0.008" rgba="1 0 0 0.5" group="4"/>
+                                            <!-- Left wrist camera (Phase 1.2.4): attached to gripper body,
+                                                 looks along +Z (toward fingertips/workspace). -->
+                                            <camera name="left_wrist_cam" pos="0 0 0"
+                                                    xyaxes="1 0 0 0 -1 0" fovy="75"/>
+
+                                            <!-- EZGripper Gen2 (Phase 1.1.3) -->
+                                            <!-- Adapter transform from IHMC URDF (verified via FK symmetry — 0.0 cm error) -->
+                                            <body name="left_ezgripper_palm" pos="0 0 -0.02" euler="3.14159 1.5708 0">
+                                                <inertial pos="0.04 0 0" mass="0.3"
+                                                          diaginertia="0.0003 0.0005 0.0004"/>
+                                                <geom mesh="ezgripper_palm" material="gray"
+                                                      class="alex/ezgripper/visual"/>
+                                                <geom name="left_palm_collision" type="box"
+                                                      size="0.04 0.035 0.015" pos="0.04 0 0"
+                                                      class="alex/ezgripper/collision"/>
+                                                <site name="left_tool_frame" pos="0.073 0 0"
+                                                      type="sphere" size="0.005"
+                                                      rgba="1 1 0 0.5" group="4"/>
+
+                                                <!-- Finger 1 (primary, actuated) -->
+                                                <body name="left_finger1_l1" pos="0.073 0.03 0">
+                                                    <inertial pos="0.026 0 0" mass="0.025"
+                                                              diaginertia="5e-06 2e-05 2e-05"/>
+                                                    <joint name="left_knuckle_palm_l1_1"
+                                                           class="alex/ezgripper/knuckle"/>
+                                                    <geom mesh="ezgripper_finger_l1"
+                                                          class="alex/ezgripper/visual"/>
+                                                    <geom name="left_finger1_l1_col" type="box"
+                                                          size="0.026 0.012 0.008" pos="0.026 0 0"
+                                                          class="alex/ezgripper/collision"/>
+                                                    <body name="left_finger1_l2" pos="0.052 0 0">
+                                                        <inertial pos="0.02 0 0" mass="0.025"
+                                                                  diaginertia="4e-06 1.5e-05 1.5e-05"/>
+                                                        <joint name="left_knuckle_l1_l2_1"
+                                                               class="alex/ezgripper/knuckle"/>
+                                                        <geom mesh="ezgripper_finger_l2"
+                                                              class="alex/ezgripper/visual"/>
+                                                        <geom name="left_finger1_pad" type="box"
+                                                              size="0.025 0.015 0.008" pos="0.02 0 0"
+                                                              class="alex/ezgripper/collision"/>
+                                                    </body>
+                                                </body>
+
+                                                <!-- Finger 2 (coupled to finger 1) -->
+                                                <body name="left_finger2_l1" pos="0.073 -0.03 0">
+                                                    <inertial pos="0.026 0 0" mass="0.025"
+                                                              diaginertia="5e-06 2e-05 2e-05"/>
+                                                    <joint name="left_knuckle_palm_l1_2"
+                                                           class="alex/ezgripper/knuckle"/>
+                                                    <geom mesh="ezgripper_finger_l1"
+                                                          class="alex/ezgripper/visual"/>
+                                                    <geom name="left_finger2_l1_col" type="box"
+                                                          size="0.026 0.012 0.008" pos="0.026 0 0"
+                                                          class="alex/ezgripper/collision"/>
+                                                    <body name="left_finger2_l2" pos="0.052 0 0">
+                                                        <inertial pos="0.02 0 0" mass="0.025"
+                                                                  diaginertia="4e-06 1.5e-05 1.5e-05"/>
+                                                        <joint name="left_knuckle_l1_l2_2"
+                                                               class="alex/ezgripper/knuckle"/>
+                                                        <geom mesh="ezgripper_finger_l2"
+                                                              class="alex/ezgripper/visual"/>
+                                                        <geom name="left_finger2_pad" type="box"
+                                                              size="0.025 0.015 0.008" pos="0.02 0 0"
+                                                              class="alex/ezgripper/collision"/>
+                                                    </body>
+                                                </body>
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+
+                <!-- ==================== NECK / HEAD (fixed) ==================== -->
+                <body name="neck_z" pos="-0.015 0 0.450403">
+                    <inertial
+                        pos="0.00626571 0.0059834 0.15148116"
+                        mass="1.03172573"
+                        fullinertia="0.00611354 0.00602503 0.0009799 -5.224e-05 -0.00058532 -0.00028073"
+                    />
+                    <!-- neck_z joint REMOVED (fixed) -->
+                    <geom type="cylinder" size="0.05 0.05" material="gray" class="alex/visual"/>
+
+                    <body name="head" pos="0.025 0.01 0.189597">
+                        <inertial
+                            pos="0.0407664 -0.00396678 0.007163"
+                            mass="1.27065932"
+                            fullinertia="0.00424227 0.00501825 0.00451978 -8.839e-05 0.00054485 -0.00010863"
+                        />
+                        <!-- neck_y joint REMOVED (fixed) -->
+                        <geom mesh="head" material="gray" class="alex/visual"/>
+                        <geom name="head_collision" type="sphere" size="0.10"
+                              pos="0.04 0 0.01" class="alex/collision"/>
+                        <camera name="robot_cam" pos="0.08 0 0.0"
+                                xyaxes="0 -1 0 0 0 1" fovy="60"/>
+                    </body>
+                </body>
+
+                <!-- ==================== RIGHT ARM ==================== -->
+                <body name="right_shoulder_y" pos="-0.015 -0.115474 0.352984" euler="-0.698132 0.0 0.0">
+                    <inertial
+                        pos="-0.00264 -0.12135 -0.006824"
+                        mass="3.00752318"
+                        fullinertia="0.01107924 0.00695098 0.00991808 -0.00026479 -0.00015595 -0.00308767"
+                    />
+                    <joint name="right_shoulder_y" class="alex/shoulder/y"/>
+                    <geom mesh="right_shoulder_y" material="gray" class="alex/visual"/>
+                    <geom name="right_shoulder_y_collision" type="capsule"
+                          size="0.045 0.06" pos="0 -0.08 -0.01" class="alex/collision"/>
+
+                    <body name="right_shoulder_x" pos="0.0 -0.15676000 -0.01300000" euler="0.698132 0.0 0.0">
+                        <inertial
+                            pos="0.01053 -0.02124 -0.1052690"
+                            mass="1.1615873"
+                            fullinertia="0.00786905 0.00727111 0.00180465 -0.00016408 -0.00075601 -0.00099114"
+                        />
+                        <joint name="right_shoulder_x" class="alex/shoulder/x/right"/>
+                        <geom mesh="right_shoulder_x" material="gray" class="alex/visual"/>
+                        <geom name="right_shoulder_x_collision" type="capsule"
+                              size="0.04 0.10" pos="0.01 -0.02 -0.10"
+                              euler="0 0 0" class="alex/collision"/>
+
+                        <body name="right_shoulder_z" pos="0.0 -0.035 0.0">
+                            <inertial
+                                pos="0.00524 -0.00274 -0.21745"
+                                mass="3.10111287"
+                                fullinertia="0.0262817 0.02606342 0.00304834 9.96e-06 0.0015423 -0.0004047"
+                            />
+                            <joint name="right_shoulder_z" class="alex/shoulder/z/right"/>
+                            <geom mesh="right_shoulder_z" pos="0.0 0.0 0.0867" material="gray" class="alex/visual"/>
+                            <geom name="right_shoulder_z_collision" type="capsule"
+                                  size="0.035 0.14" pos="0.005 0 -0.15"
+                                  class="alex/collision"/>
+
+                            <body name="right_elbow_y" pos="0.015 0.0 -0.3127">
+                                <inertial
+                                    pos="-0.0127 0.006913 -0.048421"
+                                    mass="0.45"
+                                    fullinertia="0.000797035 0.000249832 8.302455e-05 0.0004331871 0.000237797 0.0001310638"
+                                />
+                                <joint name="right_elbow_y" class="alex/elbow"/>
+                                <geom mesh="right_elbow_y" material="gray" class="alex/visual"/>
+                                <geom name="right_elbow_y_collision" type="capsule"
+                                      size="0.03 0.04" pos="-0.01 0 -0.05"
+                                      class="alex/collision"/>
+
+                                <body name="right_wrist_z" pos="-0.015 0.0 0.0">
+                                    <inertial
+                                        pos="-0.002616 0.000462 -0.13019"
+                                        mass="1.547"
+                                        fullinertia="0.004654974 0.001787149 0.0003324517 0.002807599 0.001054646 0.0006365047"
+                                    />
+                                    <joint name="right_wrist_z" class="alex/wrist/z"/>
+                                    <geom mesh="right_wrist_z" material="gray" class="alex/visual"/>
+                                    <geom name="right_wrist_z_collision" type="capsule"
+                                          size="0.025 0.10" pos="0 0 -0.13"
+                                          class="alex/collision"/>
+
+                                    <body name="right_wrist_x" pos="0.0 0.013 -0.25">
+                                        <inertial
+                                            pos="-0.0000481 -0.012143 0.000196"
+                                            mass="0.909"
+                                            fullinertia="0.0007546014 0.0001959656 0.0002152029 0.0003615291 0.0003818481 0.0001774088"
+                                        />
+                                        <joint name="right_wrist_x" class="alex/wrist/x/right"/>
+                                        <geom mesh="right_wrist_x" material="gray" class="alex/visual"/>
+                                        <geom name="right_wrist_x_collision" type="capsule"
+                                              size="0.025 0.02" pos="0 -0.01 0"
+                                              class="alex/collision"/>
+
+                                        <body name="right_gripper" pos="0.0 -0.013 -0.031">
+                                            <inertial
+                                                pos="-0.000217 -0.000349 0.009761"
+                                                mass="0.251"
+                                                fullinertia="8.862382e-05 3.167086e-05 7.770774e-06 5.132406e-05 2.139744e-05 1.195988e-05"
+                                            />
+                                            <joint name="right_gripper_z" class="alex/gripper"/>
+                                            <geom name="right_gripper_collision" type="capsule"
+                                                  size="0.02 0.02" pos="0 0 0.01"
+                                                  class="alex/collision"/>
+                                            <site name="right_ee_site" pos="0 0 0.03"
+                                                  type="sphere" size="0.008" rgba="0 0 1 0.5" group="4"/>
+                                            <!-- Right wrist camera (Phase 1.2.4): attached to gripper body,
+                                                 looks along +Z (toward fingertips/workspace). -->
+                                            <camera name="right_wrist_cam" pos="0 0 0"
+                                                    xyaxes="1 0 0 0 -1 0" fovy="75"/>
+
+                                            <!-- EZGripper Gen2 (Phase 1.1.3) -->
+                                            <body name="right_ezgripper_palm" pos="0 0 -0.02" euler="3.14159 1.5708 0">
+                                                <inertial pos="0.04 0 0" mass="0.3"
+                                                          diaginertia="0.0003 0.0005 0.0004"/>
+                                                <geom mesh="ezgripper_palm" material="gray"
+                                                      class="alex/ezgripper/visual"/>
+                                                <geom name="right_palm_collision" type="box"
+                                                      size="0.04 0.035 0.015" pos="0.04 0 0"
+                                                      class="alex/ezgripper/collision"/>
+                                                <site name="right_tool_frame" pos="0.073 0 0"
+                                                      type="sphere" size="0.005"
+                                                      rgba="1 1 0 0.5" group="4"/>
+
+                                                <!-- Finger 1 (primary, actuated) -->
+                                                <body name="right_finger1_l1" pos="0.073 0.03 0">
+                                                    <inertial pos="0.026 0 0" mass="0.025"
+                                                              diaginertia="5e-06 2e-05 2e-05"/>
+                                                    <joint name="right_knuckle_palm_l1_1"
+                                                           class="alex/ezgripper/knuckle"/>
+                                                    <geom mesh="ezgripper_finger_l1"
+                                                          class="alex/ezgripper/visual"/>
+                                                    <geom name="right_finger1_l1_col" type="box"
+                                                          size="0.026 0.012 0.008" pos="0.026 0 0"
+                                                          class="alex/ezgripper/collision"/>
+                                                    <body name="right_finger1_l2" pos="0.052 0 0">
+                                                        <inertial pos="0.02 0 0" mass="0.025"
+                                                                  diaginertia="4e-06 1.5e-05 1.5e-05"/>
+                                                        <joint name="right_knuckle_l1_l2_1"
+                                                               class="alex/ezgripper/knuckle"/>
+                                                        <geom mesh="ezgripper_finger_l2"
+                                                              class="alex/ezgripper/visual"/>
+                                                        <geom name="right_finger1_pad" type="box"
+                                                              size="0.025 0.015 0.008" pos="0.02 0 0"
+                                                              class="alex/ezgripper/collision"/>
+                                                    </body>
+                                                </body>
+
+                                                <!-- Finger 2 (coupled to finger 1) -->
+                                                <body name="right_finger2_l1" pos="0.073 -0.03 0">
+                                                    <inertial pos="0.026 0 0" mass="0.025"
+                                                              diaginertia="5e-06 2e-05 2e-05"/>
+                                                    <joint name="right_knuckle_palm_l1_2"
+                                                           class="alex/ezgripper/knuckle"/>
+                                                    <geom mesh="ezgripper_finger_l1"
+                                                          class="alex/ezgripper/visual"/>
+                                                    <geom name="right_finger2_l1_col" type="box"
+                                                          size="0.026 0.012 0.008" pos="0.026 0 0"
+                                                          class="alex/ezgripper/collision"/>
+                                                    <body name="right_finger2_l2" pos="0.052 0 0">
+                                                        <inertial pos="0.02 0 0" mass="0.025"
+                                                                  diaginertia="4e-06 1.5e-05 1.5e-05"/>
+                                                        <joint name="right_knuckle_l1_l2_2"
+                                                               class="alex/ezgripper/knuckle"/>
+                                                        <geom mesh="ezgripper_finger_l2"
+                                                              class="alex/ezgripper/visual"/>
+                                                        <geom name="right_finger2_pad" type="box"
+                                                              size="0.025 0.015 0.008" pos="0.02 0 0"
+                                                              class="alex/ezgripper/collision"/>
+                                                    </body>
+                                                </body>
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <position class="alex/spine" name="spine_z" joint="spine_z"/>
+        <position class="alex/shoulder/y" name="left_shoulder_y" joint="left_shoulder_y"/>
+        <position class="alex/shoulder/x" name="left_shoulder_x" joint="left_shoulder_x"/>
+        <position class="alex/shoulder/z" name="left_shoulder_z" joint="left_shoulder_z"/>
+        <position class="alex/elbow" name="left_elbow" joint="left_elbow_y"/>
+        <position class="alex/wrist" name="left_wrist_z" joint="left_wrist_z"/>
+        <position class="alex/wrist" name="left_wrist_x" joint="left_wrist_x"/>
+        <position class="alex/gripper" name="left_gripper_z" joint="left_gripper_z"/>
+        <position class="alex/shoulder/y" name="right_shoulder_y" joint="right_shoulder_y"/>
+        <position class="alex/shoulder/x" name="right_shoulder_x" joint="right_shoulder_x"/>
+        <position class="alex/shoulder/z" name="right_shoulder_z" joint="right_shoulder_z"/>
+        <position class="alex/elbow" name="right_elbow" joint="right_elbow_y"/>
+        <position class="alex/wrist" name="right_wrist_z" joint="right_wrist_z"/>
+        <position class="alex/wrist" name="right_wrist_x" joint="right_wrist_x"/>
+        <position class="alex/gripper" name="right_gripper_z" joint="right_gripper_z"/>
+        <!-- EZGripper actuators: one per hand (Phase 1.1.3) -->
+        <position class="alex/ezgripper/knuckle" name="left_ezgripper"
+                  joint="left_knuckle_palm_l1_1"/>
+        <position class="alex/ezgripper/knuckle" name="right_ezgripper"
+                  joint="right_knuckle_palm_l1_1"/>
+    </actuator>
+
+    <sensor>
+        <framepos name="left_ee_pos" objtype="site" objname="left_ee_site"/>
+        <framequat name="left_ee_quat" objtype="site" objname="left_ee_site"/>
+        <framepos name="right_ee_pos" objtype="site" objname="right_ee_site"/>
+        <framequat name="right_ee_quat" objtype="site" objname="right_ee_site"/>
+        <!-- EZGripper tool frame sensors (Phase 1.1.3) -->
+        <framepos name="left_tool_pos" objtype="site" objname="left_tool_frame"/>
+        <framequat name="left_tool_quat" objtype="site" objname="left_tool_frame"/>
+        <framepos name="right_tool_pos" objtype="site" objname="right_tool_frame"/>
+        <framequat name="right_tool_quat" objtype="site" objname="right_tool_frame"/>
+    </sensor>
+
+    <contact>
+        <!-- Exclude adjacent body pairs (geometrically overlapping) -->
+        <exclude body1="base_link" body2="torso"/>
+        <exclude body1="torso" body2="left_shoulder_y"/>
+        <exclude body1="torso" body2="right_shoulder_y"/>
+        <exclude body1="torso" body2="neck_z"/>
+        <exclude body1="neck_z" body2="head"/>
+        <!-- Left arm chain: adjacent pairs -->
+        <exclude body1="left_shoulder_y" body2="left_shoulder_x"/>
+        <exclude body1="left_shoulder_x" body2="left_shoulder_z"/>
+        <exclude body1="left_shoulder_z" body2="left_elbow_y"/>
+        <exclude body1="left_elbow_y" body2="left_wrist_z"/>
+        <exclude body1="left_wrist_z" body2="left_wrist_x"/>
+        <exclude body1="left_wrist_x" body2="left_gripper"/>
+        <!-- Left arm chain: 2-link-apart pairs (geometrically close) -->
+        <exclude body1="left_shoulder_y" body2="left_shoulder_z"/>
+        <exclude body1="left_shoulder_z" body2="left_wrist_z"/>
+        <exclude body1="left_elbow_y" body2="left_wrist_x"/>
+        <exclude body1="left_wrist_z" body2="left_gripper"/>
+        <!-- Right arm chain: adjacent pairs -->
+        <exclude body1="right_shoulder_y" body2="right_shoulder_x"/>
+        <exclude body1="right_shoulder_x" body2="right_shoulder_z"/>
+        <exclude body1="right_shoulder_z" body2="right_elbow_y"/>
+        <exclude body1="right_elbow_y" body2="right_wrist_z"/>
+        <exclude body1="right_wrist_z" body2="right_wrist_x"/>
+        <exclude body1="right_wrist_x" body2="right_gripper"/>
+        <!-- Right arm chain: 2-link-apart pairs (geometrically close) -->
+        <exclude body1="right_shoulder_y" body2="right_shoulder_z"/>
+        <exclude body1="right_shoulder_z" body2="right_wrist_z"/>
+        <exclude body1="right_elbow_y" body2="right_wrist_x"/>
+        <exclude body1="right_wrist_z" body2="right_gripper"/>
+        <!-- Left EZGripper self-collision exclusions (Phase 1.1.3) -->
+        <exclude body1="left_gripper" body2="left_ezgripper_palm"/>
+        <exclude body1="left_ezgripper_palm" body2="left_finger1_l1"/>
+        <exclude body1="left_ezgripper_palm" body2="left_finger2_l1"/>
+        <exclude body1="left_finger1_l1" body2="left_finger1_l2"/>
+        <exclude body1="left_finger2_l1" body2="left_finger2_l2"/>
+        <exclude body1="left_finger1_l1" body2="left_finger2_l1"/>
+        <!-- Right EZGripper self-collision exclusions -->
+        <exclude body1="right_gripper" body2="right_ezgripper_palm"/>
+        <exclude body1="right_ezgripper_palm" body2="right_finger1_l1"/>
+        <exclude body1="right_ezgripper_palm" body2="right_finger2_l1"/>
+        <exclude body1="right_finger1_l1" body2="right_finger1_l2"/>
+        <exclude body1="right_finger2_l1" body2="right_finger2_l2"/>
+        <exclude body1="right_finger1_l1" body2="right_finger2_l1"/>
+    </contact>
+
+    <!-- EZGripper underactuation coupling (Phase 1.1.3) -->
+    <!-- All 4 finger joints per hand driven by single actuator via 1:1 equality -->
+    <equality>
+        <!-- Left: finger2 mimics finger1, L2 joints coupled to palm-L1 -->
+        <joint joint1="left_knuckle_palm_l1_2" joint2="left_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+        <joint joint1="left_knuckle_l1_l2_1" joint2="left_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+        <joint joint1="left_knuckle_l1_l2_2" joint2="left_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+        <!-- Right: same coupling -->
+        <joint joint1="right_knuckle_palm_l1_2" joint2="right_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+        <joint joint1="right_knuckle_l1_l2_1" joint2="right_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+        <joint joint1="right_knuckle_l1_l2_2" joint2="right_knuckle_palm_l1_1"
+               polycoef="0 1 0 0 0"/>
+    </equality>
+
+</mujoco>

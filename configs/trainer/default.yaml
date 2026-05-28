@@ -1,0 +1,69 @@
+# Trainer Configuration: Default
+# Standard training settings
+
+name: default
+
+# ============================================================================
+# Optimization
+# ============================================================================
+optimizer:
+  name: "adamw"
+  lr: 1e-4
+  weight_decay: 0.01
+  betas: [0.9, 0.95]
+  eps: 1e-8
+
+# Learning rate schedule
+scheduler:
+  name: "cosine"
+  warmup_steps: 1000
+  min_lr_ratio: 0.1  # min_lr = lr * min_lr_ratio
+
+# Gradient settings
+gradient:
+  max_norm: 1.0  # Gradient clipping
+  accumulation_steps: 1
+
+# ============================================================================
+# Training Loop
+# ============================================================================
+training:
+  max_steps: 100000
+  # Alternative: max_epochs: 10
+
+  # Batch sizes
+  batch_size_per_device: 8
+  # Effective batch = batch_size_per_device * num_gpus * accumulation_steps
+
+  # Precision
+  precision: "bf16"  # bf16, fp16, fp32
+
+  # Compilation (PyTorch 2.0+)
+  compile: false  # torch.compile() - faster but longer startup
+
+# ============================================================================
+# Checkpointing
+# ============================================================================
+checkpoint:
+  save_every_n_steps: 5000
+  keep_last_n: 3
+  save_optimizer: true
+
+  # Resume from checkpoint
+  resume_from: null  # Path to checkpoint, or "latest"
+
+# ============================================================================
+# Validation
+# ============================================================================
+validation:
+  every_n_steps: 1000
+  num_samples: 500  # How many validation samples
+
+# ============================================================================
+# Logging
+# ============================================================================
+logging:
+  log_every_n_steps: 100
+  log_grad_norm: true
+  log_param_norm: false
+  log_memory: true

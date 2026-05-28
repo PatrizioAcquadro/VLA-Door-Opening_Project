@@ -1,0 +1,41 @@
+# Model Configuration: Base
+# Small model for debugging and smoke tests
+
+name: base
+
+architecture:
+  type: "transformer"
+
+  # Embedding dimensions
+  hidden_size: 512
+  intermediate_size: 2048  # FFN hidden dim (typically 4x hidden)
+
+  # Attention
+  num_attention_heads: 8
+  num_layers: 6
+
+  # Sequence
+  max_seq_length: 1024
+
+  # Regularization
+  hidden_dropout: 0.1
+  attention_dropout: 0.1
+
+  # Activation
+  activation: "gelu"
+
+  # Normalization
+  layer_norm_eps: 1e-6
+  use_pre_norm: true  # Pre-LN (more stable) vs Post-LN
+
+# For flow matching component (if applicable)
+flow_matching:
+  enabled: false
+  timesteps: 1000
+  sigma_min: 0.001
+  sigma_max: 80.0
+
+# Estimated memory footprint (for planning)
+_estimated_params_millions: 25
+_estimated_memory_gb_fp32: 0.1
+_estimated_memory_gb_fp16: 0.05

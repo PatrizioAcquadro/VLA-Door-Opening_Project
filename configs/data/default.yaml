@@ -1,0 +1,52 @@
+# Data Configuration: Default
+
+name: default
+
+# ============================================================================
+# Dataset Settings
+# ============================================================================
+dataset:
+  name: "dummy"  # Default to dummy for local dev; use "simulation" for real data
+  path: ${paths.data}/processed
+
+  # Dummy dataset configuration (used when name="dummy")
+  dummy:
+    train_samples: 10000
+    val_samples: 500
+    state_dim: 256
+
+  # Split ratios (if creating splits)
+  train_split: 0.95
+  val_split: 0.05
+
+  # Sequence settings
+  max_length: ${model.architecture.max_seq_length}
+
+  # Preprocessing
+  preprocessing:
+    normalize: true
+    augment: false
+
+# ============================================================================
+# DataLoader Settings
+# ============================================================================
+dataloader:
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  persistent_workers: true
+
+  # Shuffling
+  shuffle_train: true
+  shuffle_val: false
+
+  # Drop last incomplete batch (important for distributed)
+  drop_last: true
+
+# ============================================================================
+# Caching
+# ============================================================================
+cache:
+  enabled: true
+  path: ${paths.data}/cache
+  max_cache_size_gb: 50

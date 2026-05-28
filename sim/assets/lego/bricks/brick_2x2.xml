@@ -1,0 +1,48 @@
+<mujoco model="brick_2x2">
+    <compiler inertiafromgeom="auto" angle="radian" />
+    <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast" cone="pyramidal" solver="Newton" iterations="80" ls_iterations="10" />
+    <default>
+        <default class="lego/stud">
+            <geom contype="6" conaffinity="7" solref="0.003 1.0" solimp="0.97 0.995 0.001 0.5 4" friction="0.65 0.005 0.005" condim="4" />
+        </default>
+        <default class="lego/tube">
+            <geom contype="4" conaffinity="4" solref="0.003 1.0" solimp="0.97 0.995 0.001 0.5 4" friction="0.65 0.005 0.005" condim="4" />
+        </default>
+        <default class="lego/brick_surface">
+            <geom contype="2" conaffinity="3" solref="0.005 1.0" solimp="0.9 0.95 0.001 0.5 2" friction="0.4 0.005 0.002" condim="3" />
+        </default>
+        <default class="lego/baseplate">
+            <geom contype="2" conaffinity="3" solref="0.005 1.0" solimp="0.9 0.95 0.001 0.5 2" friction="0.6 0.01 0.005" condim="3" />
+        </default>
+    </default>
+    <worldbody>
+        <light diffuse="0.8 0.8 0.8" pos="0 0 1" dir="0 0 -1" />
+        <geom name="floor" type="plane" size="1 1 0.1" rgba="0.9 0.9 0.9 1" contype="1" conaffinity="1" />
+        <body name="brick_2x2" pos="0 0 0.05">
+            <freejoint name="brick_2x2_joint" />
+            <inertial pos="0 0 0.0048" mass="0.001057" diaginertia="0.0000000301 0.0000000301 0.000000044" />
+            <geom class="lego/brick_surface" name="brick_2x2_shell_top" type="box" size="0.0079 0.0079 0.0005" pos="0 0 0.0091" group="3" />
+            <geom class="lego/brick_surface" name="brick_2x2_shell_lx" type="box" size="0.0006 0.0079 0.0048" pos="-0.0073 0 0.0048" group="3" />
+            <geom class="lego/brick_surface" name="brick_2x2_shell_rx" type="box" size="0.0006 0.0079 0.0048" pos="0.0073 0 0.0048" group="3" />
+            <geom class="lego/brick_surface" name="brick_2x2_shell_fy" type="box" size="0.0067 0.0006 0.0048" pos="0 0.0073 0.0048" group="3" />
+            <geom class="lego/brick_surface" name="brick_2x2_shell_by" type="box" size="0.0067 0.0006 0.0048" pos="0 -0.0073 0.0048" group="3" />
+            <geom name="brick_2x2_shell_vis" type="box" size="0.0079 0.0079 0.0048" pos="0 0 0.0048" group="0" contype="0" conaffinity="0" rgba="0.78 0.09 0.09 1" />
+            <geom class="lego/stud" name="brick_2x2_stud_0_0" type="cylinder" size="0.00235 0.00085" pos="-0.004 -0.004 0.01045" group="3" />
+            <geom name="brick_2x2_stud_0_0_vis" type="cylinder" size="0.0024 0.00085" pos="-0.004 -0.004 0.01045" group="0" contype="0" conaffinity="0" rgba="0.78 0.09 0.09 1" />
+            <geom class="lego/stud" name="brick_2x2_stud_0_1" type="cylinder" size="0.00235 0.00085" pos="-0.004 0.004 0.01045" group="3" />
+            <geom name="brick_2x2_stud_0_1_vis" type="cylinder" size="0.0024 0.00085" pos="-0.004 0.004 0.01045" group="0" contype="0" conaffinity="0" rgba="0.78 0.09 0.09 1" />
+            <geom class="lego/stud" name="brick_2x2_stud_1_0" type="cylinder" size="0.00235 0.00085" pos="0.004 -0.004 0.01045" group="3" />
+            <geom name="brick_2x2_stud_1_0_vis" type="cylinder" size="0.0024 0.00085" pos="0.004 -0.004 0.01045" group="0" contype="0" conaffinity="0" rgba="0.78 0.09 0.09 1" />
+            <geom class="lego/stud" name="brick_2x2_stud_1_1" type="cylinder" size="0.00235 0.00085" pos="0.004 0.004 0.01045" group="3" />
+            <geom name="brick_2x2_stud_1_1_vis" type="cylinder" size="0.0024 0.00085" pos="0.004 0.004 0.01045" group="0" contype="0" conaffinity="0" rgba="0.78 0.09 0.09 1" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c0" type="capsule" size="0.00055" fromto="0.003 0 0 0.003 0 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c1" type="capsule" size="0.00055" fromto="0.002121 0.002121 0 0.002121 0.002121 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c2" type="capsule" size="0.00055" fromto="0 0.003 0 0 0.003 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c3" type="capsule" size="0.00055" fromto="-0.002121 0.002121 0 -0.002121 0.002121 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c4" type="capsule" size="0.00055" fromto="-0.003 0 0 -0.003 0 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c5" type="capsule" size="0.00055" fromto="-0.002121 -0.002121 0 -0.002121 -0.002121 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c6" type="capsule" size="0.00055" fromto="-0 -0.003 0 -0 -0.003 0.0017" group="3" />
+            <geom class="lego/tube" name="brick_2x2_tube_0_c7" type="capsule" size="0.00055" fromto="0.002121 -0.002121 0 0.002121 -0.002121 0.0017" group="3" />
+        </body>
+    </worldbody>
+</mujoco>

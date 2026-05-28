@@ -1,0 +1,56 @@
+# Action Head Configuration (Phase 3.2)
+#
+# Defines parameters for the flow matching action head that attaches to the
+# Phase 3.1 VLM backbone. This config is composed into vla.yaml (Phase 3.2.4).
+#
+# Frozen contract values (chunk_size, action_dim, state_dim) must match
+# the constants in models/action_head.py.
+
+action_head:
+  # --- Chunk contract (frozen) -----------------------------------------------
+  chunk_size: 16                # 0.8 s at 20 Hz control rate
+  action_dim: 17                # frozen 17-D action space (Phase 1.1.5)
+  state_dim: 52                 # frozen 52-D robot state (Phase 1.1.6)
+  tokens_per_action_step: 1     # 1 token per action step in sequence
+
+  # --- Projector architecture ------------------------------------------------
+  projector:
+    hidden_dim: null            # defaults to backbone.hidden_size at runtime
+    n_layers: 2                 # MLP depth for state/action projectors
+    activation: "silu"          # EO-1 uses SiLU in time fusion MLP
+    dropout: 0.0
+
+  timestep_embed_dim: 256       # sinusoidal timestep embedding dimension
+
+  # --- Flow matching ---------------------------------------------------------
+  flow_matching:
+    n_denoising_steps: 10       # K for inference ODE integration
+    solver: "euler"             # euler | midpoint | rk4
+    sigma_min: 0.001            # minimum noise scale
+
+    # Time sampling (training): Beta(alpha, beta) scaled to [time_min, time_max]
+    # Following EO-1: Beta(1.5, 1.0) biases toward noisier timesteps
+    time_sampling: "beta"
+    time_alpha: 1.5
+    time_beta: 1.0
+    time_min: 0.001
+    time_max: 0.999
+
+  # --- Loss weights ----------------------------------------------------------
+  loss:
+    lambda_text: 1.0            # AR text loss weight (Transfusion dual loss)
+    lambda_action: 1.0          # FM action loss weight
+    balancing_strategy: "fixed"  # fixed | normalized | uncertainty
+    ema_decay: 0.999            # for "normalized" strategy
+    text:
+      ignore_index: -100
+      label_smoothing: 0.0
+    action:
+      reduction: "mean"         # mean over valid positions and dimensions
+
+  # --- Inference -------------------------------------------------------------
+  inference:
+    execute_steps: 8            # execute first N of 16 predicted steps before re-predicting
+
+  # --- Numerical stability ---------------------------------------------------
+  float32_head: true            # keep action head in float32 (EO-1 pattern)

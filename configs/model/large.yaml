@@ -1,0 +1,41 @@
+# Model Configuration: Large
+# Full-scale model for actual training
+
+name: large
+
+architecture:
+  type: "transformer"
+
+  # Embedding dimensions
+  hidden_size: 2048
+  intermediate_size: 8192
+
+  # Attention
+  num_attention_heads: 32
+  num_layers: 24
+
+  # Sequence
+  max_seq_length: 2048
+
+  # Regularization
+  hidden_dropout: 0.0  # Often disabled for large models
+  attention_dropout: 0.0
+
+  # Activation
+  activation: "swiglu"  # SwiGLU for better performance
+
+  # Normalization
+  layer_norm_eps: 1e-6
+  use_pre_norm: true
+
+# For flow matching component
+flow_matching:
+  enabled: true
+  timesteps: 1000
+  sigma_min: 0.001
+  sigma_max: 80.0
+
+# Estimated memory footprint
+_estimated_params_millions: 1200
+_estimated_memory_gb_fp32: 4.8
+_estimated_memory_gb_fp16: 2.4

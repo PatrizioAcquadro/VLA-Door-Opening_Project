@@ -1,0 +1,117 @@
+# Cluster Configuration: Gilbreth (Purdue)
+# Hardware-specific settings for optimal performance on Purdue's Gilbreth HPC
+
+name: gilbreth
+
+# ============================================================================
+# Hardware
+# ============================================================================
+hardware:
+  accelerator: "gpu"
+  gpu_type: "a100_80gb"
+  gpus_per_node: 2
+
+  # Memory
+  gpu_memory_gb: 80
+  cpu_memory_gb: 512
+
+  # Interconnect
+  interconnect: "infiniband"  # 100 Gbps for cross-node
+
+# ============================================================================
+# Distributed Training
+# ============================================================================
+distributed:
+  backend: "nccl"
+
+  # DeepSpeed ZeRO configuration
+  deepspeed:
+    enabled: true
+    stage: 1  # ZeRO-1 (optimizer state partitioning)
+
+    # ZeRO-1 specific
+    reduce_bucket_size: 500000000  # 500M parameters per bucket
+    allgather_bucket_size: 500000000
+
+    # Communication optimization
+    overlap_comm: true
+    contiguous_gradients: true
+
+# ============================================================================
+# NCCL Settings
+# ============================================================================
+# IMPORTANT: Interface names vary by node on Gilbreth (ibp65s0, ibp161s0, etc.)
+# NEVER hardcode socket_ifname - let NCCL auto-detect!
+
+nccl:
+  debug: "INFO"  # Set to "WARN" in production
+
+  # Single-node settings (for 1-2 GPU tests on same node)
+  # Use these when running tests 01-03 (single node)
+  single_node:
+    ib_disable: 1       # Disable InfiniBand for intra-node
+    net_disable: 1      # Disable network transport
+    p2p_level: "NVL"    # Use NVLink/P2P for GPU-to-GPU
+    shm_disable: 0      # Enable shared memory fallback
+
+  # Multi-node settings (for cross-node training)
+  # Use these when running test 04+ (multiple nodes)
+  multi_node:
+    ib_disable: 0       # Enable InfiniBand for cross-node
+    # socket_ifname: NOT SET - NCCL auto-detects (CRITICAL!)
+    p2p_level: "NVL"    # NVLink for intra-node GPU-to-GPU
+    shm_disable: 0      # Enable shared memory
+    timeout_minutes: 10
+
+  # Common timeout (increase for very large models)
+  timeout_minutes: 30
+
+# ============================================================================
+# SLURM Settings
+# ============================================================================
+slurm:
+  account: "euge"  # Your allocation account
+  partition: "a100-80gb"
+  qos: "normal"  # or "standby" for testing/low-priority
+
+  # Default resource requests
+  nodes: 1
+  gpus_per_node: 2
+  cpus_per_task: 16
+  mem_gb: 200
+  time_limit: "24:00:00"
+
+# ============================================================================
+# Paths (environment-variable driven)
+# ============================================================================
+# Use VLA_SCRATCH_ROOT environment variable, with fallback to default
+paths:
+  scratch: "${oc.env:VLA_SCRATCH_ROOT,/scratch/gilbreth/${oc.env:USER}/vla-door-opening}"
+
+  # All large artifacts go to scratch
+  checkpoints: "${paths.scratch}/checkpoints"
+  logs: "${paths.scratch}/logs"
+  cache: "${paths.scratch}/cache"
+  wandb: "${paths.scratch}/wandb"
+  datasets: "${paths.scratch}/datasets"
+  renders: "${paths.scratch}/renders"
+  runs: "${paths.scratch}/runs"
+
+# ============================================================================
+# Environment Modules (load order matters!)
+# ============================================================================
+modules:
+  - "external"           # Must load first
+  - "cuda/12.1.1"
+  - "anaconda/2024.10-py312"
+
+# ============================================================================
+# Launcher Configuration
+# ============================================================================
+launcher:
+  # Multi-node training on Gilbreth requires srun + torchrun
+  # DeepSpeed's pdsh launcher does NOT work (no SSH between nodes)
+  multi_node_method: "srun_torchrun"
+
+  # Single-node can use standard launchers
+  single_node_method: "torchrun_standalone"

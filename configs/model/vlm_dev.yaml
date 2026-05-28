@@ -1,0 +1,30 @@
+# Model Configuration: VLM Dev (Qwen3.5-4B)
+# Dev config for RTX 4090 24GB (lab PC)
+
+name: vlm_dev
+
+architecture:
+  type: "vlm"                          # routes get_model() to VLM path
+
+vlm:
+  model_id: "Qwen/Qwen3.5-4B"
+  revision: null                       # pin after initial validation
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+  trust_remote_code: true
+  attn_implementation: "sdpa"          # no FlashAttention-2 dependency on lab PC
+  max_seq_length: 4096                 # shorter context for 24 GB headroom
+  cache_dir: "${oc.env:HF_HOME,${paths.root}/cache/huggingface}"
+
+  processor:
+    image_resolution: 320              # frozen camera contract (4 views, 320x320)
+    padding: "longest"
+    truncation: true
+
+  freeze:
+    backbone: true                     # frozen by default; Phase 3.3 controls unfreezing
+    vision_encoder: true
+
+# Estimated memory footprint (for planning)
+_estimated_params_billions: 4.0
+_estimated_memory_gb_bf16: 8.0

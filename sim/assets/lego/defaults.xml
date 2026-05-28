@@ -1,0 +1,38 @@
+<!-- LEGO contact material defaults (Phase 1.2.2)
+     Tuned from press-fit spec (docs/press-fit-spec.md, Section 4).
+     Contact isolation tuned in Phase 1.2.2 for correct stud-tube interaction.
+     Include in any scene that uses LEGO bricks:
+         <include file="../lego/defaults.xml"/>
+-->
+<mujoco>
+    <default>
+        <default class="lego/stud">
+            <geom contype="6" conaffinity="7"
+                  solref="0.003 1.0"
+                  solimp="0.97 0.995 0.001 0.5 4"
+                  friction="0.65 0.005 0.005"
+                  condim="4"/>
+        </default>
+        <default class="lego/tube">
+            <geom contype="4" conaffinity="4"
+                  solref="0.003 1.0"
+                  solimp="0.97 0.995 0.001 0.5 4"
+                  friction="0.65 0.005 0.005"
+                  condim="4"/>
+        </default>
+        <default class="lego/brick_surface">
+            <geom contype="2" conaffinity="3"
+                  solref="0.005 1.0"
+                  solimp="0.9 0.95 0.001 0.5 2"
+                  friction="0.4 0.005 0.002"
+                  condim="3"/>
+        </default>
+        <default class="lego/baseplate">
+            <geom contype="2" conaffinity="3"
+                  solref="0.005 1.0"
+                  solimp="0.9 0.95 0.001 0.5 2"
+                  friction="0.6 0.01 0.005"
+                  condim="3"/>
+        </default>
+    </default>
+</mujoco>

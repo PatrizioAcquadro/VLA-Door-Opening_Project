@@ -1,0 +1,79 @@
+# Model Configuration: VLA (Qwen3.5-4B + Action Head)
+# Production config for A100 80GB
+# Composes VLM backbone settings with action head configuration.
+
+name: vla
+
+architecture:
+  type: "vla"                          # routes get_model() to VLA path
+
+# --- VLM backbone (same as vlm.yaml) ------------------------------------------
+vlm:
+  model_id: "Qwen/Qwen3.5-4B"
+  revision: null                       # pin after initial validation
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+  trust_remote_code: true
+  attn_implementation: "flash_attention_2"
+  max_seq_length: 8192
+  cache_dir: "${oc.env:HF_HOME,${paths.root}/cache/huggingface}"
+
+  processor:
+    image_resolution: 320              # frozen camera contract (4 views, 320x320)
+    padding: "longest"
+    truncation: true
+
+  freeze:
+    backbone: true                     # frozen by default; Phase 3.3 controls unfreezing
+    vision_encoder: true
+
+# --- Action head ---------------------------------------------------------------
+action_head:
+  # Chunk contract (frozen — must match models/action_head.py constants)
+  chunk_size: 16                       # 0.8 s at 20 Hz control rate
+  action_dim: 17                       # frozen 17-D action space (Phase 1.1.5)
+  state_dim: 52                        # frozen 52-D robot state (Phase 1.1.6)
+  tokens_per_action_step: 1            # 1 token per action step in sequence
+
+  # Projector architecture
+  projector:
+    hidden_dim: null                   # defaults to backbone.hidden_size (2560) at runtime
+    n_layers: 2
+    activation: "silu"
+    dropout: 0.0
+
+  timestep_embed_dim: 256              # sinusoidal timestep embedding dimension
+
+  # Flow matching
+  flow_matching:
+    n_denoising_steps: 10              # K for inference ODE integration
+    solver: "euler"                    # euler | midpoint | rk4
+    sigma_min: 0.001
+    time_sampling: "beta"              # Beta(alpha, beta) biased toward noisier timesteps
+    time_alpha: 1.5
+    time_beta: 1.0
+    time_min: 0.001
+    time_max: 0.999
+
+  # Loss weights (Transfusion dual loss)
+  loss:
+    lambda_text: 1.0                   # AR text loss weight
+    lambda_action: 1.0                 # FM action loss weight
+    balancing_strategy: "fixed"        # fixed | normalized | uncertainty
+    ema_decay: 0.999                   # for "normalized" strategy
+    text:
+      ignore_index: -100
+      label_smoothing: 0.0
+    action:
+      reduction: "mean"               # mean over valid positions and dimensions
+
+  # Inference
+  inference:
+    execute_steps: 8                   # execute first N of 16 predicted steps before re-predicting
+
+  # Numerical stability
+  float32_head: true                   # keep action head in float32 (EO-1 pattern)
+
+# Estimated memory footprint
+_estimated_params_billions: 4.02
+_estimated_memory_gb_bf16: 8.5

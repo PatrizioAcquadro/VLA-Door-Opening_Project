@@ -1,0 +1,54 @@
+# Main configuration file
+# All paths and hyperparameters are defined here - NO HARDCODING in code!
+#
+# Usage:
+#   python -m train.trainer                           # uses defaults
+#   python -m train.trainer model=large              # override model size
+#   python -m train.trainer trainer.lr=1e-4          # override learning rate
+#   python -m train.trainer --config-name=debug      # use debug config
+
+defaults:
+  - _self_
+  - model: base
+  - trainer: default
+  - data: default
+  - cluster: local
+  - optional logging: wandb
+
+# ============================================================================
+# Project Paths (override via environment or config)
+# ============================================================================
+paths:
+  root: ${oc.env:PROJECT_ROOT,${oc.env:HOME,/tmp}/vla-door-opening}
+  data: ${paths.root}/datasets
+  checkpoints: ${paths.root}/checkpoints
+  logs: ${paths.root}/logs
+  outputs: ${hydra:runtime.output_dir}
+
+# ============================================================================
+# Experiment Settings
+# ============================================================================
+experiment:
+  name: ${model.name}_${now:%Y%m%d_%H%M%S}
+  seed: 42
+  deterministic: false  # Set true for reproducibility (slower)
+
+# ============================================================================
+# Hydra Configuration
+# ============================================================================
+hydra:
+  run:
+    dir: ${paths.logs}/${experiment.name}
+  sweep:
+    dir: ${paths.logs}/sweeps/${experiment.name}
+    subdir: ${hydra.job.num}
+  job:
+    chdir: false  # Don't change working directory
+
+  # Save config alongside outputs
+  output_subdir: .hydra
+
+  # Job logging
+  job_logging:
+    root:
+      level: INFO

@@ -1,0 +1,141 @@
+# LEGO simulation parameters (Phase 1.2.2+)
+# Tuned from press-fit spec (docs/press-fit-spec.md) + empirical calibration
+
+lego:
+  # Geometry (tuned Phase 1.2.2)
+  geometry:
+    stud_pitch: 0.008            # m
+    stud_radius: 0.00235         # m (collision, 50 µm undersize for clearance)
+    stud_visual_radius: 0.0024   # m
+    stud_height: 0.0017          # m
+    tube_ring_radius: 0.003      # m (capsule centers)
+    tube_capsule_radius: 0.00055 # m (tuned 1.2.2 for insertion + retention balance)
+    tube_capsule_count: 8        # 8 at 45° aligns with stud diagonals
+    tube_capsule_height: 0.0017  # m (matches stud height)
+    brick_height: 0.0096         # m (standard, no stud)
+    wall_thickness: 0.0012       # m
+    inter_brick_gap: 0.0002      # m
+    density: 1050.0              # kg/m^3 (ABS)
+
+  # Contact classes (tuned Phase 1.2.2, split stud/tube from stud_tube)
+  contact:
+    stud:
+      contype: 6
+      conaffinity: 7
+      solref: [0.003, 1.0]
+      solimp: [0.97, 0.995, 0.001, 0.5, 4.0]
+      friction: [0.65, 0.005, 0.005]
+      condim: 4
+    tube:
+      contype: 4
+      conaffinity: 4
+      solref: [0.003, 1.0]
+      solimp: [0.97, 0.995, 0.001, 0.5, 4.0]
+      friction: [0.65, 0.005, 0.005]
+      condim: 4
+    brick_surface:
+      contype: 2
+      conaffinity: 3
+      solref: [0.005, 1.0]
+      solimp: [0.9, 0.95, 0.001, 0.5, 2.0]
+      friction: [0.4, 0.005, 0.002]
+      condim: 3
+    baseplate:
+      contype: 2
+      conaffinity: 3
+      solref: [0.005, 1.0]
+      solimp: [0.9, 0.95, 0.001, 0.5, 2.0]
+      friction: [0.6, 0.01, 0.005]
+      condim: 3
+
+  # Capture envelope tolerances
+  tolerances:
+    lateral_mm: 0.5
+    angular_deg: 3.0
+    approach_zone_mm: 2.0
+    max_insertion_speed_m_s: 0.01
+
+  # Success thresholds (tuned for achievable capsule-ring physics)
+  # See docs/contact-tuning-notes.md for gap analysis vs spec targets
+  thresholds:
+    insertion_success_rate: 0.95
+    min_retention_force_N: 0.15        # total per brick (spec target: 0.3 N/stud)
+    min_lateral_shear_N: 0.15          # total per brick (spec target: 0.2 N/stud)
+    max_penetration_m: 0.002
+    max_jitter_rms_m: 0.0005           # relaxed from 0.05 mm
+    max_drift_m: 0.001                 # relaxed from 0.1 mm
+    max_energy_J: 500.0
+    hold_duration_s: 5.0
+    max_active_contacts: 100
+
+  # Solver overrides for LEGO scenes
+  solver:
+    iterations: 80
+    ls_iterations: 10
+    noslip_iterations: 0
+
+  # Retention mode: "physics" (default, current behavior) or "spec_proxy" (hybrid weld)
+  retention_mode: physics
+
+  # Hybrid retention parameters (only used when retention_mode: spec_proxy)
+  hybrid:
+    engage_xy_tol_m: 0.0005        # XY alignment gate (0.5 mm)
+    engage_min_steps: 50           # sustained engagement steps (50 * 0.002s = 100ms)
+    engage_z_margin_m: 0.0002     # Z margin below stud center (0.2 mm)
+    release_displacement_m: 0.002  # displacement to break weld (2 mm)
+    release_dwell_steps: 25        # hysteresis dwell (25 * 0.002s = 50ms)
+    weld_solref: [0.01, 1.0]       # compliant weld (not perfectly rigid)
+    weld_solimp: [0.95, 0.99, 0.001, 0.5, 2]
+
+  # Baseplate (Phase 1.2.3)
+  baseplate:
+    default_size: "8x8"
+    thickness_m: 0.0032             # 3.2 mm (standard LEGO plate height)
+    color: [0.16, 0.50, 0.16, 1.0] # LEGO green
+
+  # Workspace layout (Phase 1.2.3)
+  workspace:
+    table_pos: [0.45, 0.0, 0.75]      # XYZ of table center
+    table_size: [0.25, 0.30, 0.02]     # half-extents of table box
+    baseplate_offset: [0.0, 0.0]       # XY offset of baseplate center on table
+    spawn_region:
+      x_range: [0.25, 0.65]
+      y_range: [-0.20, 0.20]
+      z_above_baseplate: 0.05          # spawn height above baseplate surface
+
+  # Episode management (Phase 1.2.5)
+  episode:
+    max_bricks: 4
+    brick_set: ["2x2", "2x4", "2x6"]
+    settle:
+      max_steps: 500               # 1.0s at 0.002s timestep
+      velocity_threshold: 0.001    # m/s max body velocity for "settled"
+      max_penetration_m: 0.005     # max contact penetration during settle
+      check_interval: 50           # check stability every N steps
+    spawn:
+      min_distance_m: 0.03         # min XY distance between brick centers
+      max_attempts: 50             # max sampling attempts per brick
+      random_yaw: true             # randomize brick yaw orientation at spawn
+    curriculum:
+      level_1:
+        n_bricks: 1
+        brick_types: ["2x2"]
+      level_2:
+        n_bricks: 1
+        brick_types: ["2x2", "2x4"]
+      level_3:
+        n_bricks_min: 2
+        n_bricks_max: 4
+        brick_types: ["2x2", "2x4", "2x6"]
+
+  # MVP-3 task parameters (Phase 1.2.6)
+  task:
+    placement_xy_tol_m: 0.001          # 1 mm XY alignment tolerance for success
+    placement_z_margin_m: 0.0005       # 0.5 mm Z engagement margin
+    stability_hold_s: 2.0              # seconds to hold for stability check
+    stability_velocity_threshold: 0.001 # m/s max velocity for "stable"
+    approach_height_m: 0.02            # height above target for approach position
+    insertion_force_factor: 5.0        # gravity multiplier for insertion force
+    max_insertion_steps: 2000          # max physics steps per insertion attempt
+    settle_steps: 500                  # settle steps after insertion
+    stud_margin: 1                     # min stud distance from baseplate edge for goals

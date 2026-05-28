@@ -1,0 +1,44 @@
+# Simulation control parameters (Phase 1.1.5)
+# Override via CLI: python -m train.trainer sim.control.control_hz=10
+
+control:
+  control_hz: 20.0           # Policy rate (Hz) — 50 ms per action
+  rate_limit_factor: 0.8     # Fraction of hw velocity limit for delta_q_max
+
+action:
+  dim: 17                    # Total action dimensions
+  arm_dim: 15                # spine(1) + left_arm(7) + right_arm(7)
+  gripper_dim: 2             # left + right EZGripper
+  normalize_range: [-1.0, 1.0]  # Arm action normalization range
+  gripper_range: [0.0, 1.0]     # Gripper command range
+
+state:
+  dim: 52                        # Total state dimensions
+  q_dim: 15                      # Arm joint positions
+  q_dot_dim: 15                  # Arm joint velocities
+  gripper_dim: 2                 # Gripper state
+  ee_pose_dim: 14                # EE poses (pos3+quat4) x 2 arms
+  ee_vel_dim: 6                  # EE linear velocities x 2 arms
+  ee_site_left: "left_tool_frame"
+  ee_site_right: "right_tool_frame"
+  frame: "world"                 # Reference frame (Z-up, X-forward, Y-left)
+  quat_convention: "wxyz"        # MuJoCo [w, x, y, z]
+  normalize:
+    q: "minmax"                  # Joint limits -> [-1, 1]
+    q_dot: "vel_limit"           # Velocity limits -> [-1, 1]
+    gripper: "linear"            # [0,1] -> [-1,1] via 2x-1
+    ee_pos: "workspace"          # Workspace bounds -> [-1, 1]
+    ee_quat: "none"              # Unit quaternion, no scaling
+    ee_vel: "max_vel"            # Max velocity -> [-1, 1]
+  workspace_bounds:
+    lo: [-0.5, -0.8, 0.5]
+    hi: [1.0, 0.8, 1.8]
+  ee_vel_max: 2.0                # m/s, normalization ceiling
+
+camera:
+  views: ["overhead", "left_wrist_cam", "right_wrist_cam", "third_person"]  # Frozen 4-view contract (Phase 1.2.4)
+  width: 320                             # Render width (px) — square for VLA training
+  height: 320                            # Render height (px) — square for VLA training
+  capture_hz: 20.0                       # Aligned with control_hz
+  render_depth: true                     # Depth enabled for full dataset modality
+  render_segmentation: true              # Segmentation enabled for debug + aux losses

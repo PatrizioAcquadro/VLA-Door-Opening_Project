@@ -1,0 +1,464 @@
+# ============================================================================
+# CI/CD Pipeline: Unified workflow for testing, building, and releasing
+# - CI jobs run on pushes to main/tags and PRs targeting main
+# - CD jobs (container/apptainer) run only when:
+#   - Tags v* (releases)
+#   - workflow_dispatch (manual trigger)
+#   - Push to main with container-relevant changes (Dockerfile, pyproject.toml, apptainer.def)
+# - SBOM generation runs only on tags v*
+# ============================================================================
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Minimal permissions by default
+permissions:
+  contents: read
+
+# Cancel in-progress runs for the same branch (but not for tags or main)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+
+env:
+  PYTHON_VERSION: "3.10"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ==========================================================================
+  # CI Jobs
+  # ==========================================================================
+
+  # --------------------------------------------------------------------------
+  # Job: Lint & Format Check
+  # --------------------------------------------------------------------------
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install linting tools
+        run: |
+          pip install --upgrade pip
+          pip install "ruff==0.14.14" black isort
+
+      - name: Run Ruff (linting)
+        run: ruff check . --output-format=github
+
+      - name: Run Black (formatting check)
+        run: black --check --diff .
+
+      - name: Run isort (import sorting check)
+        run: isort --check-only --diff .
+
+  # --------------------------------------------------------------------------
+  # Job: Type Checking (Advisory - does not block CI)
+  # --------------------------------------------------------------------------
+  typecheck:
+    name: Type Check (Advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[ci]"
+
+      - name: Run mypy
+        run: mypy sim models train eval --ignore-missing-imports
+
+  # --------------------------------------------------------------------------
+  # Job: Unit Tests
+  # --------------------------------------------------------------------------
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[ci]"
+
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v \
+            --tb=short \
+            --ignore=tests/integration \
+            -m "not slow and not gpu"
+
+  # --------------------------------------------------------------------------
+  # Job: Smoke Test (imports, config parsing, dry-run)
+  # --------------------------------------------------------------------------
+  smoke:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[ci]"
+
+      - name: Test imports
+        run: |
+          python -c "import sim; print('sim OK')"
+          python -c "import data; print('data OK')"
+          python -c "import models; print('models OK')"
+          python -c "import train; print('train OK')"
+          python -c "import eval; print('eval OK')"
+
+      - name: Test config parsing
+        run: |
+          python -c "
+          from hydra import initialize, compose
+          from omegaconf import OmegaConf
+
+          with initialize(config_path='configs', version_base=None):
+              cfg = compose(config_name='config', overrides=['cluster=local'])
+              print(OmegaConf.to_yaml(cfg))
+              print('Config parsing OK')
+          "
+
+      - name: Dry run entrypoint
+        run: |
+          python -m train.trainer --help
+          python -m train.trainer \
+            cluster=local \
+            trainer=debug \
+            trainer.training.max_steps=2 \
+            hydra.run.dir=/tmp/vla_lego_smoke \
+            --cfg job 2>&1 | head -100
+          echo "Smoke test completed"
+
+  # --------------------------------------------------------------------------
+  # Job: Config Validation
+  # --------------------------------------------------------------------------
+  config-check:
+    name: Validate Configs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install hydra-core omegaconf pyyaml
+
+      - name: Validate all config combinations
+        run: |
+          python scripts/validate_configs.py
+
+  # --------------------------------------------------------------------------
+  # Job: CI Success Gate (required for branch protection and CD gating)
+  # --------------------------------------------------------------------------
+  ci-success:
+    name: CI Success
+    needs: [lint, test, smoke, config-check]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check all required jobs passed
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.smoke.result }}" != "success" ]] || \
+             [[ "${{ needs.config-check.result }}" != "success" ]]; then
+            echo "One or more required CI jobs failed"
+            echo "lint: ${{ needs.lint.result }}"
+            echo "test: ${{ needs.test.result }}"
+            echo "smoke: ${{ needs.smoke.result }}"
+            echo "config-check: ${{ needs.config-check.result }}"
+            exit 1
+          fi
+          echo "All required CI checks passed!"
+
+  # ==========================================================================
+  # CD Jobs (only when needed, after CI passes)
+  # ==========================================================================
+
+  # --------------------------------------------------------------------------
+  # Job: Detect Container-Relevant Path Changes
+  # --------------------------------------------------------------------------
+  paths-filter:
+    name: Check Changed Paths
+    runs-on: ubuntu-latest
+    outputs:
+      container: ${{ steps.filter.outputs.container }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for container-relevant changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          # Container-relevant paths that trigger heavy builds:
+          # - Dockerfile: container definition
+          # - pyproject.toml: dependency specifications (deps extracted at build time)
+          # - .dockerignore: affects build context
+          # - scripts/container-entrypoint.sh: entrypoint script baked into image
+          #
+          # NOTE: apptainer.def is NOT included here. CI builds Apptainer images
+          # from the Docker image digest, not from apptainer.def. Edits to
+          # apptainer.def alone do NOT trigger heavy builds.
+          filters: |
+            container:
+              - 'Dockerfile'
+              - 'pyproject.toml'
+              - '.dockerignore'
+              - 'scripts/container-entrypoint.sh'
+
+  # --------------------------------------------------------------------------
+  # Job: Determine if Container Build is Needed
+  # --------------------------------------------------------------------------
+  should-build-container:
+    name: Check Build Conditions
+    needs: [ci-success, paths-filter]
+    runs-on: ubuntu-latest
+    if: always() && needs.ci-success.result == 'success'
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+    steps:
+      - name: Determine if container build is needed
+        id: check
+        run: |
+          IS_TAG="${{ startsWith(github.ref, 'refs/tags/v') }}"
+          IS_DISPATCH="${{ github.event_name == 'workflow_dispatch' }}"
+          IS_MAIN="${{ github.ref == 'refs/heads/main' }}"
+          PATHS_CHANGED="${{ needs.paths-filter.outputs.container }}"
+
+          echo "IS_TAG=$IS_TAG"
+          echo "IS_DISPATCH=$IS_DISPATCH"
+          echo "IS_MAIN=$IS_MAIN"
+          echo "PATHS_CHANGED=$PATHS_CHANGED"
+
+          # Build on: tags, manual dispatch, or main with path changes
+          if [[ "$IS_TAG" == "true" ]] || [[ "$IS_DISPATCH" == "true" ]] || \
+             [[ "$IS_MAIN" == "true" && "$PATHS_CHANGED" == "true" ]]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "Container build WILL run"
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "Container build SKIPPED"
+          fi
+
+  # --------------------------------------------------------------------------
+  # Job: Build and Push Container
+  # --------------------------------------------------------------------------
+  build-container:
+    name: Build Container
+    needs: should-build-container
+    runs-on: ubuntu-latest
+    if: needs.should-build-container.outputs.should_build == 'true'
+    permissions:
+      contents: read
+      packages: write
+      actions: write   # Required for reliable GHA cache read/write
+    outputs:
+      image_name: ${{ steps.image_name.outputs.name }}
+      digest: ${{ steps.build-push.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Lowercase image name
+        id: image_name
+        run: |
+          echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Set build date
+        id: date
+        run: |
+          echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.image_name.outputs.name }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push
+        id: build-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_DATE=${{ steps.date.outputs.date }}
+
+      - name: Export image digest
+        run: |
+          echo "Digest: ${{ steps.build-push.outputs.digest }}" | tee digest.txt
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-digest-${{ github.sha }}
+          path: digest.txt
+          retention-days: 90
+
+      - name: Generate SBOM
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ steps.image_name.outputs.name }}@${{ steps.build-push.outputs.digest }}
+
+  # --------------------------------------------------------------------------
+  # Job: Build Apptainer/Singularity Image (for HPC)
+  # --------------------------------------------------------------------------
+  build-apptainer:
+    name: Build Apptainer Image
+    needs: [should-build-container, build-container]
+    runs-on: ubuntu-22.04
+    if: needs.should-build-container.outputs.should_build == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false      # Keep tool cache for other jobs
+          android: true          # Remove Android SDK (~10GB)
+          dotnet: true           # Remove .NET (~2GB)
+          haskell: true          # Remove Haskell/GHC (~5GB)
+          large-packages: true   # Remove large apt packages (~5GB)
+          docker-images: false   # Keep Docker (needed for pulling image)
+          swap-storage: false    # Keep swap
+
+      - name: Install Apptainer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:apptainer/ppa
+          sudo apt-get update
+          sudo apt-get install -y apptainer
+
+      - name: Configure Apptainer directories
+        run: |
+          mkdir -p "$RUNNER_TEMP/apptainer-tmp"
+          mkdir -p "$RUNNER_TEMP/apptainer-cache"
+          echo "APPTAINER_TMPDIR=$RUNNER_TEMP/apptainer-tmp" >> $GITHUB_ENV
+          echo "APPTAINER_CACHEDIR=$RUNNER_TEMP/apptainer-cache" >> $GITHUB_ENV
+
+      - name: Disk diagnostics (before build)
+        run: df -h
+
+      - name: Build Apptainer image from Docker
+        run: |
+          apptainer build vla-lego.sif docker://${{ env.REGISTRY }}/${{ needs.build-container.outputs.image_name }}@${{ needs.build-container.outputs.digest }}
+
+      - name: Disk diagnostics (after build)
+        run: df -h
+
+      - name: Upload Apptainer image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apptainer-image
+          path: vla-lego.sif
+          retention-days: 30
+
+  # --------------------------------------------------------------------------
+  # Job: Create Release (on tags only)
+  # --------------------------------------------------------------------------
+  release:
+    name: Create Release
+    needs: [build-container, build-apptainer]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Apptainer image
+        uses: actions/download-artifact@v4
+        with:
+          name: apptainer-image
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: vla-lego.sif
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
