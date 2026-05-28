@@ -285,13 +285,6 @@ def extract_loss_components(
     return metrics
 
 
-def extract_door_metrics(metrics: dict[str, Any]) -> dict[str, float]:
-    """Format active door-opening metrics for experiment tracking."""
-    from sim.door_metrics import flatten_door_metrics
-
-    return flatten_door_metrics(metrics)
-
-
 def _to_float(value: "torch.Tensor | float | int") -> float:
     """Convert a value to float."""
     if TORCH_AVAILABLE and isinstance(value, torch.Tensor):

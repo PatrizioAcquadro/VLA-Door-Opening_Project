@@ -86,22 +86,3 @@ class TestSimulationDataset:
         assert item["attention_mask"].shape == (20,)
         assert item["robot_states"].shape[-1] == 52
         assert item["action_chunks"].shape[-1] == 17
-
-
-class TestDataLoader:
-    """Test dataloader creation."""
-
-    def test_get_dummy_dataloader(self):
-        """Test dummy dataloader factory."""
-        from data.loader import get_dummy_dataloader
-
-        loader = get_dummy_dataloader(
-            batch_size=4,
-            seq_length=128,
-            state_dim=32,
-            num_samples=100,
-        )
-
-        batch = next(iter(loader))
-
-        assert batch["input_ids"].shape == (4, 128, 32)

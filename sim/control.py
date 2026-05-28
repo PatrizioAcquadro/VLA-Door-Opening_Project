@@ -154,33 +154,3 @@ class AlexController:
         result: np.ndarray = ctrl
 
         return result
-
-    # ------------------------------------------------------------------
-    # Read-only accessors (used by AlexActionSpace)
-    # ------------------------------------------------------------------
-
-    def get_current_positions(
-        self,
-        data: mujoco.MjData,  # type: ignore[name-defined]
-    ) -> np.ndarray:
-        """Read current joint positions for all actuated joints.
-
-        Returns:
-            Array of shape ``(nu,)`` with current qpos for each actuator's joint.
-        """
-        return np.array([data.qpos[j] for j in self._jnt_ids])
-
-    @property
-    def jnt_ids(self) -> np.ndarray:
-        """Joint indices (into qpos) for each actuator, shape ``(nu,)``."""
-        return self._jnt_ids.copy()
-
-    @property
-    def max_delta(self) -> np.ndarray:
-        """Max position delta per physics timestep for each actuator, shape ``(nu,)``."""
-        return self._max_delta.copy()
-
-    @property
-    def pos_limits(self) -> tuple[np.ndarray, np.ndarray]:
-        """Joint position limits ``(lower, upper)``, each shape ``(nu,)``."""
-        return self._pos_lo.copy(), self._pos_hi.copy()

@@ -51,30 +51,3 @@ def create_dataloader(
         prefetch_factor=dl_cfg.prefetch_factor if dl_cfg.num_workers > 0 else None,
         persistent_workers=dl_cfg.persistent_workers if dl_cfg.num_workers > 0 else False,
     )
-
-
-def get_dummy_dataloader(
-    batch_size: int = 8,
-    seq_length: int = 512,
-    state_dim: int = 256,
-    num_samples: int = 1000,
-) -> DataLoader:
-    """Create a dummy dataloader for testing.
-
-    No config required - useful for smoke tests.
-    """
-    from data.dataset import DummyDataset
-
-    dataset = DummyDataset(
-        num_samples=num_samples,
-        seq_length=seq_length,
-        state_dim=state_dim,
-    )
-
-    return DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=0,
-        drop_last=True,
-    )
