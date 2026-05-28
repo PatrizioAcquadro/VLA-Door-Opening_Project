@@ -339,7 +339,7 @@ class TestVLAModelForward:
         model = _make_model()
         batch = _make_batch()
         out = model.forward(batch)
-        assert set(out.keys()) == {"total_loss", "text_loss", "action_loss"}
+        assert set(out.keys()) == {"total_loss", "text_loss", "action_loss", "metrics"}
 
     def test_forward_losses_finite(self) -> None:
         """All returned losses are finite (no NaN or Inf)."""
@@ -347,6 +347,8 @@ class TestVLAModelForward:
         batch = _make_batch()
         out = model.forward(batch)
         for name, val in out.items():
+            if name == "metrics":
+                continue
             assert torch.isfinite(val), f"{name} is not finite: {val}"
 
     def test_forward_losses_scalar(self) -> None:
@@ -355,6 +357,8 @@ class TestVLAModelForward:
         batch = _make_batch()
         out = model.forward(batch)
         for name, val in out.items():
+            if name == "metrics":
+                continue
             assert val.ndim == 0, f"{name} has ndim {val.ndim}, expected 0"
 
     def test_forward_total_loss_requires_grad(self) -> None:
@@ -602,8 +606,10 @@ class TestVLAModelGPU:
         batch = self._make_gpu_batch(vla_model, device, B=1)
         out = vla_model.forward(batch)
 
-        assert set(out.keys()) == {"total_loss", "text_loss", "action_loss"}
+        assert set(out.keys()) == {"total_loss", "text_loss", "action_loss", "metrics"}
         for name, val in out.items():
+            if name == "metrics":
+                continue
             assert torch.isfinite(val), f"{name} is not finite: {val.item():.6f}"
             assert val.ndim == 0, f"{name} is not scalar: ndim={val.ndim}"
 

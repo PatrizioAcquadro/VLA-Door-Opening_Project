@@ -158,9 +158,10 @@ def test_wrist_camera_movement(model: mujoco.MjModel) -> bool:
 
     cam_rest = {name: data.cam_xpos[resolve_camera_id(model, name)].copy() for name in CAMERA_NAMES}
 
-    # Move left shoulder
-    jnt_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, "left_shoulder_y")
-    data.qpos[model.jnt_qposadr[jnt_id]] = -0.5
+    # Move both arms so both body-attached wrist cameras should update.
+    for joint_name in ("left_shoulder_y", "right_shoulder_y"):
+        jnt_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
+        data.qpos[model.jnt_qposadr[jnt_id]] = -0.5
     mujoco.mj_forward(model, data)
 
     passed = True

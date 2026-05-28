@@ -6,7 +6,7 @@ Guidance for Claude Code and other coding agents working in this repository.
 
 VLA-Door-Opening is a Vision-Language-Action system for robotic door-opening manipulation with the IHMC Alex humanoid upper body. The active task is contact-rich articulated-object manipulation: perceive the door, handle, hinge, latch state, and current opening angle, then generate continuous Alex actions that unlatch and open the door to a target angle.
 
-The repository was bootstrapped from an older manipulation codebase. Legacy task modules under `sim/lego`, related assets, `configs/sim/lego.yaml`, and `tests/test_lego_*` are baseline material only. Do not extend them for new work unless the user explicitly asks for legacy comparison or migration.
+The repository was bootstrapped from an older manipulation codebase. Legacy LEGO task modules, assets, configs, scripts, and tests are archived under `archive/legacy/` for provenance only. Do not restore or extend them for new work unless the user explicitly asks for legacy comparison or migration.
 
 ## Setup
 
@@ -68,12 +68,6 @@ pytest tests/test_action_head.py -v
 pytest tests/test_vla_model.py -v -m "not slow and not gpu"
 ```
 
-Legacy LEGO regression tests remain available but are not active task acceptance tests:
-
-```bash
-pytest tests/test_lego_bricks.py tests/test_lego_contacts.py tests/test_lego_baseplate.py tests/test_lego_task.py -v
-```
-
 ### Code Quality
 
 ```bash
@@ -94,7 +88,7 @@ pre-commit run --all-files
 - `data/` - dataset and dataloader utilities.
 - `sim/` - MuJoCo runtime, Alex action/state contracts, controller, renderer, viewer, and assets.
 - `sim/assets/scenes/alex_door_workspace.xml` - active door-opening workspace.
-- `sim/lego/` - legacy baseline implementation only.
+- `archive/legacy/` - historical LEGO baseline material only.
 - `tracking/` - W&B tracking with `vla-door-opening` defaults.
 - `infra/gilbreth/` - SLURM and HPC setup scripts.
 

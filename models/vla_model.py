@@ -43,7 +43,6 @@ from typing import Any, Protocol, cast
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from omegaconf import DictConfig, OmegaConf
 
 from models.action_head import (
@@ -54,6 +53,7 @@ from models.action_head import (
     NoisyActionProjector,
     RobotStateProjector,
 )
+from models.losses import VLAActionLoss, VLATextLoss
 from models.vlm_backbone import VLMBackboneInfo
 
 logger = logging.getLogger(__name__)
@@ -158,6 +158,13 @@ class VLAModel(nn.Module):
         self.chunk_config = ActionChunkConfig.from_cfg(ah_cfg)
         self._lambda_text = float((ah_cfg or {}).get("loss", {}).get("lambda_text", 1.0))
         self._lambda_action = float((ah_cfg or {}).get("loss", {}).get("lambda_action", 1.0))
+        loss_cfg = (ah_cfg or {}).get("loss", {})
+        text_loss_cfg = loss_cfg.get("text", {})
+        self.text_loss_fn = VLATextLoss(
+            ignore_index=int(text_loss_cfg.get("ignore_index", -100)),
+            label_smoothing=float(text_loss_cfg.get("label_smoothing", 0.0)),
+        )
+        self.action_loss_fn = VLAActionLoss(action_dim=self.chunk_config.action_dim)
 
         # Float32 action head (EO-1 pattern for numerical stability)
         float32_head = bool((ah_cfg or {}).get("float32_head", True))
@@ -384,13 +391,7 @@ class VLAModel(nn.Module):
         # (B, seq_text, vocab_size)
 
         text_labels = batch["text_labels"]  # (B, seq_text)
-        shift_logits = text_logits[:, :-1, :].contiguous()
-        shift_labels = text_labels[:, 1:].contiguous()
-        text_loss = F.cross_entropy(
-            shift_logits.reshape(-1, shift_logits.shape[-1]),
-            shift_labels.reshape(-1),
-            ignore_index=-100,
-        )
+        text_loss_out = self.text_loss_fn(text_logits, text_labels)
 
         # --- 9. Action loss (flow matching MSE) ---
         action_start = seq_text + n_seg
@@ -398,15 +399,26 @@ class VLAModel(nn.Module):
         action_hidden = hidden_states[:, action_start:action_end, :]  # (B, n_act, H)
 
         pred_velocity = self.action_output_head(action_hidden.float())  # (B, n_act, 17)
-        action_loss = self.flow_matching.loss(pred_velocity, target_velocity, masks_flat)
+        action_loss_out = self.action_loss_fn(pred_velocity, target_velocity, masks_flat)
 
         # --- 10. Combined loss ---
-        total_loss = self._lambda_text * text_loss + self._lambda_action * action_loss
+        total_loss = (
+            self._lambda_text * text_loss_out.loss + self._lambda_action * action_loss_out.loss
+        )
+
+        metrics: dict[str, float] = {}
+        for key, value in text_loss_out.metrics.items():
+            if isinstance(value, (int, float)):
+                metrics[f"text/{key}"] = float(value)
+        for key, value in action_loss_out.metrics.items():
+            if isinstance(value, (int, float)):
+                metrics[f"action/{key}"] = float(value)
 
         return {
             "total_loss": total_loss,
-            "text_loss": text_loss.detach(),
-            "action_loss": action_loss.detach(),
+            "text_loss": text_loss_out.loss.detach(),
+            "action_loss": action_loss_out.loss.detach(),
+            "metrics": metrics,
         }
 
     # --- Inference --------------------------------------------------------------

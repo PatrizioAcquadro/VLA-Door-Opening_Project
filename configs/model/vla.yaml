@@ -6,6 +6,7 @@ name: vla
 
 architecture:
   type: "vla"                          # routes get_model() to VLA path
+  max_seq_length: 8192                 # mirrors vlm.max_seq_length for shared data config
 
 # --- VLM backbone (same as vlm.yaml) ------------------------------------------
 vlm:

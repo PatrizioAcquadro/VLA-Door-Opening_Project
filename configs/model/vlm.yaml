@@ -5,6 +5,7 @@ name: vlm
 
 architecture:
   type: "vlm"                          # routes get_model() to VLM path
+  max_seq_length: 8192                 # mirrors vlm.max_seq_length for shared data config
 
 vlm:
   model_id: "Qwen/Qwen3.5-4B"

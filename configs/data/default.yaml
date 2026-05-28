@@ -6,14 +6,24 @@ name: default
 # Dataset Settings
 # ============================================================================
 dataset:
-  name: "dummy"  # Default to dummy for local dev; use "simulation" for real data
+  name: "door_episodes"
   path: ${paths.data}/processed
 
-  # Dummy dataset configuration (used when name="dummy")
+  # Dummy dataset configuration (used only when explicitly setting name="dummy")
   dummy:
     train_samples: 10000
     val_samples: 500
     state_dim: 256
+
+  # Door episode manifest contract:
+  #   ${path}/train_manifest.json
+  #   ${path}/val_manifest.json
+  # Each record points to a .pt/.pth/.npz sample with:
+  #   input_ids, attention_mask, robot_states, action_chunks,
+  #   chunk_masks, text_labels, and optional pixel_values/image_grid_thw.
+  # attention_mask may be text-only or full text+state+action length; the
+  # dataset normalizes it to the full VLA sequence.
+  schema: "vla_door_episode_v1"
 
   # Split ratios (if creating splits)
   train_split: 0.95

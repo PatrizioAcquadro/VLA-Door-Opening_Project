@@ -3,11 +3,11 @@
 Run:
     python scripts/validate_assets.py
 
-Checks:
+Checks active MuJoCo assets only:
     1. Canonical directory layout exists
-    2. Asset linter passes on all MJCF files (no errors)
+    2. Asset linter passes on active MJCF files (no errors)
     3. load_scene("test_scene") loads successfully
-    4. All scenes under sim/assets/scenes/ load without error
+    4. Active scenes under sim/assets/scenes/ load without error
 """
 
 from __future__ import annotations
@@ -19,6 +19,13 @@ from pathlib import Path
 # Add project root to path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+ACTIVE_SCENES = (
+    "test_scene",
+    "alex_upper_body",
+    "alex_grasp_test",
+    "alex_door_workspace",
+)
 
 
 def main() -> int:
@@ -43,7 +50,7 @@ def main() -> int:
         return 1
 
     # Check 2: Asset linter
-    print("\n[2/4] Running asset linter on all MJCF files...")
+    print("\n[2/4] Running asset linter on active MJCF files...")
     from sim.asset_linter import Severity, lint_mjcf
 
     mjcf_files = sorted(ASSETS_DIR.rglob("*.xml"))
@@ -68,7 +75,8 @@ def main() -> int:
                         total_warnings += 1
 
         print(
-            f"  Linted {len(mjcf_files)} file(s): {total_errors} error(s), {total_warnings} warning(s)"
+            f"  Linted {len(mjcf_files)} active file(s): "
+            f"{total_errors} error(s), {total_warnings} warning(s)"
         )
 
     if total_errors > 0:
@@ -87,8 +95,8 @@ def main() -> int:
         return 1
 
     # Check 4: Bulk load all scenes
-    print("\n[4/4] Loading all scenes under scenes/...")
-    scene_files = sorted(SCENES_DIR.glob("*.xml"))
+    print("\n[4/4] Loading active scenes under scenes/...")
+    scene_files = [SCENES_DIR / f"{name}.xml" for name in ACTIVE_SCENES]
     all_loaded = True
     for sf in scene_files:
         try:

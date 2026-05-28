@@ -21,9 +21,6 @@ if TYPE_CHECKING:
 ASSETS_DIR: Path = Path(__file__).resolve().parent / "assets"
 SCENES_DIR: Path = ASSETS_DIR / "scenes"
 ROBOTS_DIR: Path = ASSETS_DIR / "robots"
-LEGO_DIR: Path = ASSETS_DIR / "lego"
-LEGO_BRICKS_DIR: Path = LEGO_DIR / "bricks"
-LEGO_BASEPLATES_DIR: Path = LEGO_DIR / "baseplates"
 
 
 def resolve_scene_path(scene_name: str) -> Path:
@@ -73,54 +70,6 @@ def resolve_robot_path(robot_name: str) -> Path:
             f"Robot MJCF not found: {xml_path} " f"(expected <robot_name>/<robot_name>.xml)"
         )
     return xml_path.resolve()
-
-
-def resolve_lego_brick_path(brick_name: str) -> Path:
-    """Resolve a legacy LEGO brick name to its MJCF path.
-
-    Args:
-        brick_name: Brick name, e.g., ``"2x4"`` or ``"brick_2x4"``.
-
-    Returns:
-        Absolute path to the brick MJCF file.
-
-    Raises:
-        FileNotFoundError: If brick file does not exist.
-    """
-    if not brick_name.startswith("brick_"):
-        brick_name = f"brick_{brick_name}"
-    if not brick_name.endswith(".xml"):
-        brick_name = f"{brick_name}.xml"
-
-    path = LEGO_BRICKS_DIR / brick_name
-    if not path.exists():
-        raise FileNotFoundError(f"LEGO brick not found: {brick_name} (looked in {LEGO_BRICKS_DIR})")
-    return path.resolve()
-
-
-def resolve_lego_baseplate_path(baseplate_name: str) -> Path:
-    """Resolve a legacy LEGO baseplate name to its MJCF path.
-
-    Args:
-        baseplate_name: Baseplate name, e.g., ``"8x8"`` or ``"baseplate_8x8"``.
-
-    Returns:
-        Absolute path to the baseplate MJCF file.
-
-    Raises:
-        FileNotFoundError: If baseplate file does not exist.
-    """
-    if not baseplate_name.startswith("baseplate_"):
-        baseplate_name = f"baseplate_{baseplate_name}"
-    if not baseplate_name.endswith(".xml"):
-        baseplate_name = f"{baseplate_name}.xml"
-
-    path = LEGO_BASEPLATES_DIR / baseplate_name
-    if not path.exists():
-        raise FileNotFoundError(
-            f"LEGO baseplate not found: {baseplate_name} (looked in {LEGO_BASEPLATES_DIR})"
-        )
-    return path.resolve()
 
 
 def load_scene(scene_name: str) -> mujoco.MjModel:

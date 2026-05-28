@@ -16,7 +16,7 @@ The main behavior is opening doors through contact-rich manipulation:
 
 ## Refactor Map
 
-- Replace `sim/lego/` task logic with a door, handle, hinge, and latch simulation module
+- Keep archived legacy task logic out of active code paths while building door, handle, hinge, and latch simulation modules
 - Add MJCF assets for hinged doors, cabinet doors, lever handles, round knobs, and push bars
 - Replace legacy task metrics with door metrics: handle grasp success, latch release, max door angle, final target-angle error, contact stability, force/torque limits, and recovery success
 - Keep the VLA backbone, action head, training loop, tracking, cluster, and container infrastructure unless the door task exposes a specific mismatch
