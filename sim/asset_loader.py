@@ -1,4 +1,4 @@
-"""Asset loading contract for MuJoCo MJCF scenes (Phase 0.2.5).
+"""Asset loading contract for MuJoCo MJCF scenes.
 
 Provides a single entrypoint for loading scenes with validated asset paths.
 All MJCF loading should go through this module.
@@ -6,8 +6,8 @@ All MJCF loading should go through this module.
 Usage:
     from sim.asset_loader import load_scene, ASSETS_DIR
 
-    model = load_scene("test_scene")       # loads sim/assets/scenes/test_scene.xml
-    model = load_scene("test_scene.xml")   # also works
+    model = load_scene("alex_door_workspace")     # loads sim/assets/scenes/alex_door_workspace.xml
+    model = load_scene("alex_door_workspace.xml") # also works
 """
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ def load_scene(scene_name: str) -> mujoco.MjModel:
     Resolves the scene path, then delegates to ``mujoco_env.load_model()``.
 
     Args:
-        scene_name: Scene name (e.g., ``"test_scene"``).
+        scene_name: Scene name (e.g., ``"alex_door_workspace"``).
 
     Returns:
         Compiled MuJoCo model.

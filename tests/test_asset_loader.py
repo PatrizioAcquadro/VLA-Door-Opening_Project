@@ -1,4 +1,4 @@
-"""Tests for asset loading contract (Phase 0.2.5).
+"""Tests for asset loading contract.
 
 Run:
     pytest tests/test_asset_loader.py -v

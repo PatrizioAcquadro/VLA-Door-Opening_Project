@@ -1,4 +1,4 @@
-"""Phase 0.2.1 validation script: MuJoCo runtime installation check.
+"""Validation script: MuJoCo runtime installation check.
 
 Run:
     python scripts/validate_mujoco.py
@@ -22,9 +22,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def main() -> int:
-    """Run all Phase 0.2.1 validation checks. Returns 0 on success, 1 on failure."""
+    """Run all MuJoCo runtime validation checks. Returns 0 on success, 1 on failure."""
     print("=" * 60)
-    print("Phase 0.2.1 Validation: MuJoCo Runtime Installation")
+    print("MuJoCo Runtime Installation Validation")
     print("=" * 60)
 
     # Check 1: Import

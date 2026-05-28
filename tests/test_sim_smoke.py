@@ -1,4 +1,4 @@
-"""Sim Smoke Tests Suite (Phase 0.2.4).
+"""Sim Smoke Tests Suite.
 
 Consolidated smoke tests covering physics stability, rendering correctness,
 and I/O artifact generation. Run with:
@@ -233,7 +233,6 @@ class TestIOSmoke:
         # Add smoke-test-specific fields
         smoke_meta = {
             **meta,
-            "phase": "0.2.4",
             "seed": SEED,
             "config": {
                 "n_steps": N_STEPS,

@@ -3,7 +3,7 @@
 **Project**: VLA-Door-Opening (EO-1-style VLA for robotic door opening)
 **Cluster**: Purdue Gilbreth HPC
 **Last Updated**: January 23, 2026
-**Status**: All Phase 0.1 smoke tests PASSED
+**Status**: Single-/multi-node smoke tests verified on A100 80GB
 
 ---
 
@@ -195,8 +195,7 @@ python -c "import deepspeed; print(f'DeepSpeed: {deepspeed.__version__}')"
 ### 3.3 Job Submission
 
 ```bash
-cd /home/$USER/phase0_setup/gilbreth_phase0
-sbatch job_templates/01_smoke_1gpu.sh
+sbatch infra/gilbreth/job_templates/01_smoke_1gpu.sh
 ```
 
 ### 3.4 Job Monitoring
@@ -372,8 +371,7 @@ class DummyModel(nn.Module):
 ### 5.4 Test Execution
 
 ```bash
-cd /home/$USER/phase0_setup/gilbreth_phase0
-sbatch job_templates/01_smoke_1gpu.sh
+sbatch infra/gilbreth/job_templates/01_smoke_1gpu.sh
 ```
 
 ### 5.5 Verified Results (Job 10212764)
@@ -2015,7 +2013,7 @@ watch -n 1 nvidia-smi
 #### Invalid Account Error
 ```bash
 # Fix: Replace account name in all job templates
-sed -i 's/euge/YOUR_ACCOUNT/g' job_templates/*.sh
+sed -i 's/euge/YOUR_ACCOUNT/g' infra/gilbreth/job_templates/*.sh
 ```
 
 #### NCCL Timeout on Single-Node Multi-GPU
@@ -2112,11 +2110,11 @@ The scratch filesystem may show "Cannot send after transport endpoint shutdown".
 
 | File | Path |
 |------|------|
-| Job Templates | `gilbreth_phase0/job_templates/` |
-| Setup Scripts | `gilbreth_phase0/scripts/` |
-| DeepSpeed Configs | `gilbreth_phase0/configs/` |
-| Logs (symlink) | `gilbreth_phase0/logs/` -> `/scratch/gilbreth/$USER/vla-door-opening/logs/` |
-| Checkpoints (symlink) | `gilbreth_phase0/checkpoints/` -> `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` |
+| Job Templates | `infra/gilbreth/job_templates/` |
+| Setup Scripts | `infra/gilbreth/scripts/` |
+| DeepSpeed Configs | `configs/deepspeed/` |
+| Logs | `/scratch/gilbreth/$USER/vla-door-opening/logs/` |
+| Checkpoints | `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` |
 | Activation Script | `/scratch/gilbreth/$USER/vla-door-opening/activate_env.sh` |
 
 ---
@@ -2154,4 +2152,4 @@ The scratch filesystem may show "Cannot send after transport endpoint shutdown".
 
 ---
 
-*Document maintained as part of VLA-Door-Opening Phase 0.1 verification.*
+*Document maintained for VLA-Door-Opening cluster training.*

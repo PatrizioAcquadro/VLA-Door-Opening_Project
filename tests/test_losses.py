@@ -1,4 +1,4 @@
-"""Tests for loss contracts and utilities (Phase 4.1.0).
+"""Tests for loss contracts and utilities.
 
 Tests the ``LossOutput`` dataclass, ``TokenType`` re-export from ``models.losses``,
 and shape verification utilities (``verify_text_loss_inputs``,
@@ -26,10 +26,10 @@ from models.losses import (
 
 
 class TestTokenType:
-    """Verify TokenType re-exported from models.losses matches Phase 3.2.0 contract."""
+    """Verify TokenType re-exported from models.losses matches the dual-loss contract."""
 
     def test_token_type_reexport_values(self):
-        """TokenType enum values match Phase 3.2.0 contract."""
+        """TokenType enum values match the dual-loss contract."""
         assert TokenType.TEXT == 0
         assert TokenType.IMAGE == 1
         assert TokenType.STATE == 2

@@ -1,6 +1,6 @@
 <mujoco model="alex_upper_body">
     <!--
-        Alex V1 Upper-Body Fixed-Base Robot Model (Phase 1.1.1 + 1.1.2 + 1.1.3)
+        Alex V1 Upper-Body Fixed-Base Robot Model
 
         Source: ihmc-alex-sdk commit be25a395e35238bc6385a58bcc50aa047d936a25
         Base file: alex_v1_full_body_mjx.xml
@@ -14,9 +14,9 @@
         - Added EE sites (left_ee_site, right_ee_site)
         - Added robot camera (robot_cam on head)
         - Added self-collision exclusions for adjacent body pairs
-        - (1.1.3) Integrated SAKE EZGripper Gen2 end-effectors on both arms
-        - (1.1.3) Added equality constraints for underactuated finger coupling
-        - (1.1.3) Added tool frame sites (left_tool_frame, right_tool_frame)
+        - Integrated SAKE EZGripper Gen2 end-effectors on both arms
+        - Added equality constraints for underactuated finger coupling
+        - Added tool frame sites (left_tool_frame, right_tool_frame)
 
         Joints (23 = 15 arm + 8 EZGripper):
           spine_z
@@ -109,7 +109,7 @@
                 <geom group="3" contype="1" conaffinity="1" rgba="0 1 0 0.3"
                       solref="0.005 1.0" solimp="0.9 0.95 0.001 0.5 2"/>
             </default>
-            <!-- EZGripper Gen2 defaults (Phase 1.1.3) -->
+            <!-- EZGripper Gen2 defaults -->
             <default class="alex/ezgripper">
                 <default class="alex/ezgripper/knuckle">
                     <joint axis="0 1 0" range="0 1.94" armature="0.005"
@@ -147,7 +147,7 @@
         <mesh name="right_wrist_z" file="meshes/RightWristYawLink.obj"/>
         <mesh name="right_wrist_x" file="meshes/RightWristRollLink.obj"/>
         <mesh name="right_gripper" file="meshes/nub.obj"/>
-        <!-- EZGripper Gen2 meshes (Phase 1.1.3) -->
+        <!-- EZGripper Gen2 meshes -->
         <mesh name="ezgripper_palm" file="meshes/SAKE_Palm_Dual_Gen2.stl"/>
         <mesh name="ezgripper_finger_l1" file="meshes/SAKE_Finger_L1_Gen2.stl"/>
         <mesh name="ezgripper_finger_l2" file="meshes/SAKE_Finger_L2_Gen2.stl"/>
@@ -255,12 +255,12 @@
                                                   class="alex/collision"/>
                                             <site name="left_ee_site" pos="0 0 0.03"
                                                   type="sphere" size="0.008" rgba="1 0 0 0.5" group="4"/>
-                                            <!-- Left wrist camera (Phase 1.2.4): attached to gripper body,
+                                            <!-- Left wrist camera: attached to gripper body,
                                                  looks along +Z (toward fingertips/workspace). -->
                                             <camera name="left_wrist_cam" pos="0 0 0"
                                                     xyaxes="1 0 0 0 -1 0" fovy="75"/>
 
-                                            <!-- EZGripper Gen2 (Phase 1.1.3) -->
+                                            <!-- EZGripper Gen2 -->
                                             <!-- Adapter transform from IHMC URDF (verified via FK symmetry — 0.0 cm error) -->
                                             <body name="left_ezgripper_palm" pos="0 0 -0.02" euler="3.14159 1.5708 0">
                                                 <inertial pos="0.04 0 0" mass="0.3"
@@ -439,12 +439,12 @@
                                                   class="alex/collision"/>
                                             <site name="right_ee_site" pos="0 0 0.03"
                                                   type="sphere" size="0.008" rgba="0 0 1 0.5" group="4"/>
-                                            <!-- Right wrist camera (Phase 1.2.4): attached to gripper body,
+                                            <!-- Right wrist camera: attached to gripper body,
                                                  looks along +Z (toward fingertips/workspace). -->
                                             <camera name="right_wrist_cam" pos="0 0 0"
                                                     xyaxes="1 0 0 0 -1 0" fovy="75"/>
 
-                                            <!-- EZGripper Gen2 (Phase 1.1.3) -->
+                                            <!-- EZGripper Gen2 -->
                                             <body name="right_ezgripper_palm" pos="0 0 -0.02" euler="3.14159 1.5708 0">
                                                 <inertial pos="0.04 0 0" mass="0.3"
                                                           diaginertia="0.0003 0.0005 0.0004"/>
@@ -532,7 +532,7 @@
         <position class="alex/wrist" name="right_wrist_z" joint="right_wrist_z"/>
         <position class="alex/wrist" name="right_wrist_x" joint="right_wrist_x"/>
         <position class="alex/gripper" name="right_gripper_z" joint="right_gripper_z"/>
-        <!-- EZGripper actuators: one per hand (Phase 1.1.3) -->
+        <!-- EZGripper actuators: one per hand -->
         <position class="alex/ezgripper/knuckle" name="left_ezgripper"
                   joint="left_knuckle_palm_l1_1"/>
         <position class="alex/ezgripper/knuckle" name="right_ezgripper"
@@ -544,7 +544,7 @@
         <framequat name="left_ee_quat" objtype="site" objname="left_ee_site"/>
         <framepos name="right_ee_pos" objtype="site" objname="right_ee_site"/>
         <framequat name="right_ee_quat" objtype="site" objname="right_ee_site"/>
-        <!-- EZGripper tool frame sensors (Phase 1.1.3) -->
+        <!-- EZGripper tool frame sensors -->
         <framepos name="left_tool_pos" objtype="site" objname="left_tool_frame"/>
         <framequat name="left_tool_quat" objtype="site" objname="left_tool_frame"/>
         <framepos name="right_tool_pos" objtype="site" objname="right_tool_frame"/>
@@ -582,7 +582,7 @@
         <exclude body1="right_shoulder_z" body2="right_wrist_z"/>
         <exclude body1="right_elbow_y" body2="right_wrist_x"/>
         <exclude body1="right_wrist_z" body2="right_gripper"/>
-        <!-- Left EZGripper self-collision exclusions (Phase 1.1.3) -->
+        <!-- Left EZGripper self-collision exclusions -->
         <exclude body1="left_gripper" body2="left_ezgripper_palm"/>
         <exclude body1="left_ezgripper_palm" body2="left_finger1_l1"/>
         <exclude body1="left_ezgripper_palm" body2="left_finger2_l1"/>
@@ -598,7 +598,7 @@
         <exclude body1="right_finger1_l1" body2="right_finger2_l1"/>
     </contact>
 
-    <!-- EZGripper underactuation coupling (Phase 1.1.3) -->
+    <!-- EZGripper underactuation coupling -->
     <!-- All 4 finger joints per hand driven by single actuator via 1:1 equality -->
     <equality>
         <!-- Left: finger2 mimics finger1, L2 joints coupled to palm-L1 -->

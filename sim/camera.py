@@ -1,7 +1,4 @@
-"""Frozen 4-view camera contract for the Alex robot (Phase 1.2.4).
-
-Replaces the Phase 1.1.7 2-view contract (robot_cam + third_person) with a
-4-view contract aligned with the VLA dataset spec.
+"""Frozen 4-view camera contract for the Alex robot.
 
 Camera views (frozen):
     - overhead:        Fixed workspace-level camera (in scene worldbody)
@@ -17,7 +14,7 @@ Usage::
 
     from sim.camera import MultiViewRenderer, CAMERA_NAMES
 
-    model = load_scene("alex_upper_body")
+    model = load_scene("alex_door_workspace")
     data = mujoco.MjData(model)
     with MultiViewRenderer(model) as mv:
         frame = mv.capture(data, step_index=0)

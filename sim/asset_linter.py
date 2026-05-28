@@ -1,4 +1,4 @@
-"""Asset linter for MJCF files (Phase 0.2.5).
+"""Asset linter for MJCF files.
 
 Walks MJCF XML elements and validates:
 - No absolute paths in file/mesh/texture references
@@ -8,7 +8,7 @@ Walks MJCF XML elements and validates:
 Usage:
     from sim.asset_linter import lint_mjcf
 
-    issues = lint_mjcf(Path("sim/assets/scenes/test_scene.xml"))
+    issues = lint_mjcf(Path("sim/assets/scenes/alex_door_workspace.xml"))
     for issue in issues:
         print(f"[{issue.severity.value}] {issue.message}")
 """

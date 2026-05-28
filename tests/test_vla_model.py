@@ -1,4 +1,4 @@
-"""Integration tests for VLAModel (Phase 3.2.4).
+"""Integration tests for VLAModel.
 
 CPU tests (``action_head`` marker) use a lightweight MockVLMBackbone that
 simulates the VLMBackbone interface without loading the 4B parameter model.
@@ -468,7 +468,7 @@ class TestVLAModelInference:
 
 @pytest.mark.action_head
 class TestBackwardCompatibility:
-    """Existing get_model() paths are unaffected by Phase 3.2.4 changes."""
+    """Existing get_model() paths are unaffected."""
 
     def test_get_model_transformer_unaffected(self) -> None:
         """get_model('transformer') still works with a valid config."""

@@ -2,7 +2,7 @@
 
 Usage:
     vla-lint-assets                                     # Lint all MJCF files
-    vla-lint-assets sim/assets/scenes/test_scene.xml    # Lint a specific file
+    vla-lint-assets sim/assets/scenes/alex_door_workspace.xml    # Lint a specific file
     vla-lint-assets --strict                            # Treat warnings as errors
 """
 

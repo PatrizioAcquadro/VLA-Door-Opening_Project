@@ -1,4 +1,4 @@
-"""Tests for robot state contract (Phase 1.1.6).
+"""Tests for robot state contract.
 
 Run:
     pytest tests/test_robot_state.py -v

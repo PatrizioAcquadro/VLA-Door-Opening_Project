@@ -1,4 +1,4 @@
-"""Tests for MuJoCo simulation baseline (Phase 0.2.1)."""
+"""Tests for MuJoCo simulation baseline."""
 
 from __future__ import annotations
 

@@ -3,7 +3,6 @@
 # JOB TEMPLATE 6: Headless Simulation Smoke Test
 # Purpose: Verify MuJoCo headless rendering on cluster (same artifacts as lab PC)
 # Milestone: "smoke_video.mp4, frames/, sim_smoke_meta.json reproduced on HPC"
-# Phase: 0.2.6
 #
 # ThinLinc policy: This job is fully headless — no GUI needed.
 # Use ThinLinc only as a last resort to diagnose visual bugs that cannot be
@@ -31,7 +30,7 @@
 set -e
 
 echo "========================================"
-echo "SMOKE TEST: Headless Sim (Phase 0.2.6)"
+echo "SMOKE TEST: Headless Sim"
 echo "========================================"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Node: $SLURMD_NODENAME"

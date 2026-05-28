@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the frozen 4-view camera contract (Phase 1.2.4).
+"""Validate the frozen 4-view camera contract.
 
 Checks:
   - All 4 cameras exist in model and render non-black RGB
@@ -53,7 +53,7 @@ ARTIFACT_DIR = _project_root / "logs" / "camera_validation"
 def print_contract() -> None:
     """Print the frozen 4-view camera contract."""
     print("=" * 70)
-    print("MULTI-VIEW CAMERA CONTRACT (Phase 1.2.4)")
+    print("MULTI-VIEW CAMERA CONTRACT")
     print("=" * 70)
     print(f"  Views:           {list(CAMERA_NAMES)}")
     print(f"  Num views:       {NUM_VIEWS}")
@@ -359,7 +359,6 @@ def save_metadata_json(model: mujoco.MjModel, data: mujoco.MjData) -> None:
         meta = mv.get_metadata(data)
         meta_dict = {name: m.to_dict() for name, m in meta.items()}
         meta_dict["_contract"] = {
-            "phase": "1.2.4",
             "num_views": NUM_VIEWS,
             "camera_names": list(CAMERA_NAMES),
             "default_width": DEFAULT_WIDTH,

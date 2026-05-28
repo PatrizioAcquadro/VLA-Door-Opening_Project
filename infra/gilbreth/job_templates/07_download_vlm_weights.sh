@@ -3,7 +3,6 @@
 # JOB TEMPLATE 7: Download VLM Weights (Qwen3.5-4B)
 # Purpose: Pre-cache ~8 GB model weights on scratch before GPU training jobs
 # Milestone: "model config loads, all weight files present in HF cache"
-# Phase: 3.1.1
 #
 # No GPU needed — this is a download-only job. Run this once before any
 # GPU job that uses model=vlm or model=vlm_dev to avoid download timeouts
@@ -39,7 +38,7 @@
 set -e
 
 echo "========================================"
-echo "JOB: Download VLM Weights (Phase 3.1.1)"
+echo "JOB: Download VLM Weights"
 echo "========================================"
 echo "Job ID:   $SLURM_JOB_ID"
 echo "Node:     $SLURMD_NODENAME"
@@ -202,7 +201,7 @@ else:
 print()
 print("Weight pre-download complete.")
 print("Next steps:")
-print("  1. Submit job 08: sbatch infra/gilbreth/job_templates/08_profile_vlm_memory.sh")
+print("  1. Profile VLM memory: python scripts/profile_vlm_memory.py --quick")
 print("  2. Or run training: sbatch infra/gilbreth/job_templates/01_smoke_1gpu.sh (with model=vlm)")
 
 PYEOF

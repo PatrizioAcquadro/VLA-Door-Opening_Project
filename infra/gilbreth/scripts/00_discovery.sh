@@ -1,14 +1,14 @@
 #!/bin/bash
 #===============================================================================
-# Gilbreth Discovery Script - Complete Phase 0.1
-# Purpose: Gather ALL info needed for Phase 0.1 setup
+# Gilbreth Cluster Discovery Script
+# Purpose: Gather Gilbreth cluster info (accounts, partitions, QOS, modules, storage) for door-opening training setup
 # Usage: bash 00_discovery.sh 2>&1 | tee discovery_output.txt
 #===============================================================================
 
 set -e
 
 echo "=============================================="
-echo "GILBRETH PHASE 0.1 DISCOVERY REPORT"
+echo "GILBRETH CLUSTER DISCOVERY REPORT"
 echo "Generated: $(date)"
 echo "User: $(whoami)"
 echo "Host: $(hostname)"

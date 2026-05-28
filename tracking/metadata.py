@@ -26,7 +26,7 @@ def get_git_info(repo_path: str | None = None) -> dict[str, Any]:
         Dictionary with git commit, branch, and dirty state.
     """
     cwd = repo_path or os.getcwd()
-    git_info = {
+    git_info: dict[str, Any] = {
         "commit": None,
         "commit_short": None,
         "branch": None,
@@ -105,7 +105,7 @@ def get_environment_info() -> dict[str, Any]:
     Returns:
         Dictionary with Python, PyTorch, CUDA versions, etc.
     """
-    env_info = {
+    env_info: dict[str, Any] = {
         "python_version": sys.version,
         "python_executable": sys.executable,
         "platform": sys.platform,
@@ -166,7 +166,7 @@ def get_slurm_info() -> dict[str, Any]:
         "SLURMD_NODENAME",
     ]
 
-    slurm_info = {}
+    slurm_info: dict[str, Any] = {}
     for var in slurm_vars:
         value = os.environ.get(var)
         if value is not None:
@@ -184,7 +184,7 @@ def get_distributed_info() -> dict[str, Any]:
     Returns:
         Dictionary with world size, rank, etc.
     """
-    dist_info = {
+    dist_info: dict[str, Any] = {
         "world_size": 1,
         "rank": 0,
         "local_rank": 0,
@@ -219,7 +219,7 @@ def get_seeds() -> dict[str, int | None]:
     Returns:
         Dictionary with seed information.
     """
-    seeds = {
+    seeds: dict[str, int | None] = {
         "python": None,
         "numpy": None,
         "torch": None,
@@ -247,7 +247,7 @@ def set_seeds(seed: int, deterministic: bool = False) -> dict[str, int]:
 
     random.seed(seed)
 
-    seeds = {"python": seed}
+    seeds: dict[str, int] = {"python": seed}
 
     try:
         import numpy as np
@@ -294,7 +294,7 @@ def get_metadata(
     Returns:
         Complete metadata dictionary.
     """
-    metadata = {
+    metadata: dict[str, Any] = {
         "timestamp": datetime.now().isoformat(),
         "git": get_git_info(repo_path),
         "environment": get_environment_info(),

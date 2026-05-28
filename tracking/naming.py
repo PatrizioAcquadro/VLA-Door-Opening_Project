@@ -31,7 +31,7 @@ def generate_run_name(
     Format: {model}_{objective}_{dataset}_{YYYYMMDD}_{HHMMSS}_{git_short}
 
     Args:
-        model: Model name (e.g., "eo1", "vla-base").
+        model: Model name (e.g., "vla", "vla_dev").
         objective: Training objective (e.g., "ar", "fm", "ar+fm").
         dataset: Dataset name (e.g., "door-opening", "alex-door").
         timestamp: Timestamp for the run. If None, uses current time.
@@ -265,43 +265,3 @@ def get_run_group(
         return "_".join(components)
 
     return "default"
-
-
-def parse_run_name(run_name: str) -> dict[str, str | None]:
-    """
-    Parse a run name back into its components.
-
-    Args:
-        run_name: Run name string in standard format.
-
-    Returns:
-        Dictionary with parsed components.
-    """
-    parts = run_name.split("_")
-
-    result = {
-        "model": None,
-        "objective": None,
-        "dataset": None,
-        "date": None,
-        "time": None,
-        "git_short": None,
-    }
-
-    # Try to parse based on expected format
-    # Format: {model}_{objective}_{dataset}_{YYYYMMDD}_{HHMMSS}_{git_short}
-    if len(parts) >= 6:
-        result["model"] = parts[0]
-        result["objective"] = parts[1]
-        result["dataset"] = parts[2]
-        result["date"] = parts[3]
-        result["time"] = parts[4]
-        result["git_short"] = parts[5]
-    elif len(parts) >= 4:
-        # Minimal format: model_date_time_git
-        result["model"] = parts[0]
-        result["date"] = parts[-3] if len(parts) > 3 else None
-        result["time"] = parts[-2] if len(parts) > 2 else None
-        result["git_short"] = parts[-1]
-
-    return result

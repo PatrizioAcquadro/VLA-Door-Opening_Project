@@ -1,4 +1,4 @@
-"""Tests for action space and sim runner (Phase 1.1.5).
+"""Tests for action space and sim runner.
 
 Run:
     pytest tests/test_action_space.py -v

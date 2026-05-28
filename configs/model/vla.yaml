@@ -25,15 +25,15 @@ vlm:
     truncation: true
 
   freeze:
-    backbone: true                     # frozen by default; Phase 3.3 controls unfreezing
+    backbone: true                     # frozen by default; set false to fine-tune the backbone
     vision_encoder: true
 
 # --- Action head ---------------------------------------------------------------
 action_head:
   # Chunk contract (frozen — must match models/action_head.py constants)
   chunk_size: 16                       # 0.8 s at 20 Hz control rate
-  action_dim: 17                       # frozen 17-D action space (Phase 1.1.5)
-  state_dim: 52                        # frozen 52-D robot state (Phase 1.1.6)
+  action_dim: 17                       # frozen 17-D Alex action space
+  state_dim: 52                        # frozen 52-D Alex robot state
   tokens_per_action_step: 1            # 1 token per action step in sequence
 
   # Projector architecture

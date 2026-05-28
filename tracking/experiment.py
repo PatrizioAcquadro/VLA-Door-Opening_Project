@@ -12,6 +12,7 @@ Provides a unified interface for experiment tracking with:
 import os
 import tempfile
 import warnings
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -82,7 +83,7 @@ class ExperimentTracker:
         self.gpu_stats_interval = gpu_stats_interval
         self.enabled = enabled
         self._offline_mode = False
-        self._run = None
+        self._run: Any | None = None
         self._run_id: str | None = None
         self._step_counter = 0
 
@@ -167,9 +168,22 @@ class ExperimentTracker:
         )
 
         # Merge config with metadata
+        extra_tags = {
+            key: value
+            for key, value in self.tags.items()
+            if key not in {"model", "dataset", "objective", "experiment_group", "cluster", "qos"}
+        }
         full_config = {
             **self.config,
-            "tags": generate_tags_dict(**self.tags),
+            "tags": generate_tags_dict(
+                model=self.tags.get("model"),
+                dataset=self.tags.get("dataset"),
+                objective=self.tags.get("objective"),
+                experiment_group=self.tags.get("experiment_group"),
+                cluster=self.tags.get("cluster"),
+                qos=self.tags.get("qos"),
+                extra=extra_tags or None,
+            ),
             "metadata": metadata,
         }
 
@@ -182,7 +196,7 @@ class ExperimentTracker:
             resume = os.environ.get("WANDB_RESUME")
 
         # Try online mode first with timeout
-        init_kwargs = {
+        init_kwargs: dict[str, Any] = {
             "project": project,
             "entity": self.entity,
             "name": name,
@@ -582,7 +596,7 @@ class ExperimentTracker:
         """
         if self._run is not None and not self._offline_mode:
             try:
-                return self._run.get_url()
+                return str(self._run.get_url())
             except Exception:
                 pass
         return None
@@ -641,7 +655,9 @@ def _to_plain_config(config: dict[str, Any] | DictConfig) -> dict[str, Any]:
             container = OmegaConf.to_container(config, resolve=True)
         except Exception:
             container = OmegaConf.to_container(config, resolve=False)
-        return dict(container)
+        if isinstance(container, Mapping):
+            return dict(container)
+        return {"value": container}
     return config
 
 

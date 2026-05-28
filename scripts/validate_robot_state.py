@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate robot state contract and consistency (Phase 1.1.6).
+"""Validate robot state contract and consistency.
 
 Run:
     python scripts/validate_robot_state.py
@@ -44,7 +44,7 @@ ARTIFACT_DIR = _project_root / "logs" / "robot_state_validation"
 def print_contract(rs: AlexRobotState) -> None:
     """Print the frozen state contract."""
     print("=" * 70)
-    print("ROBOT STATE CONTRACT (Phase 1.1.6)")
+    print("ROBOT STATE CONTRACT")
     print("=" * 70)
     print(f"  State dim:         {rs.state_dim}")
     print("  Reference frame:   World (Z-up, X-forward, Y-left)")

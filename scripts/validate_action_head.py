@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Validate action head components and VLA model integration (Phase 3.2.5).
+"""Validate action head components and VLA model integration.
 
-Runs 10 sequential checks verifying all Phase 3.2 action head components
+Runs 10 sequential checks verifying all action head components
 individually and integrated, profiles VRAM overhead on GPU, and confirms
-the complete VLA model is ready for Phase 3.3 training integration.
+the complete VLA model is ready for training integration.
 
 Dual-mode operation:
     GPU + transformers available  → loads real Qwen3.5-4B backbone via load_vla_model()
@@ -62,7 +62,7 @@ _MAX_MEMORY_OVERHEAD_GB = 1.0
 
 def _print_contract(model_config: str, gpu_mode: bool) -> None:
     print("=" * 70)
-    print("ACTION HEAD VALIDATION (Phase 3.2.5)")
+    print("ACTION HEAD VALIDATION")
     print("=" * 70)
     print(f"  Model config:      {model_config}")
     print(f"  Mode:              {'GPU + real backbone' if gpu_mode else 'CPU + mock backbone'}")
@@ -205,7 +205,7 @@ def _make_synthetic_batch(
 
 
 def main() -> int:  # noqa: C901
-    parser = argparse.ArgumentParser(description="Validate action head (Phase 3.2.5)")
+    parser = argparse.ArgumentParser(description="Validate action head")
     parser.add_argument(
         "--model-config",
         type=str,
@@ -751,7 +751,6 @@ def main() -> int:  # noqa: C901
 
     # Save JSON report
     report = {
-        "phase": "3.2.5",
         "model_config": args.model_config,
         "gpu_mode": gpu_mode,
         "has_gpu": has_gpu,

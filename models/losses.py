@@ -1,14 +1,14 @@
-"""Loss contracts and utilities for Phase 4.1.
+"""Loss contracts and utilities for the VLA model.
 
 Defines the standard loss output interface (``LossOutput``), re-exports
-``TokenType`` from Phase 3.2.0, and provides shape verification utilities
-used by all downstream loss modules (``VLATextLoss``, ``VLAActionLoss``,
-``VLACombinedLoss``) implemented in Phase 4.1.1–4.1.3.
+``TokenType`` from ``models.action_head``, and provides shape verification
+utilities (``verify_text_loss_inputs``, ``verify_action_loss_inputs``) used by
+the loss modules ``VLATextLoss`` and ``VLAActionLoss``. Text and action losses
+are combined inline in ``VLAModel.forward``.
 
 Design notes:
-- ``TokenType`` canonical definition lives in ``models.action_head`` (Phase 3.2.0).
-  It is re-exported here so Phase 4.1+ consumers can import from ``models.losses``
-  without changing Phase 3.2 import paths.
+- ``TokenType`` canonical definition lives in ``models.action_head``.
+  It is re-exported here so consumers can import it from ``models.losses``.
 - ``LossOutput`` separates the differentiable ``loss`` tensor (used for backprop)
   from detached ``metrics`` floats (used for logging), ensuring monitoring never
   introduces unintended gradient paths.
@@ -24,7 +24,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Re-export from Phase 3.2.0 (canonical definition stays in action_head)
+# Re-export TokenType (canonical definition stays in action_head)
 from models.action_head import TokenType
 
 __all__ = [
@@ -46,7 +46,7 @@ MetricValue = float | list[float]
 class LossOutput:
     """Standard return type for all VLA loss modules.
 
-    All loss modules (``VLATextLoss``, ``VLAActionLoss``, ``VLACombinedLoss``)
+    Both loss modules (``VLATextLoss``, ``VLAActionLoss``)
     return a ``LossOutput``. The ``loss`` field participates in backpropagation;
     the ``metrics`` dict contains monitoring quantities that are already
     ``.detach().item()``-ed at creation time.

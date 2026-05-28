@@ -10,14 +10,11 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "gpu: marks tests requiring GPU")
     config.addinivalue_line("markers", "mujoco: marks tests requiring MuJoCo")
     config.addinivalue_line("markers", "viewer: marks tests requiring display/viewer")
-    config.addinivalue_line("markers", "smoke: simulation smoke tests (Phase 0.2.4)")
-    config.addinivalue_line("markers", "assets: asset loading and linting tests (Phase 0.2.5)")
-    config.addinivalue_line("markers", "lego: legacy LEGO baseline tests")
+    config.addinivalue_line("markers", "smoke: simulation smoke tests")
+    config.addinivalue_line("markers", "assets: asset loading and linting tests")
     config.addinivalue_line("markers", "door: door-opening task tests")
-    config.addinivalue_line(
-        "markers", "vlm: marks tests requiring transformers/VLM deps (Phase 3.1)"
-    )
-    config.addinivalue_line("markers", "action_head: action head tests (Phase 3.2)")
+    config.addinivalue_line("markers", "vlm: marks tests requiring transformers/VLM deps")
+    config.addinivalue_line("markers", "action_head: action head tests")
 
 
 def pytest_collection_modifyitems(config, items):

@@ -1,4 +1,4 @@
-"""Tests for sim.viewer (Phase 0.2.2).
+"""Tests for sim.viewer.
 
 All tests run headlessly — none open a window.
 """

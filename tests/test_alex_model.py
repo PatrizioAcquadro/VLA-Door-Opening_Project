@@ -1,4 +1,4 @@
-"""Tests for Alex V1 upper-body robot model (Phase 1.1.1 + 1.1.2 + 1.1.3).
+"""Tests for Alex V1 upper-body robot model.
 
 Run:
     pytest tests/test_alex_model.py -v
@@ -55,7 +55,7 @@ EXPECTED_RANGES = {
     "right_wrist_z": (-2.6180, 2.6180),
     "right_wrist_x": (-0.6109, 1.8326),
     "right_gripper_z": (-2.6180, 2.6180),
-    # EZGripper joints (Phase 1.1.3)
+    # EZGripper joints
     "left_knuckle_palm_l1_1": (0.0, 1.94),
     "left_knuckle_l1_l2_1": (0.0, 1.94),
     "left_knuckle_palm_l1_2": (0.0, 1.94),
@@ -266,14 +266,14 @@ class TestAlexCollision:
 
 
 # ---------------------------------------------------------------------------
-# F. Dynamics contract tests (Phase 1.1.2)
+# F. Dynamics contract tests
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.mujoco
 @pytest.mark.assets
 class TestAlexDynamicsContract:
-    """Verify dynamics parameters match Phase 1.1.2 specification."""
+    """Verify dynamics parameters match the Alex specification."""
 
     def test_spine_has_armature(self, alex_model) -> None:
         idx = mujoco.mj_name2id(alex_model, mujoco.mjtObj.mjOBJ_JOINT, "spine_z")
@@ -316,7 +316,7 @@ class TestAlexDynamicsContract:
 
 
 # ---------------------------------------------------------------------------
-# G. Hold-pose tests (Phase 1.1.2)
+# G. Hold-pose tests
 # ---------------------------------------------------------------------------
 
 
@@ -368,7 +368,7 @@ class TestAlexHoldPose:
 
 
 # ---------------------------------------------------------------------------
-# H. Joint sweep tests (Phase 1.1.2)
+# H. Joint sweep tests
 # ---------------------------------------------------------------------------
 
 
@@ -443,7 +443,7 @@ class TestAlexJointSweep:
 
 
 # ---------------------------------------------------------------------------
-# I. Kinematics validation tests (Phase 1.1.4)
+# I. Kinematics validation tests
 # ---------------------------------------------------------------------------
 
 # Left/right arm joint names for kinematics tests
@@ -533,7 +533,7 @@ class TestAlexKinematics:
             max_pos_err < 0.005
         ), f"FK symmetry error: max={max_pos_err * 100:.3f} cm"  # 5mm tolerance
 
-    def test_workspace_reaches_table(self, alex_model) -> None:
+    def test_workspace_reaches_door_handle(self, alex_model) -> None:
         """EE can reach a typical door-handle workspace region."""
         rng = np.random.default_rng(123)
         n_samples = 200

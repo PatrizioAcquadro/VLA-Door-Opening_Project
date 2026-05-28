@@ -9,7 +9,8 @@ main                    # Production-ready code
 ├── develop             # Integration branch (optional)
 └── feature/*           # Feature branches
     ├── feature/data-pipeline
-    ├── feature/transformer-v2
+    ├── feature/door-scene
+    ├── feature/action-head
     └── feature/deepspeed-integration
 ```
 
@@ -90,15 +91,15 @@ refactor(train): extract checkpoint logic to separate module
 
 ## Milestone Tags
 
-Tags mark significant project milestones (per roadmap):
+Tags mark significant door-opening capability milestones:
 
 ```bash
-# Phase 0 complete
-git tag -a v0.1.0 -m "Phase 0: Foundation & Setup complete"
+# Sim + viewer bringup complete
+git tag -a v0.1.0 -m "Sim + viewer bringup complete"
 git push origin v0.1.0
 
-# Phase 1 complete
-git tag -a v0.2.0 -m "Phase 1: Data Pipeline complete"
+# Door scene + scripted baseline complete
+git tag -a v0.2.0 -m "Door scene + scripted baseline complete"
 git push origin v0.2.0
 ```
 
@@ -107,10 +108,10 @@ git push origin v0.2.0
 ```
 v<major>.<minor>.<patch>
 
-v0.1.0  - Phase 0 complete
-v0.2.0  - Phase 1 complete
-v0.3.0  - Phase 2 complete
-v1.0.0  - First working model
+v0.1.0  - sim + viewer bringup
+v0.2.0  - door scene + scripted baseline
+v0.3.0  - data pipeline + evaluation harness
+v1.0.0  - first trained door-opening policy
 ```
 
 ## Protected Branch Rules

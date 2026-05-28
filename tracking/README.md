@@ -21,7 +21,7 @@ tracker = ExperimentTracker(
     project="vla-door-opening",
     config=config,
     tags={
-        "model": "eo1",
+        "model": "vla",
         "dataset": "door-opening",
         "objective": "ar+fm",
         "experiment_group": "baseline",
@@ -142,13 +142,13 @@ Auto-generated run names follow this format:
 {model}_{objective}_{dataset}_{YYYYMMDD}_{HHMMSS}_{git_short}
 ```
 
-Example: `eo1_ar+fm_door-opening_20260123_143052_a1b2c3`
+Example: `vla_ar+fm_door-opening_20260123_143052_a1b2c3`
 
 ### Required Tags
 
 | Tag | Description | Examples |
 |-----|-------------|----------|
-| `model` | Model architecture | `eo1`, `vla-base` |
+| `model` | Model architecture | `vla`, `vla_dev` |
 | `dataset` | Training dataset | `door-opening`, `alex-door` |
 | `objective` | Training objective | `ar`, `fm`, `ar+fm` |
 | `experiment_group` | Experiment group | `baseline`, `ablation-lr` |
@@ -271,7 +271,7 @@ https://wandb.ai/{entity}/vla-door-opening
 ```
 
 Filter by tags:
-- `model:eo1`
+- `model:vla`
 - `dataset:door-opening`
 - `experiment_group:baseline`
 
@@ -280,8 +280,7 @@ Filter by tags:
 ### Submit Tracking Demo
 
 ```bash
-cd gilbreth_phase0
-sbatch job_templates/05_smoke_tracking.sh
+sbatch infra/gilbreth/job_templates/05_smoke_tracking.sh
 ```
 
 ### Monitor Job

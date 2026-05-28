@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# Environment Setup Script for Phase 0.1
+# Gilbreth Environment Setup Script
 # Purpose: Create reproducible environment with pinned versions
 # Usage: source 01_setup_env.sh
 #===============================================================================
@@ -8,7 +8,7 @@
 set -e
 
 echo "=============================================="
-echo "PHASE 0.1 ENVIRONMENT SETUP"
+echo "GILBRETH ENVIRONMENT SETUP"
 echo "=============================================="
 
 #-------------------------------------------------------------------------------

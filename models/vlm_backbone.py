@@ -9,7 +9,7 @@ Usage:
     hidden = backbone.get_hidden_states(input_ids, attention_mask, pixel_values, image_grid_thw)
     # → (B, seq_len, 2560) for Qwen3.5-4B
 
-Processor utilities (Phase 3.1.2):
+Processor utilities:
     from models.vlm_backbone import (
         ProcessorInfo, get_processor_info, preprocess_images,
         estimate_vision_tokens, compute_context_budget,
@@ -46,7 +46,7 @@ class VLMBackboneInfo:
     """Frozen architecture metadata for the loaded VLM backbone.
 
     All fields are populated during loading and are read-only thereafter.
-    Phase 3.2 uses hidden_size to size the action head input dimension.
+    The action head sizes its input dimension from hidden_size.
     """
 
     model_id: str
@@ -71,7 +71,7 @@ class ProcessorInfo:
     """Frozen metadata about the processor and tokenizer configuration.
 
     Populated by get_processor_info(). Provides the vision token count
-    and special token IDs needed for Phase 3.2 context window budgeting.
+    and special token IDs needed for context window budgeting.
     """
 
     vocab_size: int
@@ -91,7 +91,7 @@ class ProcessorInfo:
 class VLMBackbone(nn.Module):
     """Wrapper around a HuggingFace Qwen3.5-4B model for VLA use.
 
-    Exposes the interface Phase 3.2 depends on:
+    Exposes the interface VLAModel depends on:
         backbone.hidden_size         → int (2560 for Qwen3.5-4B)
         backbone.info                → VLMBackboneInfo
         backbone.processor           → Qwen3VLProcessor
@@ -137,7 +137,7 @@ class VLMBackbone(nn.Module):
     def get_text_embeddings(self, input_ids: torch.Tensor) -> torch.Tensor:
         """Get text token embeddings from the backbone's embedding layer.
 
-        Used by VLAModel (Phase 3.2.4) to obtain text embeddings independently,
+        Used by VLAModel to obtain text embeddings independently,
         so that state and action tokens can be injected before the backbone forward.
 
         Args:
@@ -157,7 +157,7 @@ class VLMBackbone(nn.Module):
     ) -> list[torch.Tensor]:
         """Extract vision features from raw pixel values via the backbone's vision encoder.
 
-        Used by VLAModel (Phase 3.2.4) for Scenario C (full embedding control) —
+        Used by VLAModel for Scenario C (full embedding control) —
         vision features are extracted separately so they can be scattered into the
         manually assembled ``inputs_embeds``.
 
@@ -181,7 +181,7 @@ class VLMBackbone(nn.Module):
     def lm_head(self) -> torch.nn.Module:
         """The language model head: Linear(hidden_size, vocab_size).
 
-        Used by VLAModel (Phase 3.2.4) to compute text logits for AR loss.
+        Used by VLAModel to compute text logits for AR loss.
         Weight-tied with the text embedding layer.
         """
         model = cast(Any, self._model)
@@ -204,7 +204,7 @@ class VLMBackbone(nn.Module):
           embedding, transformer). Used by standalone VLM inference.
         - **Embedding mode** (``inputs_embeds`` provided): passes pre-assembled
           embeddings directly to the language model, bypassing the embedding
-          layer and vision encoder. Used by VLAModel (Phase 3.2.4) for Scenario C
+          layer and vision encoder. Used by VLAModel for Scenario C
           injection of state and action tokens. ``pixel_values`` and ``input_ids``
           are ignored in this mode.
 
@@ -326,9 +326,8 @@ class VLMBackbone(nn.Module):
         """Override to() to be a no-op when device_map was used.
 
         When loaded with device_map='auto', HuggingFace has already placed the
-        model on the appropriate device(s). The trainer's .to(device) call would
-        conflict, so we make it a safe no-op. Phase 3.3 will update the trainer
-        to skip .to() for VLM models.
+        model on the appropriate device(s), so we make .to() a safe no-op to
+        avoid clobbering that placement.
         """
         if self._device_mapped:
             return self
@@ -508,7 +507,7 @@ def verify_backbone(backbone: VLMBackbone) -> bool:
     return True
 
 
-# --- Processor utilities (Phase 3.1.2) ------------------------------------------
+# --- Processor utilities ------------------------------------------
 
 
 def estimate_vision_tokens(backbone: VLMBackbone, width: int = 320, height: int = 320) -> int:

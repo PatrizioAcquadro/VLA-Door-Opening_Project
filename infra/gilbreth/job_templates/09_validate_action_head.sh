@@ -1,9 +1,8 @@
 #!/bin/bash
 #===============================================================================
-# JOB TEMPLATE 9: Validate Action Head (Phase 3.2.5)
-# Purpose: End-to-end validation of all Phase 3.2 action head components + VLA model
+# JOB TEMPLATE 9: Validate Action Head
+# Purpose: End-to-end validation of all action head components + VLA model
 # Milestone: "10/10 checks passed, VRAM overhead < 1 GB, artifacts in logs/action_head/"
-# Phase: 3.2.5
 #
 # Runs scripts/validate_action_head.py with the full Qwen3.5-4B backbone on
 # an A100 GPU. Verifies: config parsing, component instantiation, flow matching
@@ -40,7 +39,7 @@
 set -e
 
 echo "========================================"
-echo "JOB: Validate Action Head (Phase 3.2.5)"
+echo "JOB: Validate Action Head"
 echo "========================================"
 echo "Job ID:   $SLURM_JOB_ID"
 echo "Node:     $SLURMD_NODENAME"

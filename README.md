@@ -18,7 +18,7 @@
 
 VLA-Door-Opening is a Master's thesis research project for contact-rich robotic door opening with the IHMC Alex humanoid upper body. The active task is articulated-object manipulation: perceiving a door, handle, hinge, latch state, and current opening angle, then producing continuous robot actions that unlatch and pull or push the door toward a target angle.
 
-The repository was bootstrapped from an older manipulation codebase. The EO-1-style VLA backbone, action head, trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy LEGO code, assets, scripts, and tests are archived under `archive/legacy/` for provenance only.
+The repository was bootstrapped from an older manipulation codebase. The VLA backbone and action head (a flow-matching head derived from the EO-1 architecture), trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy code, assets, scripts, and tests from the prior task are archived under `archive/legacy/` for provenance only.
 
 ## Research Goals
 
@@ -58,14 +58,14 @@ RGB views + language + Alex state
       door handle, latch, hinge motion
 ```
 
-The active task output is a continuous action trajectory for Alex. Success is measured by physical door-opening metrics, not LEGO assembly metrics.
+The active task output is a continuous action trajectory for Alex. Success is measured by physical door-opening metrics: handle contact, latch release, final door angle, contact stability, force/torque limits, and recovery.
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.10+
-- CUDA 11.8+ for GPU training
+- CUDA 12.1+ for GPU training (container uses cu121)
 - MuJoCo for simulation validation
 - Git
 
@@ -214,7 +214,7 @@ VLA-Door-Opening_Project/
 ├── scripts/                 # Validation and profiling utilities
 ├── tests/                   # Unit and integration tests
 ├── archive/legacy/          # Historical LEGO baseline material
-└── docs/                    # Roadmaps, reports, setup notes
+└── docs/                    # Setup, reference, and validation docs
 ```
 
 ## HPC Cluster Usage
@@ -245,8 +245,9 @@ Apptainer:
 | Document | Description |
 |----------|-------------|
 | [docs/door-opening-project-brief.md](docs/door-opening-project-brief.md) | Door-opening task scope and migration map |
-| [docs/roadmap/phase1.2.md](docs/roadmap/phase1.2.md) | Door environment roadmap |
-| [docs/phase3.1-3.2-report.md](docs/phase3.1-3.2-report.md) | VLM and action-head architecture report |
+| [docs/setup-mujoco.md](docs/setup-mujoco.md) | MuJoCo setup guide |
+| [docs/kinematics-validation-report.md](docs/kinematics-validation-report.md) | Alex kinematics validation report |
+| [docs/eo1-reference.md](docs/eo1-reference.md) | EO-1 architecture reference (provenance) |
 | [docs/git-workflow.md](docs/git-workflow.md) | Git branching and workflow guide |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
 

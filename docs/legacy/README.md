@@ -5,9 +5,8 @@ This folder keeps historical notes from the previous LEGO manipulation project. 
 Active VLA-Door-Opening work should use:
 
 - `docs/door-opening-project-brief.md`
-- `docs/roadmap/phase1.2.md`
-- `docs/roadmap/phase2.1.md`
-- `docs/roadmap/phase2.2.md`
-- `docs/roadmap/phase2.3.md`
+- `docs/setup-mujoco.md`
+- `docs/cluster/gilbreth-training-guide.md`
+- `docs/eo1-reference.md`
 - `sim/assets/scenes/alex_door_workspace.xml`
 - `configs/sim/door.yaml`

@@ -1,13 +1,14 @@
 """VLA model assembly — composes VLM backbone with action head components.
 
-Phase 3.2.4: Wires the Phase 3.1 VLM backbone (Qwen3.5-4B) together with all
-Phase 3.2 action head components into a single trainable model with Transfusion-
+Wires the VLM backbone (Qwen3.5-4B) together with all
+action head components into a single trainable model with Transfusion-
 style dual loss (AR text + flow matching action) and multi-step ODE denoising
 inference.
 
 Multimodal injection strategy: Scenario C (full embedding control).
 The backbone's XOR constraint prevents passing both ``input_ids`` and
-``inputs_embeds`` simultaneously (Qwen3_5Model line 1736). VLAModel therefore
+``inputs_embeds`` simultaneously (the HuggingFace Qwen3.5 model enforces an
+input_ids XOR inputs_embeds constraint). VLAModel therefore
 assembles the full embedding sequence manually:
     1. text embeddings via backbone.get_text_embeddings(input_ids)
     2. vision features via backbone.get_vision_features(pixel_values, ...)
@@ -18,7 +19,7 @@ assembles the full embedding sequence manually:
 
 Position IDs default to 1D sequential when inputs_embeds is provided without
 input_ids (backbone fallback). Loses 3D spatial RoPE for vision tokens —
-acceptable with frozen backbone; optimize in Phase 3.3 if needed.
+acceptable with frozen backbone.
 
 Usage::
 
@@ -100,11 +101,11 @@ class VLAModel(nn.Module):
     """Vision-Language-Action model with Transfusion-style dual loss.
 
     Composes:
-        backbone          — Phase 3.1 VLMBackbone (Qwen3.5-4B, frozen by default)
-        state_projector   — Phase 3.2.2 RobotStateProjector (52-D → H)
-        action_projector  — Phase 3.2.3 NoisyActionProjector ((17-D + t) → H)
-        action_output_head— Phase 3.2.3 ActionOutputHead (H → 17-D velocity)
-        flow_matching     — Phase 3.2.1 FlowMatchingModule (CFM math, no params)
+        backbone          — VLMBackbone (Qwen3.5-4B, frozen by default)
+        state_projector   — RobotStateProjector (52-D → H)
+        action_projector  — NoisyActionProjector ((17-D + t) → H)
+        action_output_head— ActionOutputHead (H → 17-D velocity)
+        flow_matching     — FlowMatchingModule (CFM math, no params)
 
     Sequence layout (per segment)::
 
@@ -121,7 +122,7 @@ class VLAModel(nn.Module):
     assembly, then cast back to float32 for velocity prediction.
 
     Args:
-        backbone: Loaded VLMBackbone from Phase 3.1.
+        backbone: Loaded VLMBackbone.
         cfg: Full Hydra config with model.action_head section.
 
     Example::
@@ -551,7 +552,7 @@ def _extract_action_head_cfg(cfg: DictConfig) -> dict[str, Any] | None:
 def load_vla_model(cfg: DictConfig) -> VLAModel:
     """Load and assemble the full VLA model from Hydra config.
 
-    Loads the Phase 3.1 VLM backbone, then wraps it with all Phase 3.2 action
+    Loads the VLM backbone, then wraps it with all action
     head components into a ``VLAModel``.
 
     Args:

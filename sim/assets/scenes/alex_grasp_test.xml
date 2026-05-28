@@ -1,6 +1,6 @@
 <mujoco model="alex_grasp_test">
     <!--
-        Alex V1 Grasp Test Scene (Phase 1.1.3)
+        Alex V1 Grasp Test Scene
         Includes Alex robot with EZGripper + table + graspable cube.
         Pre-grasp keyframe is approximate — tune in viewer.
     -->

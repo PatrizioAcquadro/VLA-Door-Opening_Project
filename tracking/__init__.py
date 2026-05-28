@@ -12,7 +12,7 @@ Quick Start:
     tracker = ExperimentTracker(
         project="vla-door-opening",
         config=config,
-        tags={"model": "eo1", "dataset": "door-opening", "objective": "ar+fm"},
+        tags={"model": "vla", "dataset": "door-opening", "objective": "ar+fm"},
     )
 
     # Log training steps

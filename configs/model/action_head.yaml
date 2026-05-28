@@ -1,7 +1,8 @@
-# Action Head Configuration (Phase 3.2)
+# Action Head Configuration
 #
-# Defines parameters for the flow matching action head that attaches to the
-# Phase 3.1 VLM backbone. This config is composed into vla.yaml (Phase 3.2.4).
+# Reference defaults for the flow-matching action head used by the VLA model.
+# NOTE: vla.yaml and vla_dev.yaml currently inline their own action_head blocks;
+# this standalone file is not composed by Hydra (no defaults entry references it).
 #
 # Frozen contract values (chunk_size, action_dim, state_dim) must match
 # the constants in models/action_head.py.
@@ -9,8 +10,8 @@
 action_head:
   # --- Chunk contract (frozen) -----------------------------------------------
   chunk_size: 16                # 0.8 s at 20 Hz control rate
-  action_dim: 17                # frozen 17-D action space (Phase 1.1.5)
-  state_dim: 52                 # frozen 52-D robot state (Phase 1.1.6)
+  action_dim: 17                # frozen 17-D Alex action space
+  state_dim: 52                 # frozen 52-D Alex robot state
   tokens_per_action_step: 1     # 1 token per action step in sequence
 
   # --- Projector architecture ------------------------------------------------

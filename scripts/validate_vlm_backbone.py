@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate VLM backbone end-to-end inference (Phase 3.1.3).
+"""Validate VLM backbone end-to-end inference.
 
 Runs 8 sequential checks verifying that the loaded Qwen3.5-4B backbone
 produces valid logits, non-NaN hidden states, and coherent text generation
@@ -56,7 +56,7 @@ def _get_test_images(n: int = 4) -> tuple[list[np.ndarray], str]:
     """Return test images and a label describing the source.
 
     Tries MuJoCo sim images first (alex_upper_body, rest keyframe).
-    Falls back to synthetic 320x320 uint8 arrays (EO-1 eval_policy.py pattern).
+    Falls back to synthetic 320x320 uint8 arrays when MuJoCo is unavailable.
     """
     try:
         import mujoco  # noqa: F401
@@ -95,7 +95,7 @@ _TEST_PROMPT = (
 
 def _print_contract(model_config: str) -> None:
     print("=" * 70)
-    print("VLM BACKBONE INFERENCE SANITY CHECK (Phase 3.1.3)")
+    print("VLM BACKBONE INFERENCE SANITY CHECK")
     print("=" * 70)
     print(f"  Model config:    {model_config}")
     print("  Expected model:  Qwen/Qwen3.5-4B")
@@ -111,7 +111,7 @@ def _print_contract(model_config: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate VLM backbone inference (Phase 3.1.3)")
+    parser = argparse.ArgumentParser(description="Validate VLM backbone inference")
     parser.add_argument(
         "--model-config",
         type=str,
@@ -388,7 +388,6 @@ def main() -> int:
 
     # Save JSON report
     report = {
-        "phase": "3.1.3",
         "model_config": args.model_config,
         "checks": [{"name": n, "passed": p, "detail": d} for n, p, d in results],
         "summary": {"passed": n_pass, "total": n_total, "all_passed": n_pass == n_total},
