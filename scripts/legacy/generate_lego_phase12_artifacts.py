@@ -15,7 +15,7 @@ Demonstrates all Phase 1.2 LEGO simulation capabilities:
 Artifacts saved to: logs/phase12_artifacts/
 
 Usage:
-    python scripts/generate_phase12_artifacts.py
+    python scripts/legacy/generate_lego_phase12_artifacts.py
 """
 
 from __future__ import annotations

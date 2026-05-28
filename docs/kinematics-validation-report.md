@@ -84,11 +84,11 @@
 | `left_tool_frame` | [-0.55, 0.65] | [-0.42, 0.91] | [0.78, 2.14] | 2.19 |
 | `right_tool_frame` | [-0.49, 0.63] | [-0.90, 0.36] | [0.78, 2.12] | 1.89 |
 
-### LEGO Workspace Reachability
+### Door-Handle Workspace Reachability
 
 Target region: X ∈ [0.3, 0.6] m, Y ∈ [-0.3, 0.3] m, Z ∈ [0.8, 1.2] m
 
-**Result: REACHABLE** — Both arms can reach the target LEGO workspace region.
+**Result: REACHABLE** - Both arms can reach the target door-handle workspace region.
 
 ---
 
@@ -154,7 +154,7 @@ The original SDK MJCF (`alex_v1_full_body_mjx.xml`) uses row-major `fullinertia`
 **Mitigation**: Tier 1 self-consistency checks provide strong evidence of kinematic correctness:
 - Perfect left/right mirror symmetry (0.0000 cm error)
 - All joint axes verified active
-- Workspace covers target LEGO region
+- Workspace covers target door-handle region
 - EE positions at home are perfectly symmetric
 
 The SDK clone is at `/tmp/ihmc-alex-sdk` (pinned commit `be25a395`). To re-verify:
@@ -178,6 +178,6 @@ ALEX_SDK_PATH=/tmp/ihmc-alex-sdk python scripts/validate_kinematics.py
 
 ## VERDICT: GO
 
-The Alex V1 upper-body MuJoCo model passes all Tier 1 kinematics validation checks. The arm kinematics are perfectly symmetric, all joints are kinematically active, the workspace covers the target LEGO assembly region, and no axis flips or systematic offsets were detected. The model is acceptable for dataset generation and policy training.
+The Alex V1 upper-body MuJoCo model passes all Tier 1 kinematics validation checks. The arm kinematics are symmetric, all joints are kinematically active, the workspace covers the target door-handle region, and no axis flips or systematic offsets were detected. The model is acceptable for door-opening dataset generation and policy training.
 
 Tier 2 reference comparison was skipped due to the SDK's incompatible `fullinertia` format. This does not affect kinematic correctness — inertia is a dynamics property, not kinematics. The arm kinematic chain (link lengths, joint axes, body offsets) was imported without modification from the pinned SDK commit.

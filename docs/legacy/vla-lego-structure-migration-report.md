@@ -1,4 +1,6 @@
-# Structure Migration Report
+# Legacy Note: Structure Migration Report
+
+This is a historical VLA-LEGO migration report retained for provenance only. Current infrastructure paths should use `vla-door-opening`.
 
 **Date:** January 26, 2026
 **Purpose:** Consolidate VLA-Project_Gilbreth (legacy) and VLA-LEGO_Project (canonical) into a single cross-device repository

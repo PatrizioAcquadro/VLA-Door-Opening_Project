@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This project is the independent door-opening manipulation successor to the VLA-LEGO baseline. The initial codebase keeps the EO-1-style VLA model, training loop, Hydra configuration, tracking, MuJoCo utilities, and robot-state abstractions, while the task layer should move from LEGO assembly to articulated-object manipulation.
+This project is the independent door-opening manipulation successor to a legacy manipulation baseline. The initial codebase keeps the EO-1-style VLA model, training loop, Hydra configuration, tracking, MuJoCo utilities, and robot-state abstractions, while the task layer moves to articulated-object manipulation.
 
 ## Target Task
 
@@ -18,7 +18,7 @@ The main behavior is opening doors through contact-rich manipulation:
 
 - Replace `sim/lego/` task logic with a door, handle, hinge, and latch simulation module
 - Add MJCF assets for hinged doors, cabinet doors, lever handles, round knobs, and push bars
-- Replace LEGO metrics with door metrics: handle grasp success, latch release, max door angle, final target-angle error, contact stability, force/torque limits, and recovery success
+- Replace legacy task metrics with door metrics: handle grasp success, latch release, max door angle, final target-angle error, contact stability, force/torque limits, and recovery success
 - Keep the VLA backbone, action head, training loop, tracking, cluster, and container infrastructure unless the door task exposes a specific mismatch
 - Treat IHMC Alex transfer as a later validation stage after simulation metrics are stable
 

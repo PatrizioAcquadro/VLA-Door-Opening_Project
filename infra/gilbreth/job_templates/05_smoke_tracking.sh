@@ -35,11 +35,11 @@ echo "Start: $(date)"
 echo "========================================"
 
 cd $SLURM_SUBMIT_DIR
-source /scratch/gilbreth/$(whoami)/vla-lego/activate_env.sh 2>/dev/null || {
+source /scratch/gilbreth/$(whoami)/vla-door-opening/activate_env.sh 2>/dev/null || {
     module purge
     module load external
     module load cuda/12.1.1 anaconda/2024.10-py312
-    conda activate vla_lego_env 2>/dev/null || source activate vla_lego_env
+    conda activate vla_door_env 2>/dev/null || source activate vla_door_env
 }
 
 mkdir -p logs checkpoints
@@ -208,7 +208,7 @@ def main():
         },
         "seeds": seeds,
         "tracking": {
-            "project": "vla-lego",
+            "project": "vla-door-opening",
             "tags": {
                 "model": "dummy-mlp",
                 "dataset": "synthetic",
@@ -220,7 +220,7 @@ def main():
 
     # Initialize experiment tracker (only rank 0 logs)
     tracker = ExperimentTracker(
-        project="vla-lego",
+        project="vla-door-opening",
         config=config,
         tags={
             "model": "dummy-mlp",

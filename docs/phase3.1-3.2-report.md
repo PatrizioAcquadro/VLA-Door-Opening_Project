@@ -1,6 +1,6 @@
 # Phase 3.1–3.2 Completion Report: VLM Backbone Integration & Action Head Implementation
 
-**Project:** VLA-LEGO — Vision-Language-Action System for Bimanual Robotic LEGO Assembly
+**Project:** VLA-Door-Opening - Vision-Language-Action System for Robotic Door-Opening Manipulation
 **Author:** Euge
 **Date:** March 2026
 **Hardware:** Lab PC (RTX 4090 24 GB, CUDA 12.8) and Gilbreth HPC (A100 80 GB)
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Phases 3.1 and 3.2 establish the neural architecture of the VLA-LEGO system. Phase 3.1 integrates a pretrained 4.54-billion-parameter vision-language model (Qwen3.5-4B) as the frozen backbone, providing multimodal understanding of simulation images and text instructions. Phase 3.2 attaches a 20.5-million-parameter flow-matching action head that produces continuous 17-D robot action trajectories through iterative ODE denoising. Together, they compose a complete Vision-Language-Action model with Transfusion-style dual loss — autoregressive cross-entropy on text positions and flow matching velocity MSE on action positions — ready for Phase 3.3 training integration.
+Phases 3.1 and 3.2 establish the neural architecture of the VLA-Door-Opening system. Phase 3.1 integrates a pretrained 4.54-billion-parameter vision-language model (Qwen3.5-4B) as the frozen backbone, providing multimodal understanding of simulation images and text instructions. Phase 3.2 attaches a 20.5-million-parameter flow-matching action head that produces continuous 17-D robot action trajectories through iterative ODE denoising. Together, they compose a complete Vision-Language-Action model with Transfusion-style dual loss - autoregressive cross-entropy on text positions and flow matching velocity MSE on action positions - ready for Phase 3.3 training integration.
 
 The entire architecture has been validated end-to-end on GPU with 160 automated tests and two standalone validation scripts (18 checks total, all passing). The action head adds only 0.75 GB of VRAM overhead on top of the backbone's 8.55 GB baseline, leaving ample room for training on the A100.
 
@@ -108,7 +108,7 @@ Implement the flow matching action head that attaches to the Phase 3.1 backbone 
 
 **Float32 action head.** Following EO-1, all action head components (projectors, output head) operate in float32 for numerical stability, even though the backbone runs in bfloat16. Embeddings are cast to bfloat16 for sequence assembly, then back to float32 for velocity prediction.
 
-**Action chunk size.** 16 steps at 20 Hz = 0.8 seconds of robot motion per prediction. This matches the project's control contract (Phase 1.1.5) and provides sufficient temporal coverage for LEGO pick-and-place motions.
+**Action chunk size.** 16 steps at 20 Hz = 0.8 seconds of robot motion per prediction. This matches the project's control contract and provides sufficient temporal coverage for handle approach, latch release, and door-opening motion.
 
 ### 2.3 Implementation (6 Subphases)
 
@@ -247,7 +247,7 @@ CPU tests use a lightweight `MockVLMBackbone` (hidden_size=64) for fast CI execu
 
 The implementation is architecturally inspired by EO-1 (arXiv:2508.21112) but is entirely new code. Key adaptations:
 
-| Aspect | EO-1 | VLA-LEGO |
+| Aspect | EO-1 | VLA-Door-Opening |
 |--------|------|----------|
 | Backbone | Qwen2.5-VL-3B (2048 hidden) | Qwen3.5-4B (2560 hidden) |
 | Action dim | Up to 32 | 17 (frozen, bimanual) |

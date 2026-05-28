@@ -109,7 +109,7 @@ SYSTEM_MESSAGE = "..."   # default system prompt
 
 ## Architecture Constants Comparison
 
-| Parameter | EO-1 (Qwen2.5-VL-3B) | VLA-LEGO (Qwen3.5-4B) |
+| Parameter | EO-1 (Qwen2.5-VL-3B) | VLA-Door-Opening (Qwen3.5-4B) |
 |---|---|---|
 | hidden_size | 2048 | 2560 |
 | num_hidden_layers | ~28 | 32 |
@@ -136,7 +136,7 @@ EO-1 has minimal testing — no pytest, no assertions, no CI:
 
 ## Phase-Specific Lookup Guide
 
-| VLA-LEGO Phase | What to check in EO-1 |
+| VLA-Door-Opening Phase | What to check in EO-1 |
 |---|---|
 | **3.1** (backbone) | `modeling_eo1.py` init, `configuration_eo1.py`, `processing_eo1.py` |
 | **3.2** (action head) | `modeling_eo1.py`: action head MLP, `embed_suffix()`, `sample_actions()`, `constants.py` special tokens |

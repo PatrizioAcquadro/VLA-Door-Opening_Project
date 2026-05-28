@@ -289,7 +289,7 @@ noise_clamped = noise * max(1.0, sigma_min / ||noise||)
 Inspect the EO-1 codebase for a robot state projector or proprioceptive conditioning module. If EO-1 provides one, reuse and adapt it for our 52-D state vector. Otherwise, implement `RobotStateProjector` — an MLP that projects the normalized 52-D robot state into a single hidden-dimension token for injection into the VLM sequence as proprioceptive conditioning.
 
 ### Why this matters
-The VLM backbone sees images and text but has no direct access to joint positions, velocities, gripper states, or end-effector poses. The robot state projector bridges this gap: it injects proprioceptive information into the same representation space as vision and language tokens, allowing the backbone's attention mechanism to condition action predictions on the robot's current physical configuration. Without state conditioning, the model must infer joint states from images alone — feasible for coarse motion but insufficient for the millimeter-level precision required by LEGO press-fit assembly.
+The VLM backbone sees images and text but has no direct access to joint positions, velocities, gripper states, or end-effector poses. The robot state projector bridges this gap: it injects proprioceptive information into the same representation space as vision and language tokens, allowing the backbone's attention mechanism to condition action predictions on the robot's current physical configuration. Without state conditioning, the model must infer joint states from images alone, which is insufficient for precise handle contact, latch release, and controlled hinge motion.
 
 ### Design
 

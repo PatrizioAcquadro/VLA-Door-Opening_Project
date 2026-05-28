@@ -1,5 +1,5 @@
 """
-Experiment tracking module for VLA-LEGO training.
+Experiment tracking module for VLA-Door-Opening training.
 
 This module provides comprehensive experiment tracking using Weights & Biases,
 with support for distributed training, automatic offline fallback, and
@@ -10,9 +10,9 @@ Quick Start:
 
     # Initialize tracker (only rank 0 logs)
     tracker = ExperimentTracker(
-        project="vla-lego",
+        project="vla-door-opening",
         config=config,
-        tags={"model": "eo1", "dataset": "lego", "objective": "ar+fm"},
+        tags={"model": "eo1", "dataset": "door-opening", "objective": "ar+fm"},
     )
 
     # Log training steps

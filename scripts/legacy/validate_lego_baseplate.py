@@ -5,7 +5,7 @@ Runs key acceptance tests for baseplate generation, contact physics,
 and workspace scene loading. Writes artifacts to ``logs/lego_baseplate/``.
 
 Usage:
-    python scripts/validate_lego_baseplate.py
+    python scripts/legacy/validate_lego_baseplate.py
 """
 
 from __future__ import annotations

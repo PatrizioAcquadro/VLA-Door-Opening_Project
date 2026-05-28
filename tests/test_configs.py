@@ -16,6 +16,8 @@ class TestConfigParsing:
             assert "model" in cfg
             assert "trainer" in cfg
             assert "data" in cfg
+            assert "sim" in cfg
+            assert cfg.sim.task.name == "door_opening"
 
     def test_model_configs(self):
         """Test all model configs parse."""

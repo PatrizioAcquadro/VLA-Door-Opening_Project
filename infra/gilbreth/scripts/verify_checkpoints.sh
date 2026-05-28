@@ -8,7 +8,7 @@
 set -e
 
 # Default checkpoint root
-CKPT_ROOT="${1:-${CHECKPOINT_DIR:-/scratch/gilbreth/$(whoami)/vla-lego/checkpoints}}"
+CKPT_ROOT="${1:-${CHECKPOINT_DIR:-/scratch/gilbreth/$(whoami)/vla-door-opening/checkpoints}}"
 
 echo "Verifying checkpoint directory: $CKPT_ROOT"
 

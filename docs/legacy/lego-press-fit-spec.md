@@ -1,4 +1,6 @@
-# Soft Real Press-Fit Specification (Phase 1.2.0)
+# Legacy Note: Soft Real Press-Fit Specification (Phase 1.2.0)
+
+This is a historical VLA-LEGO document retained for provenance only. It is not the active task specification for VLA-Door-Opening.
 
 **Revision:** Definitive (updated post-Phase 1.2.2 tuning)
 

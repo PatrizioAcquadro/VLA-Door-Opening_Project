@@ -278,7 +278,7 @@ def attach_wandb_artifacts(output_dir: Path, all_results: dict) -> None:
 
     try:
         run = wandb.init(
-            project="vla-lego",
+            project="vla-door-opening",
             name=f"smoke-{datetime.now(tz=timezone.utc).strftime('%Y%m%d-%H%M%S')}",
             tags=["phase:0.2.4", "type:smoke-test"],
             config={

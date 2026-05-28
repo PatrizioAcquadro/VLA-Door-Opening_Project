@@ -172,7 +172,7 @@ jobs:
             cluster=local \
             trainer=debug \
             trainer.training.max_steps=2 \
-            hydra.run.dir=/tmp/vla_lego_smoke \
+            hydra.run.dir=/tmp/vla_door_smoke \
             --cfg job 2>&1 | head -100
           echo "Smoke test completed"
 
@@ -423,7 +423,7 @@ jobs:
 
       - name: Build Apptainer image from Docker
         run: |
-          apptainer build vla-lego.sif docker://${{ env.REGISTRY }}/${{ needs.build-container.outputs.image_name }}@${{ needs.build-container.outputs.digest }}
+          apptainer build vla-door-opening.sif docker://${{ env.REGISTRY }}/${{ needs.build-container.outputs.image_name }}@${{ needs.build-container.outputs.digest }}
 
       - name: Disk diagnostics (after build)
         run: df -h
@@ -432,7 +432,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apptainer-image
-          path: vla-lego.sif
+          path: vla-door-opening.sif
           retention-days: 30
 
   # --------------------------------------------------------------------------
@@ -458,7 +458,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: vla-lego.sif
+          files: vla-door-opening.sif
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

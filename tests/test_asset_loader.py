@@ -47,6 +47,11 @@ class TestAssetDirectoryLayout:
 
         assert (SCENES_DIR / "alex_upper_body.xml").exists()
 
+    def test_door_scene_exists(self) -> None:
+        from sim.asset_loader import SCENES_DIR
+
+        assert (SCENES_DIR / "alex_door_workspace.xml").exists()
+
     def test_alex_robot_dir_exists(self) -> None:
         from sim.asset_loader import ROBOTS_DIR
 
@@ -92,6 +97,14 @@ class TestLoadScene:
         assert model.nq > 0
         assert model.nv > 0
         assert model.opt.timestep > 0
+
+    def test_load_door_workspace(self) -> None:
+        """Active door-opening workspace loads successfully."""
+        from sim.asset_loader import load_scene
+
+        model = load_scene("alex_door_workspace")
+        assert model.nq > 0
+        assert model.nv > 0
 
 
 # ---------------------------------------------------------------------------

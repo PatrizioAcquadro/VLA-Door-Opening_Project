@@ -1,8 +1,8 @@
 #!/bin/bash
 # =============================================================================
-# Docker Wrapper for VLA-LEGO (Deps-Only Container)
+# Docker Wrapper for VLA-Door-Opening (Deps-Only Container)
 #
-# This script runs commands inside the VLA-LEGO Docker container with
+# This script runs commands inside the VLA-Door-Opening Docker container with
 # the current directory bind-mounted at /workspace.
 #
 # Usage:
@@ -10,7 +10,7 @@
 #   ./scripts/docker-run.sh pytest tests/ -v
 #
 # Environment variables:
-#   VLA_DOCKER_IMAGE - Override the default image (default: ghcr.io/patrizioacquadro/vla-lego_project:latest)
+#   VLA_DOCKER_IMAGE - Override the default image (default: ghcr.io/patrizioacquadro/vla-door-opening_project:latest)
 #   WANDB_API_KEY    - Weights & Biases API key (passed through)
 #   WANDB_MODE       - W&B mode: online/offline/disabled (passed through)
 #   CUDA_VISIBLE_DEVICES - GPU selection (passed through)
@@ -18,11 +18,11 @@
 set -e
 
 # Default image (can be overridden via environment variable)
-IMAGE="${VLA_DOCKER_IMAGE:-ghcr.io/patrizioacquadro/vla-lego_project:latest}"
+IMAGE="${VLA_DOCKER_IMAGE:-ghcr.io/patrizioacquadro/vla-door-opening_project:latest}"
 
 # Show usage if no command provided
 if [[ $# -eq 0 ]]; then
-    echo "VLA-LEGO Docker Runner (Deps-Only Container)"
+    echo "VLA-Door-Opening Docker Runner (Deps-Only Container)"
     echo ""
     echo "Usage: $0 COMMAND [ARGS...]"
     echo ""
@@ -40,7 +40,7 @@ fi
 # Check if we're in the project directory
 if [[ ! -f "pyproject.toml" ]]; then
     echo "ERROR: pyproject.toml not found in current directory."
-    echo "Please run this script from the VLA-LEGO project root."
+    echo "Please run this script from the VLA-Door-Opening project root."
     exit 1
 fi
 

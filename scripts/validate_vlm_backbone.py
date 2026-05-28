@@ -88,7 +88,7 @@ def _get_test_images(n: int = 4) -> tuple[list[np.ndarray], str]:
 _EXPECTED_HIDDEN_SIZE = 2560
 _EXPECTED_VOCAB_SIZE = 248320
 _TEST_PROMPT = (
-    "The robot is performing a LEGO assembly task. "
+    "The robot is opening a door with a handle. "
     "Describe what you see and what the robot should do next."
 )
 

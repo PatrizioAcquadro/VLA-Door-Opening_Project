@@ -12,6 +12,7 @@ defaults:
   - model: base
   - trainer: default
   - data: default
+  - sim: door
   - cluster: local
   - optional logging: wandb
 

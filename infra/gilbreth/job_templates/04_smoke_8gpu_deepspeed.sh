@@ -37,11 +37,11 @@ echo "Start: $(date)"
 echo "========================================"
 
 cd $SLURM_SUBMIT_DIR
-source /scratch/gilbreth/$(whoami)/vla-lego/activate_env.sh 2>/dev/null || {
+source /scratch/gilbreth/$(whoami)/vla-door-opening/activate_env.sh 2>/dev/null || {
     module purge
     module load external
     module load cuda/12.1.1 anaconda/2024.10-py312
-    conda activate vla_lego_env 2>/dev/null || source activate vla_lego_env
+    conda activate vla_door_env 2>/dev/null || source activate vla_door_env
 }
 
 # Unset single-node network config from activate_env.sh (interface names vary by node)
@@ -94,7 +94,7 @@ srun --ntasks=$SLURM_JOB_NUM_NODES --ntasks-per-node=1 bash -c '
 # DEEPSPEED CONFIG
 #-------------------------------------------------------------------------------
 # Use home directory (more reliable than scratch for NFS)
-SHARED_DIR=$HOME/vla_lego_multinode
+SHARED_DIR=$HOME/vla_door_multinode
 mkdir -p $SHARED_DIR
 
 echo ""

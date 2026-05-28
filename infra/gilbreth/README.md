@@ -1,6 +1,6 @@
 # Gilbreth HPC Infrastructure
 
-This directory contains cluster-specific infrastructure for running VLA-LEGO on Purdue's Gilbreth HPC cluster.
+This directory contains cluster-specific infrastructure for running VLA-Door-Opening on Purdue's Gilbreth HPC cluster.
 
 ## Directory Structure
 
@@ -26,8 +26,8 @@ infra/gilbreth/
 Add to your `~/.bashrc`:
 
 ```bash
-export VLA_PROJECT_ROOT=$HOME/VLA-LEGO_Project
-export VLA_SCRATCH_ROOT=/scratch/gilbreth/$USER/vla-lego
+export VLA_PROJECT_ROOT=$HOME/VLA-Door-Opening_Project
+export VLA_SCRATCH_ROOT=/scratch/gilbreth/$USER/vla-door-opening
 ```
 
 ### 2. Run Discovery Script

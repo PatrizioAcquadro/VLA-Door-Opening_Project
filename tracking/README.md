@@ -1,6 +1,6 @@
 # Experiment Tracking Module
 
-End-to-end experiment tracking for VLA-LEGO training runs using Weights & Biases (W&B).
+End-to-end experiment tracking for VLA-Door-Opening training runs using Weights & Biases (W&B).
 
 ## Features
 
@@ -18,11 +18,11 @@ from tracking import ExperimentTracker
 
 # Initialize tracker (only rank 0 logs)
 tracker = ExperimentTracker(
-    project="vla-lego",
+    project="vla-door-opening",
     config=config,
     tags={
         "model": "eo1",
-        "dataset": "lego",
+        "dataset": "door-opening",
         "objective": "ar+fm",
         "experiment_group": "baseline",
     },
@@ -58,10 +58,10 @@ tracker.finish()
 
 ## Installation
 
-The tracking module requires `wandb` which is already installed in the `vla_lego_env` conda environment:
+The tracking module requires `wandb` which is already installed in the `vla_door_env` conda environment:
 
 ```bash
-source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
+source /scratch/gilbreth/$USER/vla-door-opening/activate_env.sh
 ```
 
 To log in to W&B (one-time setup):
@@ -80,13 +80,13 @@ wandb login
 | `WANDB_LOG_MODEL` | `0` | Set to `1` to enable checkpoint artifact uploads |
 | `WANDB_DIR` | `./wandb` | Directory for W&B files |
 | `WANDB_ENTITY` | - | Default W&B entity (username/team) |
-| `WANDB_PROJECT` | `vla-lego` | Default project name |
+| `WANDB_PROJECT` | `vla-door-opening` | Default project name |
 
 ### Programmatic Configuration
 
 ```python
 tracker = ExperimentTracker(
-    project="vla-lego",           # W&B project name
+    project="vla-door-opening",           # W&B project name
     config=config,                 # Training config dict
     tags={...},                    # Tags for filtering
     name="custom-run-name",        # Optional custom run name
@@ -142,14 +142,14 @@ Auto-generated run names follow this format:
 {model}_{objective}_{dataset}_{YYYYMMDD}_{HHMMSS}_{git_short}
 ```
 
-Example: `eo1_ar+fm_lego_20260123_143052_a1b2c3`
+Example: `eo1_ar+fm_door-opening_20260123_143052_a1b2c3`
 
 ### Required Tags
 
 | Tag | Description | Examples |
 |-----|-------------|----------|
 | `model` | Model architecture | `eo1`, `vla-base` |
-| `dataset` | Training dataset | `lego`, `lego-bimanual` |
+| `dataset` | Training dataset | `door-opening`, `alex-door` |
 | `objective` | Training objective | `ar`, `fm`, `ar+fm` |
 | `experiment_group` | Experiment group | `baseline`, `ablation-lr` |
 
@@ -222,7 +222,7 @@ resume_id = client_state.get("wandb_run_id")
 
 # Resume tracker with same run ID
 tracker = ExperimentTracker(
-    project="vla-lego",
+    project="vla-door-opening",
     config=config,
     resume_id=resume_id,  # Continues existing run
 )
@@ -267,12 +267,12 @@ tracker = ExperimentTracker(enabled=False, ...)
 After runs complete:
 
 ```
-https://wandb.ai/{entity}/vla-lego
+https://wandb.ai/{entity}/vla-door-opening
 ```
 
 Filter by tags:
 - `model:eo1`
-- `dataset:lego`
+- `dataset:door-opening`
 - `experiment_group:baseline`
 
 ## Cluster Usage

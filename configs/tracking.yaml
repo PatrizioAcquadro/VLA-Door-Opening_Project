@@ -54,7 +54,7 @@ tracking:
       # Model architecture (e.g., "eo1", "vla-base")
       model: null
 
-      # Training dataset (e.g., "lego", "lego-bimanual")
+      # Training dataset (e.g., "door-opening", "alex-door")
       dataset: null
 
       # Training objective (e.g., "ar", "fm", "ar+fm")
@@ -70,6 +70,6 @@ tracking:
 #   run:
 #     tags:
 #       model: "eo1"
-#       dataset: "lego"
+#       dataset: "door-opening"
 #       objective: "ar+fm"
 #       experiment_group: "phase0-smoke"

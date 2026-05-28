@@ -17,7 +17,7 @@ echo "=============================================="
 echo ""
 echo "=== 1. Setting up standard paths ==="
 
-export PROJECT_NAME="vla-lego"
+export PROJECT_NAME="vla-door-opening"
 export USER_NAME=$(whoami)
 
 # Base directories
@@ -62,7 +62,7 @@ echo "  RENDERS_DIR: ${RENDERS_DIR}"
 # 1b. Create Repo Symlinks (if repo root provided)
 #-------------------------------------------------------------------------------
 # This section creates symlinks from the repo root to SCRATCH directories
-# Set REPO_ROOT to your VLA-LEGO_Project location to enable this
+# Set REPO_ROOT to your VLA-Door-Opening_Project location to enable this
 REPO_ROOT="${REPO_ROOT:-}"
 
 if [ -n "${REPO_ROOT}" ] && [ -d "${REPO_ROOT}" ]; then
@@ -96,7 +96,7 @@ if [ -n "${REPO_ROOT}" ] && [ -d "${REPO_ROOT}" ]; then
 else
     echo ""
     echo "  Note: Set REPO_ROOT to create symlinks in your repo directory"
-    echo "  Example: REPO_ROOT=/home/\${USER}/VLA-LEGO_Project source 01_setup_env.sh"
+    echo "  Example: REPO_ROOT=/home/\${USER}/VLA-Door-Opening_Project source 01_setup_env.sh"
 fi
 
 #-------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ echo "  NCCL_SOCKET_IFNAME: ${NCCL_SOCKET_IFNAME}"
 echo ""
 echo "=== 5. Setting up Conda environment ==="
 
-CONDA_ENV_NAME="${PROJECT_NAME}_env"
+CONDA_ENV_NAME="vla_door_env"
 CONDA_ENV_PATH="${PROJECT_ROOT}/conda_envs/${CONDA_ENV_NAME}"
 
 # Check if environment exists
@@ -279,13 +279,13 @@ ACTIVATE_SCRIPT="${PROJECT_ROOT}/activate_env.sh"
 cat > ${ACTIVATE_SCRIPT} << 'ACTIVATE_EOF'
 #!/bin/bash
 # Quick activation script - source this to set up environment
-# Usage: source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
+# Usage: source /scratch/gilbreth/$USER/vla-door-opening/activate_env.sh
 
 module purge
 module load external
 module load cuda/12.1.1 anaconda/2024.10-py312
 
-export PROJECT_ROOT="/scratch/gilbreth/$(whoami)/vla-lego"
+export PROJECT_ROOT="/scratch/gilbreth/$(whoami)/vla-door-opening"
 export DATA_DIR="${PROJECT_ROOT}/datasets"
 export CHECKPOINT_DIR="${PROJECT_ROOT}/checkpoints"
 export LOG_DIR="${PROJECT_ROOT}/logs"
@@ -296,9 +296,9 @@ export NCCL_DEBUG=WARN
 export NCCL_IB_DISABLE=0
 export NCCL_SOCKET_IFNAME=ibp161s0
 
-conda activate vla_lego_env
+conda activate vla_door_env
 
-echo "Environment activated: vla_lego_env"
+echo "Environment activated: vla_door_env"
 echo "PROJECT_ROOT: ${PROJECT_ROOT}"
 ACTIVATE_EOF
 

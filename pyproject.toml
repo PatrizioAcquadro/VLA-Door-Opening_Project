@@ -92,14 +92,14 @@ vla-train = "train.trainer:main"
 vla-eval = "eval.evaluate:main"
 vla-viewer = "sim.viewer:main"
 vla-lint-assets = "sim.asset_linter_cli:main"
-vla-gen-bricks = "sim.lego.cli:main"
+vla-validate-door = "scripts.validate_door_scene:main"
 
 [project.urls]
 Repository = "https://github.com/PatrizioAcquadro/VLA-Door-Opening_Project"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sim*", "data*", "models*", "train*", "eval*", "configs*"]
+include = ["sim*", "data*", "models*", "train*", "eval*", "configs*", "scripts*"]
 
 # ============================================================================
 # Tool Configurations

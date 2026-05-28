@@ -534,7 +534,7 @@ class TestAlexKinematics:
         ), f"FK symmetry error: max={max_pos_err * 100:.3f} cm"  # 5mm tolerance
 
     def test_workspace_reaches_table(self, alex_model) -> None:
-        """EE can reach typical LEGO workspace region."""
+        """EE can reach a typical door-handle workspace region."""
         rng = np.random.default_rng(123)
         n_samples = 200
         all_joints = _LEFT_ARM + _RIGHT_ARM
@@ -552,7 +552,7 @@ class TestAlexKinematics:
 
         for side in ["left", "right"]:
             arr = np.array(positions[side])
-            # Must be able to reach forward (X > 0.3m) and LEGO height zone
+            # Must be able to reach forward and through handle-height zones.
             assert arr[:, 0].max() > 0.3, f"{side} arm can't reach 0.3m forward"
             assert arr[:, 2].min() < 1.2, f"{side} arm can't reach below 1.2m"
             assert arr[:, 2].max() > 0.8, f"{side} arm can't reach above 0.8m"

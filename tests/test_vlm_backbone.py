@@ -443,7 +443,7 @@ class TestProcessorFunctions:
 
         images = [np.random.randint(0, 255, (320, 320, 3), dtype=np.uint8) for _ in range(4)]
         result = preprocess_images(
-            backbone, images, "The robot is performing a LEGO assembly task."
+            backbone, images, "The robot is opening a door with a handle."
         )
 
         assert "input_ids" in result
@@ -462,7 +462,7 @@ class TestProcessorFunctions:
         processor = backbone.processor
         tokenizer = getattr(processor, "tokenizer", processor)
 
-        terms = ["gripper", "baseplate", "stud", "brick", "press-fit", "LEGO"]
+        terms = ["gripper", "door", "handle", "hinge", "latch", "target angle"]
         for term in terms:
             tokens = tokenizer.encode(term)
             assert len(tokens) > 0, f"Failed to tokenize: {term}"
@@ -524,7 +524,7 @@ class TestVLMInference:
     """
 
     PROMPT = (
-        "The robot is performing a LEGO assembly task. "
+        "The robot is opening a door with a handle. "
         "Describe what you see and what the robot should do next."
     )
 

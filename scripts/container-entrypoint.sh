@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Container Entrypoint for VLA-LEGO (Deps-Only Model)
+# Container Entrypoint for VLA-Door-Opening (Deps-Only Model)
 #
 # This script:
 # 1. Validates that /workspace is mounted with the project code
@@ -37,7 +37,7 @@ export PYTHONPATH=/workspace:${PYTHONPATH:-}
 # -----------------------------------------------------------------------------
 RUN_INFO_FILE="/tmp/vla_run_info.txt"
 {
-    echo "=== VLA-LEGO Container Run ==="
+    echo "=== VLA-Door-Opening Container Run ==="
     echo "Timestamp: $(date -Iseconds)"
     echo "Python: $(python --version 2>&1)"
 

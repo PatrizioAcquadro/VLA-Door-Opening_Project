@@ -7,7 +7,7 @@ Reproduce a working MuJoCo runtime on the lab PC in under 60 minutes.
 - Ubuntu 22.04 (or compatible)
 - Python 3.10 (system Python 3.10.12 works)
 - NVIDIA GPU + driver (for later rendering phases; not required for stepping)
-- Git checkout of the VLA-LEGO repository
+- Git checkout of the VLA-Door-Opening repository
 
 ## 1. Install system-level OpenGL dependencies
 
@@ -36,7 +36,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # Your prompt will change to show (.venv):
-# (.venv) pacquadr@elab:~/VLA-LEGO_Project$
+# (.venv) pacquadr@elab:~/VLA-Door-Opening_Project$
 
 # Upgrade pip and setuptools inside the venv
 pip install --upgrade pip setuptools wheel

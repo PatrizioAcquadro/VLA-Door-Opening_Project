@@ -6,7 +6,7 @@ can any pure-contact parameter combination achieve both insertion >=95%
 AND retention >=0.3 N/stud simultaneously?
 
 Usage:
-    python scripts/sweep_lego_physics.py
+    python scripts/legacy/sweep_lego_physics.py
 """
 
 from __future__ import annotations

@@ -39,7 +39,7 @@ pytest tests/test_vlm_backbone.py tests/test_models.py -v
 srun --gres=gpu:1 --time=00:30:00 --partition=ai --pty bash
 
 # Inside the session:
-source activate vla-lego
+source activate vla_door_env
 cd $PROJECT_DIR
 
 # All VLM tests (19 CPU + 16 GPU = 35)

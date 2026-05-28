@@ -8,8 +8,8 @@ Artifacts are written to logs/episode_manager/.
 
 Usage::
 
-    python scripts/validate_episode_manager.py
-    python scripts/validate_episode_manager.py --n-stress 100
+    python scripts/legacy/validate_lego_episode_manager.py
+    python scripts/legacy/validate_lego_episode_manager.py --n-stress 100
 """
 
 from __future__ import annotations

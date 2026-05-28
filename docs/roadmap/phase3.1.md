@@ -225,7 +225,7 @@ The exact value of N (vision tokens per 320×320 image) will be measured empiric
 - Implement or adapt `ProcessorInfo`, `get_processor_info()`, `preprocess_images()`, `estimate_vision_tokens()` — placing them in the EO-1-derived module if reusing, or in `models/vlm_backbone.py` if new
 - Run `estimate_vision_tokens(backbone, 320, 320)` and record the actual number
 - Verify image preprocessing: 320×320 uint8 numpy array → valid `pixel_values` tensor (correct shape, non-zero)
-- Verify text tokenization with robot manipulation vocabulary ("gripper", "baseplate", "stud", "2×4 brick", "press-fit")
+- Verify text tokenization with robot manipulation vocabulary ("gripper", "door", "handle", "hinge", "latch", "target angle")
 - Verify multi-image preprocessing: 4 images (quad view) + text prompt → valid combined input
 - Compute and log the full context window budget breakdown
 - Add processor tests to `tests/test_vlm_backbone.py` (processor loading, vision token count, text tokenization, image preprocessing, multi-image)
@@ -247,7 +247,7 @@ Loading weights and configuring the processor is necessary but not sufficient. W
 
 **Validation script** — `scripts/validate_vlm_backbone.py`:
 
-Following the pattern of `scripts/validate_cameras.py` and `scripts/validate_lego_task.py`, this script runs 8 sequential checks and produces artifacts to `logs/vlm_backbone/`.
+Following the pattern of `scripts/validate_cameras.py` and `scripts/validate_door_scene.py`, this script runs 8 sequential checks and produces artifacts to `logs/vlm_backbone/`.
 
 | Check | Input | Verifies |
 |---|---|---|
@@ -262,7 +262,7 @@ Following the pattern of `scripts/validate_cameras.py` and `scripts/validate_leg
 
 **Sim image acquisition:** Load `alex_upper_body` scene via `load_scene()`, step to `rest` keyframe, render 4 views at 320×320 using `MultiViewRenderer`.
 
-**Test prompt:** `"The robot is performing a LEGO assembly task. Describe what you see and what the robot should do next."`
+**Test prompt:** `"The robot is opening a door with a handle. Describe what you see and what the robot should do next."`
 
 **Artifacts:** `logs/vlm_backbone/validation_report.json` (all check results), `logs/vlm_backbone/sample_generation.txt` (generated text), `logs/vlm_backbone/hidden_states_shape.json` (shape metadata).
 

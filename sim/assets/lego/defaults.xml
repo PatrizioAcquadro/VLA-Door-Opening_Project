@@ -1,5 +1,5 @@
 <!-- LEGO contact material defaults (Phase 1.2.2)
-     Tuned from press-fit spec (docs/press-fit-spec.md, Section 4).
+     Tuned from legacy press-fit spec (docs/legacy/lego-press-fit-spec.md, Section 4).
      Contact isolation tuned in Phase 1.2.2 for correct stud-tube interaction.
      Include in any scene that uses LEGO bricks:
          <include file="../lego/defaults.xml"/>

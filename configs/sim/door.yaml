@@ -1,0 +1,95 @@
+# Door-opening task configuration.
+# Values here define the first active articulated-object manipulation target.
+
+control:
+  control_hz: 20.0
+  rate_limit_factor: 0.8
+
+action:
+  dim: 17
+  arm_dim: 15
+  gripper_dim: 2
+  normalize_range: [-1.0, 1.0]
+  gripper_range: [0.0, 1.0]
+
+state:
+  dim: 52
+  q_dim: 15
+  q_dot_dim: 15
+  gripper_dim: 2
+  ee_pose_dim: 14
+  ee_vel_dim: 6
+  ee_site_left: "left_tool_frame"
+  ee_site_right: "right_tool_frame"
+  frame: "world"
+  quat_convention: "wxyz"
+  normalize:
+    q: "minmax"
+    q_dot: "vel_limit"
+    gripper: "linear"
+    ee_pos: "workspace"
+    ee_quat: "none"
+    ee_vel: "max_vel"
+  workspace_bounds:
+    lo: [-0.5, -0.8, 0.5]
+    hi: [1.0, 0.8, 1.8]
+  ee_vel_max: 2.0
+
+camera:
+  views: ["overhead", "third_person", "handle_closeup"]
+  width: 320
+  height: 320
+  capture_hz: 20.0
+  render_depth: true
+  render_segmentation: true
+
+task:
+  name: door_opening
+  description: "Open an articulated door with the IHMC Alex upper-body model."
+  scene: alex_door_workspace
+  control_hz: 20.0
+
+door:
+  hinge_joint: door_hinge
+  handle_site: door_handle_site
+  closed_angle_rad: 0.0
+  target_open_angle_rad: 1.0472
+  max_open_angle_rad: 1.5708
+  angle_tolerance_rad: 0.0873
+  hinge_axis: [0.0, 0.0, 1.0]
+
+handle:
+  type: lever
+  contact_strategy: grasp_or_hook
+  nominal_grasp_width_m: 0.08
+  max_slip_m: 0.03
+  latch_release_angle_rad: 0.35
+
+workspace:
+  handle_region:
+    x: [0.35, 0.75]
+    y: [-0.35, 0.35]
+    z: [0.75, 1.25]
+  cameras: ["overhead", "third_person", "handle_closeup"]
+
+metrics:
+  handle_contact_success: true
+  latch_release_success: true
+  max_door_angle_rad: true
+  final_angle_error_rad: true
+  contact_stability: true
+  force_limit_violation: true
+  recovery_success: true
+
+curriculum:
+  levels:
+    - name: free_hinge_pull
+      latch_enabled: false
+      target_open_angle_rad: 0.7854
+    - name: latched_lever_pull
+      latch_enabled: true
+      target_open_angle_rad: 1.0472
+    - name: varied_handle_and_direction
+      latch_enabled: true
+      randomize_handle: true
+      target_open_angle_rad: 1.2217

@@ -1,8 +1,8 @@
 #!/bin/bash
 # =============================================================================
-# Apptainer/Singularity Wrapper for VLA-LEGO (Deps-Only Container)
+# Apptainer/Singularity Wrapper for VLA-Door-Opening (Deps-Only Container)
 #
-# This script runs commands inside the VLA-LEGO Apptainer container with
+# This script runs commands inside the VLA-Door-Opening Apptainer container with
 # the current directory bind-mounted at /workspace. Use this on HPC clusters
 # like Gilbreth where Docker is not available.
 #
@@ -11,19 +11,19 @@
 #   ./scripts/apptainer-run.sh pytest tests/ -v
 #
 # Environment variables:
-#   VLA_APPTAINER_SIF - Path to the .sif image file (default: vla-lego.sif)
+#   VLA_APPTAINER_SIF - Path to the .sif image file (default: vla-door-opening.sif)
 #
 # To download the image:
-#   apptainer pull vla-lego.sif docker://ghcr.io/patrizioacquadro/vla-lego_project:latest
+#   apptainer pull vla-door-opening.sif docker://ghcr.io/patrizioacquadro/vla-door-opening_project:latest
 # =============================================================================
 set -e
 
 # Default SIF path (can be overridden via environment variable)
-SIF="${VLA_APPTAINER_SIF:-vla-lego.sif}"
+SIF="${VLA_APPTAINER_SIF:-vla-door-opening.sif}"
 
 # Show usage if no command provided
 if [[ $# -eq 0 ]]; then
-    echo "VLA-LEGO Apptainer Runner (Deps-Only Container)"
+    echo "VLA-Door-Opening Apptainer Runner (Deps-Only Container)"
     echo ""
     echo "Usage: $0 COMMAND [ARGS...]"
     echo ""
@@ -36,7 +36,7 @@ if [[ $# -eq 0 ]]; then
     echo "Override with: VLA_APPTAINER_SIF=/path/to/image.sif $0 COMMAND"
     echo ""
     echo "To download the image:"
-    echo "  apptainer pull vla-lego.sif docker://ghcr.io/patrizioacquadro/vla-lego_project:latest"
+    echo "  apptainer pull vla-door-opening.sif docker://ghcr.io/patrizioacquadro/vla-door-opening_project:latest"
     exit 1
 fi
 
@@ -45,17 +45,17 @@ if [[ ! -f "$SIF" ]]; then
     echo "ERROR: Apptainer image not found: $SIF"
     echo ""
     echo "Download the image first:"
-    echo "  apptainer pull vla-lego.sif docker://ghcr.io/patrizioacquadro/vla-lego_project:latest"
+    echo "  apptainer pull vla-door-opening.sif docker://ghcr.io/patrizioacquadro/vla-door-opening_project:latest"
     echo ""
     echo "Or set VLA_APPTAINER_SIF to point to your image:"
-    echo "  VLA_APPTAINER_SIF=/scratch/user/vla-lego.sif $0 COMMAND"
+    echo "  VLA_APPTAINER_SIF=/scratch/user/vla-door-opening.sif $0 COMMAND"
     exit 1
 fi
 
 # Check if we're in the project directory
 if [[ ! -f "pyproject.toml" ]]; then
     echo "ERROR: pyproject.toml not found in current directory."
-    echo "Please run this script from the VLA-LEGO project root."
+    echo "Please run this script from the VLA-Door-Opening project root."
     exit 1
 fi
 

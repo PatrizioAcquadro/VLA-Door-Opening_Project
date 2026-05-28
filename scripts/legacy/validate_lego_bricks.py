@@ -9,7 +9,7 @@ Checks:
 5. Physics stability (drop test)
 
 Run:
-    python scripts/validate_lego_bricks.py
+    python scripts/legacy/validate_lego_bricks.py
 
 Artifacts are saved to logs/lego_bricks/.
 """

@@ -324,23 +324,23 @@ def run_workspace_analysis(model: mujoco.MjModel, n_samples: int = 200, seed: in
         print(f"    Z: [{bounds['z']['min']:.3f}, {bounds['z']['max']:.3f}] m")
         print(f"    Bounding volume: {volume:.4f} m³")
 
-    # Check LEGO workspace reachability (table at ~0.8m height, 0.3-0.6m forward)
-    # Both arms should be able to reach this region
-    lego_region = {"x": [0.3, 0.6], "y": [-0.3, 0.3], "z": [0.8, 1.2]}
+    # Check door-handle workspace reachability.
+    # Both arms should be able to reach a handle-height region in front of Alex.
+    door_region = {"x": [0.35, 0.75], "y": [-0.35, 0.35], "z": [0.75, 1.25]}
     reachable = True
     for _side, site_name in [("left", "left_ee_site"), ("right", "right_ee_site")]:
         b = results["sites"][site_name]["bounds"]
         for axis in ["x", "y", "z"]:
-            lo_target, hi_target = lego_region[axis]
+            lo_target, hi_target = door_region[axis]
             if b[axis]["max"] < lo_target or b[axis]["min"] > hi_target:
                 reachable = False
                 print(
-                    f"  WARN: {site_name} cannot reach LEGO region {axis}="
+                    f"  WARN: {site_name} cannot reach door-handle region {axis}="
                     f"[{lo_target}, {hi_target}]"
                 )
 
-    results["lego_workspace_reachable"] = reachable
-    print(f"\n  LEGO workspace reachable: {'YES' if reachable else 'NO'}")
+    results["door_handle_workspace_reachable"] = reachable
+    print(f"\n  Door-handle workspace reachable: {'YES' if reachable else 'NO'}")
     return results
 
 
@@ -701,7 +701,7 @@ def main() -> None:
     print_section("Go / No-Go Assessment")
     tier1_checks = [
         ("FK symmetry", report["fk_symmetry"].get("passed", False)),
-        ("Workspace reachable", report["workspace"].get("lego_workspace_reachable", False)),
+        ("Workspace reachable", report["workspace"].get("door_handle_workspace_reachable", False)),
         ("Joint axes", report["joint_axis_verification"].get("all_pass", False)),
         ("EE continuity", report["ee_continuity"].get("passed", False)),
         ("EE orientation validity", report["ee_orientation_validity"].get("passed", False)),

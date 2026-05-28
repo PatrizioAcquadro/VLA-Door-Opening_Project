@@ -42,7 +42,7 @@ class ExperimentTracker:
 
     def __init__(
         self,
-        project: str = "vla-lego",
+        project: str = "vla-door-opening",
         config: dict[str, Any] | None = None,
         tags: dict[str, str] | None = None,
         name: str | None = None,
@@ -656,7 +656,7 @@ def create_tracker(
         resume_id = resume_checkpoint.get("wandb_run_id")
 
     return ExperimentTracker(
-        project=tracking_config.get("project", "vla-lego"),
+        project=tracking_config.get("project", "vla-door-opening"),
         config=config,
         tags={
             "model": tracking_config.get("tags", {}).get("model"),

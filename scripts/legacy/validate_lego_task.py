@@ -8,8 +8,8 @@ Artifacts are written to logs/lego_task/.
 
 Usage::
 
-    python scripts/validate_lego_task.py
-    python scripts/validate_lego_task.py --n-stress 20
+    python scripts/legacy/validate_lego_task.py
+    python scripts/legacy/validate_lego_task.py --n-stress 20
 """
 
 from __future__ import annotations

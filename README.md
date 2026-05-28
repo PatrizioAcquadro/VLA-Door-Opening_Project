@@ -2,13 +2,13 @@
 
 # VLA-Door-Opening
 
-**Vision-Language-Action System for Robotic Door-Opening Manipulation**
+**Vision-Language-Action System for Robotic Door-Opening Manipulation with IHMC Alex**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](#contributing)
+[Installation](#installation) | [Quick Start](#quick-start) | [Architecture](#architecture) | [Documentation](#documentation)
 
 </div>
 
@@ -16,319 +16,230 @@
 
 ## Overview
 
-VLA-Door-Opening is a Master's thesis research project developing a **Vision-Language-Action (VLA) system** for robotic door-opening manipulation. The project reuses the EO-1-style training, simulation, tracking, and robot-control infrastructure from the original VLA-LEGO baseline, but the target task is now articulated-object manipulation: perceiving a handle, selecting a contact strategy, unlatching when needed, and pulling or pushing a door to a target opening angle.
+VLA-Door-Opening is a Master's thesis research project for contact-rich robotic door opening with the IHMC Alex humanoid upper body. The active task is articulated-object manipulation: perceiving a door, handle, hinge, latch state, and current opening angle, then producing continuous robot actions that unlatch and pull or push the door toward a target angle.
 
-This research is conducted as part of an exchange program between **Politecnico di Milano** and **Purdue University**, under the supervision of Prof. Eugenio Culurciello and Prof. Marcello Restelli.
+The repository was bootstrapped from an older manipulation codebase. The EO-1-style VLA backbone, action head, trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy task modules under `sim/lego`, related assets, and `tests/test_lego_*` are retained only as baseline material until door-opening replacements are complete.
 
-This local copy is intentionally independent from `PatrizioAcquadro/VLA-LEGO_Project`.
+## Research Goals
 
-### Research Goals
+- Replicate and adapt the EO-1 Vision-Language-Action architecture for door-opening manipulation.
+- Build MuJoCo door, handle, hinge, and latch environments for IHMC Alex.
+- Train continuous 17-D Alex action policies with flow matching action chunks.
+- Evaluate handle contact, latch release, final door angle, contact stability, force limits, and recovery behavior.
+- Transfer stable simulation behaviors toward the IHMC Alex humanoid robot.
 
-- Replicate the EO-1 Vision-Language-Action architecture
-- Extend the model for manipulation tasks involving doors, handles, hinges, and latches
-- Evaluate on LIBERO benchmark (Spatial, Object, Goal, Long subsets)
-- Build a door-opening simulation and evaluation stack before transfer to IHMC Alex
+## Current Features
 
-## Features
-
-- **EO-1 Architecture** — Unified decoder-only transformer with Qwen 2.5 VL backbone (3B parameters), combining discrete autoregressive decoding with continuous flow matching
-- **Door-Opening Manipulation** — Contact-rich articulated-object manipulation with handle grasping, latch rotation, and door-angle control
-- **LIBERO Evaluation** — Comprehensive benchmark evaluation across spatial, object, goal, and long-horizon tasks
-- **Hydra Configuration** — Hierarchical, composable configs with CLI overrides
-- **Distributed Training** — PyTorch DDP with NCCL backend, optimized for 8x A100 GPUs
-- **HPC Ready** — Pre-configured for Slurm clusters with container support (Docker + Apptainer)
-- **Experiment Tracking** — Weights & Biases integration for logging and visualization
-- **Reproducible** — Deterministic training with seed control and checkpoint management
+- **VLA model stack**: Qwen3.5-4B VLM backbone wrapper, robot-state projector, noisy-action projector, flow matching module, and action output head.
+- **Alex simulation contract**: 17-D action space, 52-D robot state, fixed-rate simulation runner, multi-view renderer, and EZGripper abstraction.
+- **Door-opening scene scaffold**: `sim/assets/scenes/alex_door_workspace.xml` with a hinged door, lever handle, sensors, and validation script.
+- **Hydra configuration**: model, trainer, data, cluster, logging, and door task configs.
+- **Experiment tracking**: W&B integration with door-opening project defaults.
+- **HPC support**: Gilbreth SLURM templates, DeepSpeed configs, Docker, and Apptainer wrappers.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    VLA-Door-Opening Pipeline (EO-1)                     │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│   ┌─────────────┐    ┌─────────────────┐    ┌─────────────────────┐    │
-│   │   Vision    │    │    Language     │    │      Action         │    │
-│   │   Encoder   │───▶│    Reasoning    │───▶│    Generation       │    │
-│   │             │    │                 │    │                     │    │
-│   │  Qwen 2.5   │    │  Interleaved    │    │  Autoregressive +   │    │
-│   │  VL (3B)    │    │  Vision-Text    │    │  Flow Matching      │    │
-│   └─────────────┘    └─────────────────┘    └─────────────────────┘    │
-│                                                                         │
-│   Input: RGB Images + Language Instructions                             │
-│   Output: Continuous Action Trajectories (Bimanual)                     │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+RGB views + language + Alex state
+              |
+              v
+      Qwen3.5-4B VLM backbone
+              |
+              v
+  state/action token sequence assembly
+              |
+              v
+ flow matching action head, 16-step chunks
+              |
+              v
+  17-D Alex command: spine, arms, grippers
+              |
+              v
+      door handle, latch, hinge motion
 ```
+
+The active task output is a continuous action trajectory for Alex. Success is measured by physical door-opening metrics, not LEGO assembly metrics.
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.10+
-- CUDA 11.8+ (for GPU training)
+- CUDA 11.8+ for GPU training
+- MuJoCo for simulation validation
 - Git
 
 ### Setup
 
 ```bash
-# Clone the new independent repository once it exists
-git clone <new-repository-url>
-cd VLA-Door-Opening_Project
-
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
-
-# Install in development mode
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
 pip install -e ".[dev]"
-
-# Set up pre-commit hooks
 pre-commit install
+```
+
+Install only VLM dependencies when needed:
+
+```bash
+pip install -e ".[vlm]"
 ```
 
 ## Quick Start
 
-### Local Training (Debug)
+Validate the active door-opening scene:
 
 ```bash
-# Quick smoke test (100 steps, small batch)
+python scripts/validate_door_scene.py
+vla-viewer sim/assets/scenes/alex_door_workspace.xml --show-contacts --show-joints
+```
+
+Run the standard simulation and model checks:
+
+```bash
+python scripts/validate_mujoco.py
+python scripts/validate_assets.py
+python scripts/validate_alex_model.py
+python scripts/validate_action_space.py
+python scripts/validate_robot_state.py
+python scripts/validate_cameras.py
+python scripts/validate_action_head.py
+```
+
+Run local debug training:
+
+```bash
 python -m train.trainer trainer=debug cluster=local
 ```
 
-### Full Training
+Train with the VLA model configuration:
 
 ```bash
-# Train with base model configuration
-python -m train.trainer cluster=local
-
-# Train with large model on GPU cluster
-python -m train.trainer model=large cluster=gilbreth
+python -m train.trainer model=vla_dev cluster=local
+python -m train.trainer model=vla cluster=gilbreth
 ```
 
-### Configuration Overrides
-
-All settings can be overridden from the command line:
+## Testing
 
 ```bash
-python -m train.trainer \
-    model=large \
-    trainer.optimizer.lr=1e-5 \
-    trainer.training.batch_size_per_device=16 \
-    trainer.training.max_steps=50000
+pytest
+pytest -m "not slow and not gpu"
+pytest tests/test_asset_loader.py -v
+pytest tests/test_action_head.py -v
+pytest tests/test_vla_model.py -v -m "not slow and not gpu"
+```
+
+Legacy LEGO tests remain available for regression checks while that baseline code is still present:
+
+```bash
+pytest tests/test_lego_bricks.py tests/test_lego_contacts.py tests/test_lego_task.py -v
 ```
 
 ## Configuration
 
-VLA-Door-Opening uses [Hydra](https://hydra.cc/) for configuration management. All configs are in `configs/`:
+VLA-Door-Opening uses Hydra configs under `configs/`.
 
 | Config Group | Options | Description |
-|-------------|---------|-------------|
-| `model` | `base`, `large` | Model architecture settings |
+|--------------|---------|-------------|
+| `model` | `base`, `large`, `vlm`, `vlm_dev`, `vla`, `vla_dev` | Model architecture settings |
 | `trainer` | `default`, `debug` | Training hyperparameters |
 | `data` | `default` | Dataset and dataloader settings |
 | `cluster` | `local`, `gilbreth` | Cluster-specific settings |
+| `sim` | `default`, `door`, `lego` | Simulation contracts; `lego` is legacy |
 | `logging` | `wandb` | Experiment tracking |
 
-### Example: Custom Configuration
+Example override:
 
 ```bash
-# Combine multiple config overrides
 python -m train.trainer \
-    model=large \
-    trainer=default \
-    cluster=local \
-    experiment.seed=123 \
-    trainer.optimizer.lr=5e-5
+    model=vla_dev \
+    trainer.optimizer.lr=1e-5 \
+    trainer.training.batch_size_per_device=16
 ```
 
 ## Project Structure
 
 ```
 VLA-Door-Opening_Project/
-├── configs/                 # Hydra configuration files
-│   ├── config.yaml          # Main config (composes defaults)
-│   ├── model/               # Model architectures (base, large)
-│   ├── trainer/             # Training settings (default, debug)
-│   ├── data/                # Dataset configuration
-│   ├── cluster/             # Cluster settings (local, gilbreth)
-│   └── logging/             # W&B integration
-├── data/                    # Data loading and processing
-│   ├── dataset.py           # Dataset classes
-│   └── loader.py            # DataLoader utilities
-├── models/                  # Model implementations
-│   ├── transformer.py       # TransformerModel
-│   └── utils.py             # Model utilities
-├── train/                   # Training code
-│   └── trainer.py           # Main Trainer class
-├── eval/                    # Evaluation code
-├── scripts/                 # Utility scripts
-├── tests/                   # Test suite
-├── docs/                    # Documentation
-├── Dockerfile               # Container definition
-└── apptainer.def            # Singularity/Apptainer definition
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=. --cov-report=html
-
-# Run specific test file
-pytest tests/test_models.py -v
-```
-
-### Code Quality
-
-```bash
-# Format code
-black .
-isort .
-
-# Lint
-ruff check .
-
-# Type checking
-mypy sim models train eval --ignore-missing-imports
-
-# Run all checks (pre-commit)
-pre-commit run --all-files
-```
-
-### Validating Configurations
-
-```bash
-# Validate all config combinations
-python scripts/validate_configs.py
+├── configs/                 # Hydra configs
+│   ├── model/               # Transformer, VLM, and VLA configs
+│   ├── sim/                 # Alex control/state/camera and door task configs
+│   └── cluster/             # Local and Gilbreth settings
+├── data/                    # Dataset and dataloader utilities
+├── models/                  # VLM backbone, VLA assembly, action head, losses
+├── sim/                     # MuJoCo simulation, Alex control, cameras, assets
+│   ├── assets/scenes/       # test, Alex, and door-opening scenes
+│   └── lego/                # Legacy baseline implementation
+├── train/                   # Trainer entry point
+├── eval/                    # Evaluation entry point
+├── tracking/                # W&B experiment tracking
+├── infra/gilbreth/          # SLURM and setup scripts
+├── scripts/                 # Validation and profiling utilities
+├── tests/                   # Unit and integration tests
+└── docs/                    # Roadmaps, reports, setup notes
 ```
 
 ## HPC Cluster Usage
 
-### Gilbreth (Purdue)
-
 ```bash
-# Submit training job
-sbatch scripts/train.sh
-
-# Interactive session
-sinteractive -A <account> -n 1 -g 1 -t 4:00:00
-
-# Load container and run
-apptainer exec --nv vla-door-opening.sif python -m train.trainer cluster=gilbreth
+sbatch infra/gilbreth/job_templates/01_smoke_1gpu.sh
+sbatch infra/gilbreth/job_templates/04_smoke_8gpu_deepspeed.sh
+sbatch infra/gilbreth/job_templates/06_smoke_sim_headless.sh
 ```
 
-See [docs/git-workflow.md](docs/git-workflow.md) for detailed cluster instructions.
+## Containers
 
-## Running with Containers (Deps-Only Model)
-
-Container images contain **only dependencies** (CUDA, Python, PyTorch, etc.). Your code is bind-mounted at runtime from your git checkout.
-
-### Why deps-only?
-
-- **No rebuilds for code changes** — `git pull` updates your code instantly
-- **Reproducibility** — run = (git commit) + (image digest/tag)
-- **Smaller images** — no repo code baked in
-
-### Docker (Lab PC)
+Docker:
 
 ```bash
-# Using wrapper script (recommended)
 ./scripts/docker-run.sh python -m train.trainer --help
 ./scripts/docker-run.sh python -m train.trainer trainer=debug cluster=local
-
-# Or directly with docker
-docker run --rm -it --gpus all \
-    -v $(pwd):/workspace \
-    ghcr.io/patrizioacquadro/vla-door-opening_project:latest \
-    python -m train.trainer cluster=local
 ```
 
-### Apptainer (HPC Cluster)
+Apptainer:
 
 ```bash
-# Download image once (or use release artifact)
-apptainer pull vla-door-opening.sif docker://ghcr.io/patrizioacquadro/vla-door-opening_project:latest
-
-# Using wrapper script (recommended)
 ./scripts/apptainer-run.sh python -m train.trainer cluster=gilbreth
-```
-
-### Reproducibility
-
-Each container run prints git commit, Python version, and GPU info. This output is saved to `/tmp/vla_run_info.txt` inside the container. Record this for experiment tracking:
-
-```
-=== VLA-Door-Opening Container Run ===
-Timestamp: 2024-01-15T10:30:00+00:00
-Python: Python 3.10.12
-Git commit: abc1234...
-Git branch: main
-Git dirty: 0 files
-PyTorch: 2.2.0
-CUDA: True
-GPU: NVIDIA A100-SXM4-80GB
-==============================
 ```
 
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
+| [docs/door-opening-project-brief.md](docs/door-opening-project-brief.md) | Door-opening task scope and migration map |
+| [docs/roadmap/phase1.2.md](docs/roadmap/phase1.2.md) | Door environment roadmap |
+| [docs/phase3.1-3.2-report.md](docs/phase3.1-3.2-report.md) | VLM and action-head architecture report |
 | [docs/git-workflow.md](docs/git-workflow.md) | Git branching and workflow guide |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
 
 ## Roadmap
 
-- [ ] EO-1 architecture implementation (Qwen 2.5 VL backbone)
-- [ ] Data pipeline for LIBERO benchmark
-- [ ] Flow matching action head integration
-- [ ] Bimanual action space extension
-- [ ] LIBERO benchmark evaluation
-- [ ] IHMC Alex deployment
-
-## Contributing
-
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a PR.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- [x] Alex action/state/camera simulation contracts
+- [x] Qwen3.5-4B VLM wrapper and VLA action head scaffold
+- [x] First Alex door-opening workspace scene
+- [ ] Door hinge, handle, latch, and contact validation suite
+- [ ] Scripted door-opening baseline controller
+- [ ] Door-opening demonstration dataset schema and recorder
+- [ ] VLA training/evaluation loop on door-opening episodes
+- [ ] IHMC Alex transfer validation plan
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-### Academic Institutions
-- **Politecnico di Milano** — Primary institution
-- **Purdue University** — Exchange program host
-
-### Advisors
-- **Prof. Eugenio Culurciello** — Purdue University
-- **Prof. Marcello Restelli** — Politecnico di Milano
-
-### Technical Foundations
-- [EO-1: A Unified Model for Embodied AI](https://arxiv.org/abs/2508.21112) — Base architecture
-- [Lerobot](https://github.com/huggingface/lerobot) — Training framework
-- [LIBERO](https://libero-project.github.io/) — Evaluation benchmark
-- [PyTorch](https://pytorch.org/) — Deep learning framework
-- [Hydra](https://hydra.cc/) — Configuration management
-- [Weights & Biases](https://wandb.ai/) — Experiment tracking
+- **Politecnico di Milano** - Primary institution
+- **Purdue University** - Exchange program host
+- **Prof. Eugenio Culurciello** - Purdue University
+- **Prof. Marcello Restelli** - Politecnico di Milano
+- [EO-1](https://arxiv.org/abs/2508.21112) - Reference VLA architecture
+- [PyTorch](https://pytorch.org/), [Hydra](https://hydra.cc/), and [Weights & Biases](https://wandb.ai/)
 
 ---
 
 <div align="center">
-  <sub>Master's Thesis Research — Politecnico di Milano / Purdue University</sub>
+  <sub>Master's Thesis Research - Politecnico di Milano / Purdue University</sub>
   <br>
   <sub>Author: Patrizio Acquadro</sub>
 </div>

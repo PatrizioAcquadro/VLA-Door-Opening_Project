@@ -1,6 +1,6 @@
 # Gilbreth HPC Training Guide
 
-**Project**: VLA-LEGO (EO-1 for Bimanual LEGO Assembly)
+**Project**: VLA-Door-Opening (EO-1-style VLA for robotic door opening)
 **Cluster**: Purdue Gilbreth HPC
 **Last Updated**: January 23, 2026
 **Status**: All Phase 0.1 smoke tests PASSED
@@ -99,11 +99,11 @@ This variation is **critical** for multi-node training configuration (see [Secti
 |------|---------|-------|
 | `/home/$USER/` | Home directory, NFS-shared configs | Limited |
 | `/scratch/gilbreth/$USER/` | Project workspace | Large |
-| `/scratch/gilbreth/$USER/vla-lego/` | Project root | - |
-| `/scratch/gilbreth/$USER/vla-lego/checkpoints/` | Model checkpoints | - |
-| `/scratch/gilbreth/$USER/vla-lego/logs/` | Training logs | - |
-| `/scratch/gilbreth/$USER/vla-lego/cache/huggingface/` | HuggingFace cache | - |
-| `$HOME/vla_lego_multinode/` | Multi-node scripts/configs | - |
+| `/scratch/gilbreth/$USER/vla-door-opening/` | Project root | - |
+| `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` | Model checkpoints | - |
+| `/scratch/gilbreth/$USER/vla-door-opening/logs/` | Training logs | - |
+| `/scratch/gilbreth/$USER/vla-door-opening/cache/huggingface/` | HuggingFace cache | - |
+| `$HOME/vla_door_multinode/` | Multi-node scripts/configs | - |
 
 ---
 
@@ -136,7 +136,7 @@ module load anaconda/2024.10-py312
 
 **Quick activation** (after initial setup):
 ```bash
-source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
+source /scratch/gilbreth/$USER/vla-door-opening/activate_env.sh
 ```
 
 **Manual activation**:
@@ -144,7 +144,7 @@ source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
 module purge
 module load external
 module load cuda/12.1.1 anaconda/2024.10-py312
-conda activate vla_lego_env
+conda activate vla_door_env
 ```
 
 ### 2.4 Verification Commands
@@ -212,10 +212,10 @@ squeue -u $USER -o "%i %t %M %r"
 squeue -p a100-80gb -o "%P %u %t %D %M" | head -15
 
 # View job output (while running or after)
-cat /scratch/gilbreth/$USER/vla-lego/logs/smoke_*_JOBID.out
+cat /scratch/gilbreth/$USER/vla-door-opening/logs/smoke_*_JOBID.out
 
 # Check for errors
-cat /scratch/gilbreth/$USER/vla-lego/logs/smoke_*_JOBID.err
+cat /scratch/gilbreth/$USER/vla-door-opening/logs/smoke_*_JOBID.err
 ```
 
 ### 3.5 Common Job States
@@ -391,7 +391,7 @@ sbatch job_templates/01_smoke_1gpu.sh
 | Component | Verified Value |
 |-----------|----------------|
 | Python | 3.10.19 |
-| Python Path | `/home/pacquadr/.conda/envs/2024.10-py312/vla_lego_env/bin/python` |
+| Python Path | `/home/pacquadr/.conda/envs/2024.10-py312/vla_door_env/bin/python` |
 | PyTorch | 2.2.0+cu121 |
 | CUDA Available | True |
 | CUDA Version | 12.1 |
@@ -423,8 +423,8 @@ Step 100/100 | Loss: 1.0137
 
 ### 5.6 Log Files
 
-- **Output**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_1gpu_10212764.out`
-- **Errors**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_1gpu_10212764.err`
+- **Output**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_1gpu_10212764.out`
+- **Errors**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_1gpu_10212764.err`
 
 **Note**: The `.err` file contains only harmless pynvml deprecation warnings:
 ```
@@ -677,8 +677,8 @@ NCCL INFO comm 0x... rank 1 nranks 2 - Init COMPLETE
 
 ### 6.8 Log Files
 
-- **Output**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_2gpu_ddp_10213612.out`
-- **Errors**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_2gpu_ddp_10213612.err`
+- **Output**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_2gpu_ddp_10213612.out`
+- **Errors**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_2gpu_ddp_10213612.err`
 
 **Note**: The `.err` file contains only harmless pynvml deprecation warnings.
 
@@ -719,7 +719,7 @@ NCCL INFO comm 0x... rank 1 nranks 2 - Init COMPLETE
 #SBATCH --partition=a100-80gb
 
 # Activate environment
-source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
+source /scratch/gilbreth/$USER/vla-door-opening/activate_env.sh
 
 # CRITICAL: NCCL settings for single-node
 export NCCL_IB_DISABLE=1
@@ -1153,8 +1153,8 @@ CPU Offload: False
 
 ### 7.10 Log Files
 
-- **Output**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_deepspeed_z1_10213866.out`
-- **Errors**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_deepspeed_z1_10213866.err`
+- **Output**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_deepspeed_z1_10213866.out`
+- **Errors**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_deepspeed_z1_10213866.err`
 
 **Expected Warning Messages (Safe to Ignore)**:
 ```
@@ -1203,7 +1203,7 @@ WARNING: Unable to find hostfile, will proceed with training with local resource
 #SBATCH --time=00:30:00
 
 # Activate environment
-source /scratch/gilbreth/$USER/vla-lego/activate_env.sh
+source /scratch/gilbreth/$USER/vla-door-opening/activate_env.sh
 
 # CRITICAL: NCCL settings for single-node (same as DDP)
 export NCCL_IB_DISABLE=1
@@ -1431,7 +1431,7 @@ WORLD_SIZE=$((NNODES * GPUS_PER_NODE))
 export GPUS_PER_NODE NNODES WORLD_SIZE
 
 # === SHARED DIRECTORY (NFS-accessible) ===
-SHARED_DIR=$HOME/vla_lego_multinode
+SHARED_DIR=$HOME/vla_door_multinode
 mkdir -p $SHARED_DIR
 export SHARED_DIR
 
@@ -1713,8 +1713,8 @@ NCCL INFO Channel 00 : 0[0] -> 2[0] via NET/IB/0
 
 ### 8.10 Log Files
 
-- **Output**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_ds_8gpu_10213927.out`
-- **Errors**: `/scratch/gilbreth/$USER/vla-lego/logs/smoke_ds_8gpu_10213927.err`
+- **Output**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_ds_8gpu_10213927.out`
+- **Errors**: `/scratch/gilbreth/$USER/vla-door-opening/logs/smoke_ds_8gpu_10213927.err`
 
 **Expected Warning Messages (Safe to Ignore)**:
 ```
@@ -1749,7 +1749,7 @@ can't open file '/tmp/multinode_ds_test.py': [Errno 2] No such file or directory
 
 **Fix**: Use shared filesystem (`$HOME` or `/scratch/gilbreth/`):
 ```bash
-SHARED_DIR=$HOME/vla_lego_multinode
+SHARED_DIR=$HOME/vla_door_multinode
 mkdir -p $SHARED_DIR
 cat << 'PYEOF' > $SHARED_DIR/training_script.py
 ...
@@ -1851,10 +1851,10 @@ echo "Node List: $SLURM_JOB_NODELIST"
 
 # === ENVIRONMENT ===
 cd $SLURM_SUBMIT_DIR
-source /scratch/gilbreth/$(whoami)/vla-lego/activate_env.sh 2>/dev/null || {
+source /scratch/gilbreth/$(whoami)/vla-door-opening/activate_env.sh 2>/dev/null || {
     module purge
     module load external cuda/12.1.1 anaconda/2024.10-py312
-    conda activate vla_lego_env
+    conda activate vla_door_env
 }
 
 # Remove single-node interface config from activate_env.sh
@@ -1887,7 +1887,7 @@ export GPUS_PER_NODE NNODES WORLD_SIZE
 echo "World Size: $WORLD_SIZE GPUs"
 
 # === SHARED CONFIG DIRECTORY ===
-SHARED_DIR=$HOME/vla_lego_multinode
+SHARED_DIR=$HOME/vla_door_multinode
 mkdir -p $SHARED_DIR
 export SHARED_DIR
 
@@ -2041,7 +2041,7 @@ export NCCL_IB_DISABLE=0   # Enable InfiniBand
 # Cause: /tmp/ is node-local, not shared
 
 # Fix: Use shared filesystem
-SHARED_DIR=$HOME/vla_lego_multinode
+SHARED_DIR=$HOME/vla_door_multinode
 mkdir -p $SHARED_DIR
 # Write scripts to $SHARED_DIR, not /tmp/
 ```
@@ -2115,9 +2115,9 @@ The scratch filesystem may show "Cannot send after transport endpoint shutdown".
 | Job Templates | `gilbreth_phase0/job_templates/` |
 | Setup Scripts | `gilbreth_phase0/scripts/` |
 | DeepSpeed Configs | `gilbreth_phase0/configs/` |
-| Logs (symlink) | `gilbreth_phase0/logs/` -> `/scratch/gilbreth/$USER/vla-lego/logs/` |
-| Checkpoints (symlink) | `gilbreth_phase0/checkpoints/` -> `/scratch/gilbreth/$USER/vla-lego/checkpoints/` |
-| Activation Script | `/scratch/gilbreth/$USER/vla-lego/activate_env.sh` |
+| Logs (symlink) | `gilbreth_phase0/logs/` -> `/scratch/gilbreth/$USER/vla-door-opening/logs/` |
+| Checkpoints (symlink) | `gilbreth_phase0/checkpoints/` -> `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` |
+| Activation Script | `/scratch/gilbreth/$USER/vla-door-opening/activate_env.sh` |
 
 ---
 
@@ -2154,4 +2154,4 @@ The scratch filesystem may show "Cannot send after transport endpoint shutdown".
 
 ---
 
-*Document maintained as part of VLA-LEGO Phase 0.1 verification.*
+*Document maintained as part of VLA-Door-Opening Phase 0.1 verification.*

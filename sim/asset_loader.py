@@ -76,7 +76,7 @@ def resolve_robot_path(robot_name: str) -> Path:
 
 
 def resolve_lego_brick_path(brick_name: str) -> Path:
-    """Resolve a brick name to its MJCF path.
+    """Resolve a legacy LEGO brick name to its MJCF path.
 
     Args:
         brick_name: Brick name, e.g., ``"2x4"`` or ``"brick_2x4"``.
@@ -99,7 +99,7 @@ def resolve_lego_brick_path(brick_name: str) -> Path:
 
 
 def resolve_lego_baseplate_path(baseplate_name: str) -> Path:
-    """Resolve a baseplate name to its MJCF path.
+    """Resolve a legacy LEGO baseplate name to its MJCF path.
 
     Args:
         baseplate_name: Baseplate name, e.g., ``"8x8"`` or ``"baseplate_8x8"``.

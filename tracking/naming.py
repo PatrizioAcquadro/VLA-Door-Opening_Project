@@ -33,7 +33,7 @@ def generate_run_name(
     Args:
         model: Model name (e.g., "eo1", "vla-base").
         objective: Training objective (e.g., "ar", "fm", "ar+fm").
-        dataset: Dataset name (e.g., "lego", "lego-bimanual").
+        dataset: Dataset name (e.g., "door-opening", "alex-door").
         timestamp: Timestamp for the run. If None, uses current time.
         git_short: Short git commit hash. If None, attempts to get from repo.
         suffix: Optional suffix to append.

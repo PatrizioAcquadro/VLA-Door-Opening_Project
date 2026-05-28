@@ -84,7 +84,7 @@ Phase 1.1 delivers a stable, reproducible, and Alex-compatible upper-body fixed-
 | Requirement | Status | Evidence |
 |-------------|--------|----------|
 | FK consistency tests | DONE | 100 random configs, 0.0000 cm max position error |
-| Workspace sanity | DONE | Both arms reach LEGO region (X∈[0.3,0.6], Y∈[-0.3,0.3], Z∈[0.8,1.2]) |
+| Workspace sanity | DONE | Both arms reach the door-handle region (X in [0.35,0.75], Y in [-0.35,0.35], Z in [0.75,1.25]) |
 | Mirror-axis check | DONE | Perfect Y-symmetry at home pose (0.0000 cm) |
 | Joint axis verification | DONE | All 14 arm joints verified kinematically active |
 | EE quaternion validity | DONE | Max norm error 4.44e-16 |

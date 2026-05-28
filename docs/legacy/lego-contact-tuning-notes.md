@@ -1,4 +1,6 @@
-# Contact Physics Tuning Notes (Phase 1.2.2a/b)
+# Legacy Note: Contact Physics Tuning Notes (Phase 1.2.2a/b)
+
+This is a historical VLA-LEGO document retained for provenance only. It is not the active contact model for VLA-Door-Opening.
 
 ## Summary
 

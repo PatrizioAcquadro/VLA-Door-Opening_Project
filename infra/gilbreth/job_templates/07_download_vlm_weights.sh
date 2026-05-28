@@ -48,12 +48,12 @@ echo "========================================"
 
 # Load environment
 cd $SLURM_SUBMIT_DIR
-source /scratch/gilbreth/$(whoami)/vla-lego/activate_env.sh 2>/dev/null || {
+source /scratch/gilbreth/$(whoami)/vla-door-opening/activate_env.sh 2>/dev/null || {
     echo "Activating environment manually..."
     module purge
     module load external
     module load cuda/12.1.1 anaconda/2024.10-py312
-    conda activate vla_lego_env 2>/dev/null || source activate vla_lego_env
+    conda activate vla_door_env 2>/dev/null || source activate vla_door_env
 }
 
 mkdir -p logs
@@ -64,7 +64,7 @@ mkdir -p logs
 # HF_HOME should point to scratch. Default fallback uses project root.
 # To override: export HF_HOME=/scratch/gilbreth/<user>/cache/huggingface
 # before submitting this job.
-SCRATCH_ROOT=${VLA_SCRATCH_ROOT:-/scratch/gilbreth/$(whoami)/vla-lego}
+SCRATCH_ROOT=${VLA_SCRATCH_ROOT:-/scratch/gilbreth/$(whoami)/vla-door-opening}
 export HF_HOME=${HF_HOME:-${SCRATCH_ROOT}/cache/huggingface}
 export TRANSFORMERS_CACHE=${HF_HOME}
 

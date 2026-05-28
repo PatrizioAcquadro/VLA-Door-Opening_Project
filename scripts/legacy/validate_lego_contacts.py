@@ -5,9 +5,9 @@ Runs the key acceptance tests from press-fit spec Section 7 and writes
 artifacts to ``logs/lego_contacts/``. No pytest dependency.
 
 Usage:
-    python scripts/validate_lego_contacts.py              # physics mode (default)
-    python scripts/validate_lego_contacts.py --mode both   # physics + spec-proxy
-    python scripts/validate_lego_contacts.py --mode spec_proxy  # spec-proxy only
+    python scripts/legacy/validate_lego_contacts.py              # physics mode (default)
+    python scripts/legacy/validate_lego_contacts.py --mode both   # physics + spec-proxy
+    python scripts/legacy/validate_lego_contacts.py --mode spec_proxy  # spec-proxy only
 """
 
 from __future__ import annotations
