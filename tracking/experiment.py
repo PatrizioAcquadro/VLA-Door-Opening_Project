@@ -15,6 +15,8 @@ import warnings
 from pathlib import Path
 from typing import Any
 
+from omegaconf import DictConfig, OmegaConf
+
 from .gpu_monitor import GPUMonitor, get_all_gpu_stats
 from .metadata import get_metadata, is_main_process
 from .metrics import (
@@ -610,10 +612,11 @@ class ExperimentTracker:
             self._run.finish()
 
             if self._offline_mode:
+                wandb_dir = os.environ.get("WANDB_DIR", os.path.join(os.getcwd(), "wandb"))
                 print(
                     "\n[ExperimentTracker] Run completed in offline mode.\n"
                     "To sync your data, run from a node with internet access:\n"
-                    f"  wandb sync {os.path.join(os.getcwd(), 'wandb')}\n"
+                    f"  wandb sync {wandb_dir}\n"
                 )
             else:
                 print(f"\n[ExperimentTracker] Run completed: {self.get_run_url()}\n")
@@ -631,8 +634,19 @@ class ExperimentTracker:
         self.finish()
 
 
+def _to_plain_config(config: dict[str, Any] | DictConfig) -> dict[str, Any]:
+    """Return a plain resolved dict for tracker config and W&B metadata."""
+    if isinstance(config, DictConfig):
+        try:
+            container = OmegaConf.to_container(config, resolve=True)
+        except Exception:
+            container = OmegaConf.to_container(config, resolve=False)
+        return dict(container)
+    return config
+
+
 def create_tracker(
-    config: dict[str, Any],
+    config: dict[str, Any] | DictConfig,
     enabled: bool = True,
     resume_checkpoint: dict[str, Any] | None = None,
 ) -> ExperimentTracker:
@@ -648,7 +662,20 @@ def create_tracker(
         Configured ExperimentTracker instance.
     """
     # Extract tracking config
-    tracking_config = config.get("tracking", {})
+    plain_config = _to_plain_config(config)
+    tracking_config = plain_config.get("tracking", {})
+    run_config = tracking_config.get("run", {})
+    tag_config = run_config.get("tags", {})
+    model_config = plain_config.get("model", {})
+    data_config = plain_config.get("data", {})
+    cluster_config = plain_config.get("cluster", {})
+
+    model_tag = tag_config.get("model") or model_config.get("name")
+    dataset_tag = tag_config.get("dataset") or data_config.get("dataset", {}).get("name")
+    objective_tag = tag_config.get("objective")
+    if objective_tag is None:
+        architecture = model_config.get("architecture", {})
+        objective_tag = "ar+fm" if architecture.get("type") == "vla" else "mse"
 
     # Get resume ID from checkpoint if available
     resume_id = None
@@ -656,18 +683,19 @@ def create_tracker(
         resume_id = resume_checkpoint.get("wandb_run_id")
 
     return ExperimentTracker(
-        project=tracking_config.get("project", "vla-door-opening"),
-        config=config,
+        project=os.environ.get("WANDB_PROJECT", tracking_config.get("project", "vla-door-opening")),
+        config=plain_config,
         tags={
-            "model": tracking_config.get("tags", {}).get("model"),
-            "dataset": tracking_config.get("tags", {}).get("dataset"),
-            "objective": tracking_config.get("tags", {}).get("objective"),
-            "experiment_group": tracking_config.get("tags", {}).get("experiment_group"),
+            "model": model_tag,
+            "dataset": dataset_tag,
+            "objective": objective_tag,
+            "experiment_group": tag_config.get("experiment_group"),
+            "cluster": cluster_config.get("name"),
         },
-        name=tracking_config.get("run", {}).get("name"),
+        name=run_config.get("name"),
         resume_id=resume_id,
-        mode=tracking_config.get("mode", "online"),
-        entity=tracking_config.get("entity"),
+        mode=os.environ.get("WANDB_MODE", tracking_config.get("mode", "online")),
+        entity=os.environ.get("WANDB_ENTITY", tracking_config.get("entity")),
         log_interval=tracking_config.get("log_interval", 10),
         gpu_stats_interval=tracking_config.get("metrics", {}).get("gpu_stats_interval", 50),
         enabled=enabled and tracking_config.get("enabled", True),

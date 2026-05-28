@@ -18,7 +18,7 @@
 
 VLA-Door-Opening is a Master's thesis research project for contact-rich robotic door opening with the IHMC Alex humanoid upper body. The active task is articulated-object manipulation: perceiving a door, handle, hinge, latch state, and current opening angle, then producing continuous robot actions that unlatch and pull or push the door toward a target angle.
 
-The repository was bootstrapped from an older manipulation codebase. The EO-1-style VLA backbone, action head, trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy task modules under `sim/lego`, related assets, and `tests/test_lego_*` are retained only as baseline material until door-opening replacements are complete.
+The repository was bootstrapped from an older manipulation codebase. The EO-1-style VLA backbone, action head, trainer, tracking, cluster, container, and Alex robot abstractions remain useful. Legacy LEGO code, assets, scripts, and tests are archived under `archive/legacy/` for provenance only.
 
 ## Research Goals
 
@@ -85,6 +85,51 @@ Install only VLM dependencies when needed:
 pip install -e ".[vlm]"
 ```
 
+## Experiment Tracking Setup
+
+W&B is the primary experiment tracker for this project. Metrics, resolved Hydra configs,
+GPU stats, throughput, validation losses, and selected artifacts are logged through the
+`tracking.ExperimentTracker` integration. Full datasets and checkpoints stay on local or
+Gilbreth scratch by default.
+
+One-time local login:
+
+```bash
+wandb login
+wandb status
+```
+
+Recommended environment variables:
+
+```bash
+export WANDB_PROJECT=vla-door-opening
+export WANDB_ENTITY=<your-wandb-username-or-team>  # optional; omit for default entity
+export WANDB_DIR=$PWD/wandb
+export HF_HOME=$PWD/cache/huggingface
+export PROJECT_ROOT=$PWD
+```
+
+On Gilbreth, keep large artifacts on scratch:
+
+```bash
+export VLA_SCRATCH_ROOT=/scratch/gilbreth/$USER/vla-door-opening
+export WANDB_DIR=$VLA_SCRATCH_ROOT/wandb
+export HF_HOME=$VLA_SCRATCH_ROOT/cache/huggingface
+```
+
+Use offline mode when a node has no internet access, then sync later:
+
+```bash
+WANDB_MODE=offline python -m train.trainer model=base data.dataset.name=dummy trainer=debug cluster=local
+wandb sync "$WANDB_DIR"/offline-run-*
+```
+
+Checkpoint uploads are disabled unless explicitly requested:
+
+```bash
+export WANDB_LOG_MODEL=1  # upload selected checkpoint artifacts
+```
+
 ## Quick Start
 
 Validate the active door-opening scene:
@@ -106,17 +151,16 @@ python scripts/validate_cameras.py
 python scripts/validate_action_head.py
 ```
 
-Run local debug training:
+Run active VLA training with recorded door episode manifests:
 
 ```bash
-python -m train.trainer trainer=debug cluster=local
+python -m train.trainer model=vla_dev cluster=local data.dataset.path=/path/to/processed
 ```
 
-Train with the VLA model configuration:
+Run a transformer-only smoke test explicitly:
 
 ```bash
-python -m train.trainer model=vla_dev cluster=local
-python -m train.trainer model=vla cluster=gilbreth
+python -m train.trainer model=base data.dataset.name=dummy trainer=debug cluster=local
 ```
 
 ## Testing
@@ -129,12 +173,6 @@ pytest tests/test_action_head.py -v
 pytest tests/test_vla_model.py -v -m "not slow and not gpu"
 ```
 
-Legacy LEGO tests remain available for regression checks while that baseline code is still present:
-
-```bash
-pytest tests/test_lego_bricks.py tests/test_lego_contacts.py tests/test_lego_task.py -v
-```
-
 ## Configuration
 
 VLA-Door-Opening uses Hydra configs under `configs/`.
@@ -145,7 +183,7 @@ VLA-Door-Opening uses Hydra configs under `configs/`.
 | `trainer` | `default`, `debug` | Training hyperparameters |
 | `data` | `default` | Dataset and dataloader settings |
 | `cluster` | `local`, `gilbreth` | Cluster-specific settings |
-| `sim` | `default`, `door`, `lego` | Simulation contracts; `lego` is legacy |
+| `sim` | `default`, `door` | Simulation contracts; `door` is the active task |
 | `logging` | `wandb` | Experiment tracking |
 
 Example override:
@@ -169,13 +207,13 @@ VLA-Door-Opening_Project/
 ├── models/                  # VLM backbone, VLA assembly, action head, losses
 ├── sim/                     # MuJoCo simulation, Alex control, cameras, assets
 │   ├── assets/scenes/       # test, Alex, and door-opening scenes
-│   └── lego/                # Legacy baseline implementation
 ├── train/                   # Trainer entry point
 ├── eval/                    # Evaluation entry point
 ├── tracking/                # W&B experiment tracking
 ├── infra/gilbreth/          # SLURM and setup scripts
 ├── scripts/                 # Validation and profiling utilities
 ├── tests/                   # Unit and integration tests
+├── archive/legacy/          # Historical LEGO baseline material
 └── docs/                    # Roadmaps, reports, setup notes
 ```
 

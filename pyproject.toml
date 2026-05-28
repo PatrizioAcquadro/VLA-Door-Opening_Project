@@ -99,7 +99,7 @@ Repository = "https://github.com/PatrizioAcquadro/VLA-Door-Opening_Project"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sim*", "data*", "models*", "train*", "eval*", "configs*", "scripts*"]
+include = ["sim*", "data*", "models*", "train*", "eval*", "tracking*", "configs*", "scripts*"]
 
 # ============================================================================
 # Tool Configurations
@@ -113,6 +113,7 @@ exclude = '''
 /(
     \.git
     | \.venv
+    | archive
     | build
     | dist
     | __pycache__
@@ -122,8 +123,8 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 100
-known_first_party = ["sim", "data", "models", "train", "eval"]
-skip = [".git", ".venv", "build", "dist"]
+known_first_party = ["sim", "data", "models", "train", "eval", "tracking"]
+skip = [".git", ".venv", "archive", "build", "dist"]
 
 [tool.ruff]
 line-length = 100
@@ -131,6 +132,7 @@ target-version = "py310"
 exclude = [
     ".git",
     ".venv",
+    "archive",
     "build",
     "dist",
     "__pycache__",
@@ -156,7 +158,7 @@ python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
-exclude = ["build", "dist", ".venv"]
+exclude = ["archive", "build", "dist", ".venv"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

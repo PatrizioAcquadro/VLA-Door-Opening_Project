@@ -3,6 +3,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Any
 
 import hydra
 import torch
@@ -13,6 +14,8 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+
+from tracking import create_tracker
 
 log = logging.getLogger(__name__)
 
@@ -55,6 +58,7 @@ class Trainer:
         self.scheduler: LRScheduler | None = None
         self.train_loader: DataLoader | None = None
         self.val_loader: DataLoader | None = None
+        self.tracker: Any | None = None
 
         # Training state
         self.global_step = 0
@@ -90,10 +94,16 @@ class Trainer:
         if self.rank == 0:
             log.info("Setting up training...")
 
+        # Create data loaders first so VLA runs fail fast on missing manifests
+        # before trying to load a large VLM backbone.
+        self._create_dataloaders()
+
         # Create model
         from models import count_parameters, format_params, get_model
 
-        self.model = get_model(self.cfg).to(self.device)
+        self.model = get_model(self.cfg)
+        if self.cfg.model.architecture.type not in {"vlm", "vla"}:
+            self.model = self.model.to(self.device)
 
         num_params = count_parameters(self.model)
         if self.rank == 0:
@@ -111,12 +121,31 @@ class Trainer:
         # Create scheduler
         self._create_scheduler()
 
-        # Create data loaders
-        self._create_dataloaders()
-
         # Resume from checkpoint if specified
+        resume_checkpoint = None
         if self.cfg.trainer.checkpoint.resume_from:
-            self._load_checkpoint(self.cfg.trainer.checkpoint.resume_from)
+            resume_checkpoint = self._load_checkpoint(self.cfg.trainer.checkpoint.resume_from)
+
+        self._create_tracker(resume_checkpoint=resume_checkpoint)
+
+    def _create_tracker(self, resume_checkpoint: dict[str, Any] | None = None) -> None:
+        """Initialize experiment tracking after model/checkpoint setup."""
+        resolved_config = self._config_container()
+        self.tracker = create_tracker(
+            resolved_config,
+            enabled=self.rank == 0,
+            resume_checkpoint=resume_checkpoint,
+        )
+        if self.tracker and self.cfg.tracking.artifacts.save_config:
+            self.tracker.log_config(resolved_config)
+
+    def _config_container(self) -> dict[str, Any]:
+        """Convert Hydra config to a plain dict, falling back outside Hydra runtime."""
+        try:
+            config = OmegaConf.to_container(self.cfg, resolve=True)
+        except Exception:
+            config = OmegaConf.to_container(self.cfg, resolve=False)
+        return dict(config)
 
     def _create_optimizer(self) -> None:
         """Create optimizer from config."""
@@ -163,6 +192,12 @@ class Trainer:
         train_dataset: Dataset
         val_dataset: Dataset
 
+        if self.cfg.model.architecture.type == "vla" and dataset_name == "dummy":
+            raise ValueError(
+                'dataset.name="dummy" is only valid for transformer smoke tests. '
+                "VLA training requires manifest-backed door episodes."
+            )
+
         if dataset_name == "dummy":
             dummy_cfg = data_cfg.dataset.get("dummy", {})
             train_dataset = DummyDataset(
@@ -175,17 +210,19 @@ class Trainer:
                 seq_length=self.cfg.model.architecture.max_seq_length,
                 state_dim=dummy_cfg.get("state_dim", 256),
             )
-        else:
+        elif dataset_name in {"door_episodes", "simulation"}:
             train_dataset = SimulationDataset(
                 data_path=data_cfg.dataset.path,
-                max_length=self.cfg.model.architecture.max_seq_length,
+                max_length=self._model_max_seq_length(),
                 split="train",
             )
             val_dataset = SimulationDataset(
                 data_path=data_cfg.dataset.path,
-                max_length=self.cfg.model.architecture.max_seq_length,
+                max_length=self._model_max_seq_length(),
                 split="val",
             )
+        else:
+            raise ValueError(f"Unknown dataset: {dataset_name}")
 
         self.train_loader = create_dataloader(
             train_dataset,
@@ -203,6 +240,82 @@ class Trainer:
             distributed=self.distributed,
             world_size=self.world_size,
             rank=self.rank,
+        )
+
+    def _model_max_seq_length(self) -> int:
+        """Return the active model context length across model families."""
+        arch = self.cfg.model.architecture
+        if hasattr(arch, "max_seq_length"):
+            return int(arch.max_seq_length)
+        if hasattr(self.cfg.model, "vlm") and hasattr(self.cfg.model.vlm, "max_seq_length"):
+            return int(self.cfg.model.vlm.max_seq_length)
+        return 1024
+
+    def _training_step(self, batch: dict[str, object]) -> tuple[torch.Tensor, dict[str, float]]:
+        """Run one forward/loss step for either VLA or transformer models."""
+        assert self.model is not None, "Model not initialized. Call setup() first."
+
+        model_for_loss = self.model.module if self.distributed else self.model
+
+        if self.cfg.model.architecture.type == "vla":
+            outputs = model_for_loss(batch)  # type: ignore[operator]
+            loss = outputs["total_loss"]
+            metrics = {
+                "loss/total": float(loss.detach().item()),
+                "loss/text": float(outputs["text_loss"].detach().item()),
+                "loss/action": float(outputs["action_loss"].detach().item()),
+            }
+            for key, value in outputs.get("metrics", {}).items():
+                if isinstance(value, (int, float)):
+                    metrics[f"loss/{key}"] = float(value)
+            return loss, metrics
+
+        outputs = self.model(batch["input_ids"], batch["attention_mask"])  # type: ignore[arg-type]
+        loss = model_for_loss.compute_loss(  # type: ignore[union-attr, operator]
+            outputs["logits"],
+            batch["labels"],
+            batch["attention_mask"],
+        )
+        return loss, {"loss/total": float(loss.detach().item())}
+
+    def _move_batch_to_device(self, batch: dict[str, object]) -> dict[str, object]:
+        """Move tensor values in a collated batch to the trainer device."""
+        moved: dict[str, object] = {}
+        for key, value in batch.items():
+            if isinstance(value, torch.Tensor):
+                moved[key] = value.to(self.device)
+            else:
+                moved[key] = value
+        return moved
+
+    def _infer_batch_size(self, batch: dict[str, object]) -> int:
+        """Infer batch size from the first batched tensor."""
+        for key in ("input_ids", "robot_states", "action_chunks"):
+            value = batch.get(key)
+            if isinstance(value, torch.Tensor) and value.ndim > 0:
+                return int(value.shape[0])
+        return int(self.cfg.trainer.training.batch_size_per_device)
+
+    def _log_training_metrics(
+        self,
+        loss: torch.Tensor,
+        step_metrics: dict[str, float],
+        batch: dict[str, object],
+    ) -> None:
+        """Send standard training metrics to the active experiment tracker."""
+        if self.tracker is None:
+            return
+
+        model_for_metrics = self.model.module if self.distributed else self.model
+        self.tracker.log_training_step(
+            loss=float(loss.detach().item()),
+            step=self.global_step,
+            batch_size=self._infer_batch_size(batch),
+            optimizer=self.optimizer,
+            model=model_for_metrics,
+            loss_ar=step_metrics.get("loss/text"),
+            loss_fm=step_metrics.get("loss/action"),
+            extra_metrics=step_metrics,
         )
 
     def train(self) -> None:
@@ -226,70 +339,72 @@ class Trainer:
             pbar = tqdm(total=train_cfg.max_steps, desc="Training")
             pbar.update(self.global_step)
 
-        while self.global_step < train_cfg.max_steps:
-            for batch in self.train_loader:
-                # Move batch to device
-                batch = {k: v.to(self.device) for k, v in batch.items()}
+        if self.tracker is not None:
+            self.tracker.start_throughput_tracking()
 
-                # Forward pass
-                outputs = self.model(batch["input_ids"], batch["attention_mask"])
+        try:
+            while self.global_step < train_cfg.max_steps:
+                for batch in self.train_loader:
+                    # Move batch to device
+                    batch = self._move_batch_to_device(batch)
 
-                # Compute loss
-                model_for_loss = self.model.module if self.distributed else self.model
-                loss = model_for_loss.compute_loss(  # type: ignore[union-attr, operator]
-                    outputs["logits"],
-                    batch["labels"],
-                    batch["attention_mask"],
-                )
+                    # Forward pass and loss
+                    loss, step_metrics = self._training_step(batch)
 
-                # Backward pass
-                self.optimizer.zero_grad()
-                loss.backward()
+                    # Backward pass
+                    self.optimizer.zero_grad()
+                    loss.backward()
 
-                # Gradient clipping
-                if self.cfg.trainer.gradient.max_norm:
-                    torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(),
-                        self.cfg.trainer.gradient.max_norm,
-                    )
+                    # Gradient clipping
+                    if self.cfg.trainer.gradient.max_norm:
+                        torch.nn.utils.clip_grad_norm_(
+                            self.model.parameters(),
+                            self.cfg.trainer.gradient.max_norm,
+                        )
 
-                self.optimizer.step()
-                if self.scheduler:
-                    self.scheduler.step()
+                    self.optimizer.step()
+                    if self.scheduler:
+                        self.scheduler.step()
 
-                self.global_step += 1
+                    self.global_step += 1
+                    self._log_training_metrics(loss, step_metrics, batch)
 
-                # Logging
-                if self.global_step % log_cfg.log_every_n_steps == 0:
-                    if self.rank == 0:
-                        lr = self.optimizer.param_groups[0]["lr"]
-                        log.info(f"Step {self.global_step}: loss={loss.item():.4f}, lr={lr:.2e}")
+                    # Logging
+                    if self.global_step % log_cfg.log_every_n_steps == 0:
+                        if self.rank == 0:
+                            lr = self.optimizer.param_groups[0]["lr"]
+                            metric_text = ", ".join(
+                                f"{key}={value:.4f}" for key, value in step_metrics.items()
+                            )
+                            log.info(f"Step {self.global_step}: {metric_text}, lr={lr:.2e}")
 
-                # Update progress bar
-                if pbar:
-                    pbar.update(1)
-                    pbar.set_postfix(loss=f"{loss.item():.4f}")
+                    # Update progress bar
+                    if pbar:
+                        pbar.update(1)
+                        pbar.set_postfix(loss=f"{loss.item():.4f}")
 
-                # Checkpointing
-                if self.global_step % ckpt_cfg.save_every_n_steps == 0:
-                    self._save_checkpoint()
+                    # Checkpointing
+                    if self.global_step % ckpt_cfg.save_every_n_steps == 0:
+                        self._save_checkpoint()
 
-                # Validation
-                if self.global_step % self.cfg.trainer.validation.every_n_steps == 0:
-                    self._validate()
-                    self.model.train()
+                    # Validation
+                    if self.global_step % self.cfg.trainer.validation.every_n_steps == 0:
+                        self._validate()
+                        self.model.train()
 
-                if self.global_step >= train_cfg.max_steps:
-                    break
+                    if self.global_step >= train_cfg.max_steps:
+                        break
 
-        if pbar:
-            pbar.close()
+            # Final checkpoint
+            self._save_checkpoint(final=True)
 
-        # Final checkpoint
-        self._save_checkpoint(final=True)
-
-        if self.rank == 0:
-            log.info("Training complete!")
+            if self.rank == 0:
+                log.info("Training complete!")
+        finally:
+            if pbar:
+                pbar.close()
+            if self.tracker is not None:
+                self.tracker.finish()
 
     def _validate(self) -> float:
         """Run validation."""
@@ -302,16 +417,8 @@ class Trainer:
 
         with torch.no_grad():
             for batch in self.val_loader:
-                batch = {k: v.to(self.device) for k, v in batch.items()}
-
-                outputs = self.model(batch["input_ids"], batch["attention_mask"])
-
-                model_for_loss = self.model.module if self.distributed else self.model
-                loss = model_for_loss.compute_loss(  # type: ignore[union-attr, operator]
-                    outputs["logits"],
-                    batch["labels"],
-                    batch["attention_mask"],
-                )
+                batch = self._move_batch_to_device(batch)
+                loss, _ = self._training_step(batch)
 
                 total_loss += loss.item()
                 num_batches += 1
@@ -323,6 +430,8 @@ class Trainer:
 
         if self.rank == 0:
             log.info(f"Validation loss: {avg_loss:.4f}")
+            if self.tracker is not None:
+                self.tracker.log_metrics({"val/loss": avg_loss}, step=self.global_step)
 
         return avg_loss
 
@@ -352,8 +461,12 @@ class Trainer:
             "step": self.global_step,
             "epoch": self.epoch,
             "model_state_dict": model_state,
-            "config": OmegaConf.to_container(self.cfg, resolve=True),
+            "config": self._config_container(),
         }
+        if self.tracker is not None:
+            wandb_run_id = self.tracker.get_run_id()
+            if wandb_run_id:
+                checkpoint["wandb_run_id"] = wandb_run_id
 
         if self.cfg.trainer.checkpoint.save_optimizer:
             checkpoint["optimizer_state_dict"] = self.optimizer.state_dict()
@@ -363,7 +476,13 @@ class Trainer:
         torch.save(checkpoint, ckpt_path)
         log.info(f"Saved checkpoint: {ckpt_path}")
 
-    def _load_checkpoint(self, path: str) -> None:
+        if self.tracker is not None and self.cfg.tracking.artifacts.save_checkpoints:
+            aliases = list(self.cfg.tracking.artifacts.checkpoint_aliases)
+            if final:
+                aliases = ["final", *aliases]
+            self.tracker.log_checkpoint(ckpt_path, aliases=aliases)
+
+    def _load_checkpoint(self, path: str) -> dict[str, Any] | None:
         """Load checkpoint to resume training."""
         assert self.model is not None, "Model not initialized."
         assert self.optimizer is not None, "Optimizer not initialized."
@@ -374,7 +493,7 @@ class Trainer:
             checkpoints = list(ckpt_dir.glob("step_*.pt"))
             if not checkpoints:
                 log.warning("No checkpoints found, starting from scratch")
-                return
+                return None
             path = str(max(checkpoints, key=lambda p: int(p.stem.split("_")[1])))
 
         if self.rank == 0:
@@ -393,6 +512,8 @@ class Trainer:
 
         if "scheduler_state_dict" in checkpoint and self.scheduler:
             self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+
+        return checkpoint
 
 
 @hydra.main(version_base=None, config_path="../configs", config_name="config")

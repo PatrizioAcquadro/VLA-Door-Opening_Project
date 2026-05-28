@@ -2,25 +2,26 @@
 # All paths and hyperparameters are defined here - NO HARDCODING in code!
 #
 # Usage:
-#   python -m train.trainer                           # uses defaults
-#   python -m train.trainer model=large              # override model size
-#   python -m train.trainer trainer.lr=1e-4          # override learning rate
+#   python -m train.trainer                           # active VLA door config
+#   python -m train.trainer model=base data.dataset.name=dummy  # transformer smoke
+#   python -m train.trainer trainer.optimizer.lr=1e-4 # override learning rate
 #   python -m train.trainer --config-name=debug      # use debug config
 
 defaults:
   - _self_
-  - model: base
+  - model: vla_dev
   - trainer: default
   - data: default
   - sim: door
   - cluster: local
   - optional logging: wandb
+  - tracking
 
 # ============================================================================
 # Project Paths (override via environment or config)
 # ============================================================================
 paths:
-  root: ${oc.env:PROJECT_ROOT,${oc.env:HOME,/tmp}/vla-door-opening}
+  root: ${oc.env:PROJECT_ROOT,${hydra:runtime.cwd}}
   data: ${paths.root}/datasets
   checkpoints: ${paths.root}/checkpoints
   logs: ${paths.root}/logs

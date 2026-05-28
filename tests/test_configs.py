@@ -17,11 +17,14 @@ class TestConfigParsing:
             assert "trainer" in cfg
             assert "data" in cfg
             assert "sim" in cfg
+            assert "tracking" in cfg
             assert cfg.sim.task.name == "door_opening"
+            assert cfg.tracking.project == "vla-door-opening"
+            assert cfg.tracking.mode == "online"
 
     def test_model_configs(self):
         """Test all model configs parse."""
-        model_names = ["base", "large"]
+        model_names = ["base", "large", "vla_dev"]
 
         for model in model_names:
             with initialize(config_path="../configs", version_base=None):
@@ -55,13 +58,18 @@ class TestConfigParsing:
                 config_name="config",
                 overrides=[
                     "cluster=local",
+                    "model=base",
                     "trainer.optimizer.lr=0.001",
                     "model.architecture.hidden_size=256",
+                    "tracking.mode=offline",
+                    "tracking.run.tags.experiment_group=unit-test",
                 ],
             )
 
             assert cfg.trainer.optimizer.lr == 0.001
             assert cfg.model.architecture.hidden_size == 256
+            assert cfg.tracking.mode == "offline"
+            assert cfg.tracking.run.tags.experiment_group == "unit-test"
 
 
 class TestConfigValidation:
@@ -73,9 +81,13 @@ class TestConfigValidation:
             cfg = compose(config_name="config", overrides=["cluster=local"])
 
             # Model required fields
-            assert cfg.model.architecture.hidden_size > 0
-            assert cfg.model.architecture.num_layers > 0
-            assert cfg.model.architecture.num_attention_heads > 0
+            if cfg.model.architecture.type == "transformer":
+                assert cfg.model.architecture.hidden_size > 0
+                assert cfg.model.architecture.num_layers > 0
+                assert cfg.model.architecture.num_attention_heads > 0
+            else:
+                assert cfg.model.vlm.model_id
+                assert cfg.model.vlm.max_seq_length > 0
 
             # Trainer required fields
             assert cfg.trainer.optimizer.lr > 0
@@ -85,6 +97,9 @@ class TestConfigValidation:
         """hidden_size should be divisible by num_attention_heads."""
         with initialize(config_path="../configs", version_base=None):
             cfg = compose(config_name="config", overrides=["cluster=local"])
+
+            if cfg.model.architecture.type != "transformer":
+                return
 
             hidden = cfg.model.architecture.hidden_size
             heads = cfg.model.architecture.num_attention_heads
