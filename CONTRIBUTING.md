@@ -37,7 +37,7 @@ By participating in this project, you are expected to uphold a respectful and in
 
 - Python 3.10 or higher
 - Git
-- (Optional) CUDA 11.8+ for GPU development
+- (Optional) CUDA 12.1+ for GPU development
 
 ### Installation
 

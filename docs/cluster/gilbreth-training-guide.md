@@ -2113,8 +2113,8 @@ The scratch filesystem may show "Cannot send after transport endpoint shutdown".
 | Job Templates | `infra/gilbreth/job_templates/` |
 | Setup Scripts | `infra/gilbreth/scripts/` |
 | DeepSpeed Configs | `configs/deepspeed/` |
-| Logs (symlink) | `gilbreth_phase0/logs/` -> `/scratch/gilbreth/$USER/vla-door-opening/logs/` |
-| Checkpoints (symlink) | `gilbreth_phase0/checkpoints/` -> `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` |
+| Logs | `/scratch/gilbreth/$USER/vla-door-opening/logs/` |
+| Checkpoints | `/scratch/gilbreth/$USER/vla-door-opening/checkpoints/` |
 | Activation Script | `/scratch/gilbreth/$USER/vla-door-opening/activate_env.sh` |
 
 ---
