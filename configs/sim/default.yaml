@@ -1,4 +1,4 @@
-# Simulation control parameters (Phase 1.1.5)
+# Simulation control parameters
 # Override via CLI: python -m train.trainer sim.control.control_hz=10
 
 control:
@@ -36,7 +36,7 @@ state:
   ee_vel_max: 2.0                # m/s, normalization ceiling
 
 camera:
-  views: ["overhead", "left_wrist_cam", "right_wrist_cam", "third_person"]  # Frozen 4-view contract (Phase 1.2.4)
+  views: ["overhead", "left_wrist_cam", "right_wrist_cam", "third_person"]  # Frozen 4-view contract
   width: 320                             # Render width (px) — square for VLA training
   height: 320                            # Render height (px) — square for VLA training
   capture_hz: 20.0                       # Aligned with control_hz

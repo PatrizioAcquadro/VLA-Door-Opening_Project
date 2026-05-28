@@ -1,4 +1,4 @@
-"""Frozen 52-D robot state contract for the Alex robot (Phase 1.1.6).
+"""Frozen 52-D robot state contract for the Alex robot.
 
 Defines the canonical state vector layout, normalization ranges, and
 extraction from MuJoCo simulation data.

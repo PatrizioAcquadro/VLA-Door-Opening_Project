@@ -1,4 +1,4 @@
-"""Fixed-rate simulation runner with physics substepping (Phase 1.1.5).
+"""Fixed-rate simulation runner with physics substepping.
 
 Enforces a 20 Hz control loop: each call to ``step()`` applies one
 normalized action and advances the simulation by exactly
@@ -9,7 +9,7 @@ Usage::
     from sim.asset_loader import load_scene
     from sim.sim_runner import SimRunner
 
-    model = load_scene("alex_upper_body")
+    model = load_scene("alex_door_workspace")
     data = mujoco.MjData(model)
     runner = SimRunner(model, data)
 

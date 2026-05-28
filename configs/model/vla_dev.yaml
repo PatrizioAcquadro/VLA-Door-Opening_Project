@@ -1,6 +1,7 @@
 # Model Configuration: VLA Dev (Qwen3.5-4B + Action Head)
 # Dev config for RTX 4090 24GB (lab PC)
-# Identical to vla.yaml except for attn_implementation and max_seq_length.
+# Derived from vla.yaml. Differs in: attn_implementation (sdpa vs flash_attention_2),
+# max_seq_length (4096 vs 8192), and inline explanatory comments (omitted here).
 
 name: vla_dev
 

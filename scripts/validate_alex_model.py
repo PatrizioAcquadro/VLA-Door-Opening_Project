@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Alex V1 upper-body robot model (Phase 1.1.1 + 1.1.2 + 1.1.3).
+"""Validate the Alex V1 upper-body robot model.
 
 Runs stability checks, PD hold tests, joint sweeps, and generates video artifacts.
 
@@ -143,7 +143,7 @@ def main() -> None:
         pos = data_ee.site_xpos[site_id]
         print(f"  {site_name}: [{pos[0]:.4f}, {pos[1]:.4f}, {pos[2]:.4f}]")
 
-    # --- PD Hold Test (Phase 1.1.2) ---
+    # --- PD Hold Test (5s, ctrl=0) ---
     print("\n--- PD Hold Test (5s, ctrl=0) ---")
     data_hold = mujoco.MjData(model)
     data_hold.ctrl[:] = 0.0
@@ -160,7 +160,7 @@ def main() -> None:
     else:
         print("  WARN: drift exceeds 0.1 rad")
 
-    # --- Joint Sweep Test (Phase 1.1.2, updated for 1.1.3) ---
+    # --- Joint Sweep Test (each actuated joint to midrange) ---
     print("\n--- Joint Sweep Test (each actuated joint to midrange) ---")
     sweep_results = []
     sweep_pass = True
@@ -203,7 +203,7 @@ def main() -> None:
         results["passed"] = False
         print("  FAIL: One or more joints failed sweep test!")
 
-    # --- Energy Tracking (Phase 1.1.2) ---
+    # --- Energy Tracking ---
     print("\n--- Energy Check (10s) ---")
     data_energy = mujoco.MjData(model)
     for _ in range(5000):
@@ -217,7 +217,7 @@ def main() -> None:
         results["passed"] = False
         print("  FAIL: Energy exceeds 1000 J!")
 
-    # --- EZGripper Open/Close Test (Phase 1.1.3) ---
+    # --- EZGripper Open/Close Test ---
     print("\n--- EZGripper Open/Close Test ---")
     try:
         from sim.end_effector import EZGripperInterface

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kinematics Validation Report for Alex V1 upper-body model (Phase 1.1.4).
+"""Kinematics Validation Report for Alex V1 upper-body model.
 
 Produces a reproducible kinematics validation report demonstrating that the
 integrated MuJoCo model matches the target Alex kinematics (Level 2).
@@ -660,7 +660,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("=" * 60)
-    print("  Alex V1 Kinematics Validation Report (Phase 1.1.4)")
+    print("  Alex V1 Kinematics Validation Report")
     print("=" * 60)
 
     # ── Load model ────────────────────────────────────────────

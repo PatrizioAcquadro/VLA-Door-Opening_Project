@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate action space contract and stability (Phase 1.1.5).
+"""Validate action space contract and stability.
 
 Run:
     python scripts/validate_action_space.py
@@ -35,7 +35,7 @@ ARTIFACT_DIR = _project_root / "logs" / "action_space_validation"
 def print_contract(action_space: AlexActionSpace) -> None:
     """Print the frozen action contract."""
     print("=" * 70)
-    print("ACTION SPACE CONTRACT (Phase 1.1.5)")
+    print("ACTION SPACE CONTRACT")
     print("=" * 70)
     print(f"  Action dim:     {action_space.action_dim}")
     print(f"  Arm dim:        {action_space.arm_dim}")

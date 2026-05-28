@@ -23,7 +23,7 @@ vlm:
     truncation: true
 
   freeze:
-    backbone: true                     # frozen by default; Phase 3.3 controls unfreezing
+    backbone: true                     # frozen by default
     vision_encoder: true
 
 # Estimated memory footprint (for planning)

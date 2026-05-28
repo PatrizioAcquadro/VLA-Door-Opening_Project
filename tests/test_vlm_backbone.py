@@ -1,4 +1,4 @@
-"""Tests for VLM backbone loading pipeline (Phase 3.1.1) and processor (Phase 3.1.2).
+"""Tests for VLM backbone loading pipeline and processor.
 
 Test classes:
     TestVLMBackboneConfig     -- Config parsing (CPU, no model download). Marker: vlm
@@ -442,9 +442,7 @@ class TestProcessorFunctions:
         from models.vlm_backbone import preprocess_images
 
         images = [np.random.randint(0, 255, (320, 320, 3), dtype=np.uint8) for _ in range(4)]
-        result = preprocess_images(
-            backbone, images, "The robot is opening a door with a handle."
-        )
+        result = preprocess_images(backbone, images, "The robot is opening a door with a handle.")
 
         assert "input_ids" in result
         assert "pixel_values" in result
@@ -516,7 +514,7 @@ _FORWARD_KEYS = {"input_ids", "attention_mask", "pixel_values", "image_grid_thw"
 @pytest.mark.gpu
 @pytest.mark.slow
 class TestVLMInference:
-    """End-to-end forward pass tests with synthetic images (Phase 3.1.3).
+    """End-to-end forward pass tests with synthetic images.
 
     Uses class-scoped fixture to load backbone once for all 7 tests.
     Uses synthetic images (no MuJoCo dependency — keeps tests runnable

@@ -1,14 +1,14 @@
-"""Action head contracts and utilities for Phase 3.2.
+"""Action head contracts and utilities for the door-opening VLA.
 
 Defines the frozen action chunk format, token types for loss routing, and
 utility functions for chunking continuous action sequences. These contracts
-govern how all Phase 3.2 components interact and how Phase 3.3's dataloader
-will produce training batches.
+govern how all action-head components interact and how the training dataloader
+produces batches.
 
 Frozen constants (must not change without updating all downstream consumers):
     ACTION_CHUNK_SIZE = 16      # 0.8 s at 20 Hz
-    ACTION_DIM = 17             # Phase 1.1.5 frozen action space
-    STATE_DIM = 52              # Phase 1.1.6 frozen robot state
+    ACTION_DIM = 17             # 17-D Alex action space (see sim/action_space.py)
+    STATE_DIM = 52              # 52-D Alex robot state (see sim/robot_state.py)
     TOKENS_PER_ACTION_STEP = 1  # 1 token per action step in sequence
     TOKENS_PER_STATE = 1        # 1 token for full 52-D state
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Profile VLM backbone VRAM consumption (Phase 3.1.4).
+"""Profile VLM backbone VRAM consumption.
 
 Auto-detects GPU and selects an appropriate sweep:
   - <=32 GB (e.g. RTX 4090 24 GB): 7 configs, max seq=4096, max batch=2 training
@@ -344,9 +344,7 @@ def _format_table(results: list[ProfileResult], gpu_info: dict, weight_vram_gb: 
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Profile VLM backbone VRAM consumption (Phase 3.1.4)"
-    )
+    parser = argparse.ArgumentParser(description="Profile VLM backbone VRAM consumption")
     parser.add_argument(
         "--model-config",
         type=str,
@@ -451,7 +449,6 @@ def main() -> int:
     # --- Save artifacts ---
     # 1. JSON report
     report = {
-        "phase": "3.1.4",
         "gpu": gpu_info,
         "tier": tier,
         "model_config": args.model_config,

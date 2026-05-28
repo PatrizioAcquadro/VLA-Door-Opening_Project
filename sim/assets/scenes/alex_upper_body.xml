@@ -1,6 +1,6 @@
 <mujoco model="alex_upper_body_scene">
     <!--
-        Alex V1 Upper-Body Scene (Phase 1.1.1 + 1.1.2 + 1.1.3)
+        Alex V1 Upper-Body Scene
         Includes the Alex fixed-base robot with EZGripper end-effectors,
         floor, lighting, and cameras.
     -->

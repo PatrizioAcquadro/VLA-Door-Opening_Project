@@ -1,4 +1,4 @@
-"""Tests for sim.offscreen (Phase 0.2.3).
+"""Tests for sim.offscreen.
 
 All tests run headlessly — no display required.
 """

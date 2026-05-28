@@ -1,4 +1,4 @@
-"""Phase 0.2.4 validation script: Sim Smoke Tests Suite.
+"""Sim Smoke Tests Suite.
 
 One-command smoke test that runs physics, rendering, and I/O checks,
 generates artifacts to logs/sim_smoke/, and optionally attaches to W&B.
@@ -228,7 +228,6 @@ def run_io_smoke(model, output_dir: Path) -> dict:
     meta = collect_metadata(PROJECT_ROOT)
     smoke_meta = {
         **meta,
-        "phase": "0.2.4",
         "seed": SEED,
         "config": {
             "n_steps": N_STEPS,
@@ -280,7 +279,7 @@ def attach_wandb_artifacts(output_dir: Path, all_results: dict) -> None:
         run = wandb.init(
             project="vla-door-opening",
             name=f"smoke-{datetime.now(tz=timezone.utc).strftime('%Y%m%d-%H%M%S')}",
-            tags=["phase:0.2.4", "type:smoke-test"],
+            tags=["sim-smoke", "type:smoke-test"],
             config={
                 "seed": SEED,
                 "n_steps": N_STEPS,
@@ -316,7 +315,7 @@ def attach_wandb_artifacts(output_dir: Path, all_results: dict) -> None:
 def main() -> int:
     """Run all sim smoke tests. Returns 0 on success, 1 on failure."""
     print("=" * 60)
-    print("Phase 0.2.4 Validation: Sim Smoke Tests Suite")
+    print("Sim Smoke Tests Suite")
     print("=" * 60)
 
     try:

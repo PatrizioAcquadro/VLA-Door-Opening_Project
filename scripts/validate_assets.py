@@ -1,4 +1,4 @@
-"""Phase 0.2.5 validation script: Asset Pathing & Loader Contract.
+"""Asset pathing and loader-contract validation script.
 
 Run:
     python scripts/validate_assets.py
@@ -23,15 +23,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 ACTIVE_SCENES = (
     "test_scene",
     "alex_upper_body",
-    "alex_grasp_test",
     "alex_door_workspace",
 )
 
 
 def main() -> int:
-    """Run all Phase 0.2.5 validation checks. Returns 0 on success, 1 on failure."""
+    """Run all asset-validation checks."""
     print("=" * 60)
-    print("Phase 0.2.5 Validation: Asset Pathing & Loader Contract")
+    print("Asset Validation: Asset Pathing & Loader Contract")
     print("=" * 60)
 
     # Check 1: Directory layout
@@ -117,7 +116,6 @@ def main() -> int:
         from sim.env_meta import collect_metadata
 
         meta = collect_metadata(PROJECT_ROOT)
-        meta["phase"] = "0.2.5"
         meta["mjcf_files_linted"] = len(mjcf_files)
         meta["scenes_loaded"] = len(scene_files)
         meta["lint_errors"] = total_errors

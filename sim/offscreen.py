@@ -1,4 +1,4 @@
-"""Headless offscreen rendering for MuJoCo simulations (Phase 0.2.3).
+"""Headless offscreen rendering for MuJoCo simulations.
 
 Produces RGB, depth, and segmentation frames without a display.
 Does NOT import mujoco.viewer — this module is fully headless.
@@ -6,7 +6,7 @@ Does NOT import mujoco.viewer — this module is fully headless.
 Usage:
     from sim.offscreen import RenderConfig, render_trajectory, save_video
 
-    model = load_model("sim/assets/scenes/test_scene.xml")
+    model = load_model("sim/assets/scenes/alex_door_workspace.xml")
     data = mujoco.MjData(model)
     frames = render_trajectory(model, data, n_steps=2500, config=RenderConfig())
     save_video(frames, "output.mp4", fps=30)

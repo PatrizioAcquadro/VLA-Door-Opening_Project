@@ -1,4 +1,4 @@
-"""Tests for the frozen 4-view camera contract (Phase 1.2.4).
+"""Tests for the frozen 4-view camera contract.
 
 Verifies:
   - Frozen constants: 4 views, 320×320 square, 20 Hz
