@@ -28,6 +28,8 @@ Usage::
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 
 from sim.control import JOINT_VELOCITY_LIMITS, AlexController
@@ -186,7 +188,7 @@ class AlexActionSpace:
     @property
     def delta_q_max(self) -> np.ndarray:
         """Max joint delta per control step for each arm joint, shape ``(15,)``."""
-        return self._delta_q_max.copy()
+        return cast(np.ndarray, self._delta_q_max.copy())
 
     @property
     def control_hz(self) -> float:

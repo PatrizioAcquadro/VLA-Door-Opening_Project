@@ -31,6 +31,7 @@ Usage::
 from __future__ import annotations
 
 import dataclasses
+from typing import cast
 
 import numpy as np
 
@@ -433,4 +434,4 @@ class AlexRobotState:
             res,
             0,  # flg_local=0 -> world frame
         )
-        return res[3:].copy()  # linear velocity is in res[3:6]
+        return cast(np.ndarray, res[3:].copy())  # linear velocity is in res[3:6]

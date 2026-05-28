@@ -68,7 +68,7 @@ def compute_grad_norm(
                 norm_type,
             )
 
-    return total_norm.item()
+    return float(total_norm.item())
 
 
 def get_learning_rate(
@@ -90,7 +90,7 @@ def get_learning_rate(
 
     if hasattr(optimizer, "param_groups"):
         if len(optimizer.param_groups) > param_group:
-            return optimizer.param_groups[param_group].get("lr", 0.0)
+            return float(optimizer.param_groups[param_group].get("lr", 0.0))
     return 0.0
 
 
@@ -255,7 +255,7 @@ def extract_loss_components(
     Returns:
         Dictionary with standardized loss keys.
     """
-    metrics = {}
+    metrics: dict[str, float] = {}
 
     # Handle total loss
     if isinstance(loss, dict):
@@ -310,11 +310,11 @@ def aggregate_metrics(
         return {}
 
     # Collect all keys
-    all_keys = set()
+    all_keys: set[str] = set()
     for m in metrics_list:
         all_keys.update(m.keys())
 
-    result = {}
+    result: dict[str, float] = {}
     for key in all_keys:
         values = [m[key] for m in metrics_list if key in m and m[key] is not None]
         if not values:
@@ -335,7 +335,7 @@ def aggregate_metrics(
 def filter_metrics(
     metrics: dict[str, Any],
     include_none: bool = False,
-) -> dict[str, float]:
+) -> dict[str, float | None]:
     """
     Filter metrics dictionary to only include valid numeric values.
 
@@ -346,7 +346,7 @@ def filter_metrics(
     Returns:
         Filtered metrics dictionary.
     """
-    result = {}
+    result: dict[str, float | None] = {}
     for key, value in metrics.items():
         if value is None:
             if include_none:

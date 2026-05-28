@@ -21,6 +21,7 @@ on:
 # Minimal permissions by default
 permissions:
   contents: read
+  pull-requests: read
 
 # Cancel in-progress runs for the same branch (but not for tags or main)
 concurrency:

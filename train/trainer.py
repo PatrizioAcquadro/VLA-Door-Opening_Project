@@ -3,7 +3,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import hydra
 import torch
@@ -145,7 +145,9 @@ class Trainer:
             config = OmegaConf.to_container(self.cfg, resolve=True)
         except Exception:
             config = OmegaConf.to_container(self.cfg, resolve=False)
-        return dict(config)
+        if isinstance(config, dict):
+            return dict(config)
+        return {"value": config}
 
     def _create_optimizer(self) -> None:
         """Create optimizer from config."""
@@ -306,7 +308,10 @@ class Trainer:
         if self.tracker is None:
             return
 
-        model_for_metrics = self.model.module if self.distributed else self.model
+        assert self.model is not None, "Model not initialized."
+        model_for_metrics = (
+            getattr(self.model, "module", self.model) if self.distributed else self.model
+        )
         self.tracker.log_training_step(
             loss=float(loss.detach().item()),
             step=self.global_step,
@@ -451,11 +456,10 @@ class Trainer:
         else:
             ckpt_path = ckpt_dir / f"step_{self.global_step}.pt"
 
-        model_state = (
-            self.model.module.state_dict()  # type: ignore[union-attr]
-            if self.distributed
-            else self.model.state_dict()
+        model_for_state = (
+            getattr(self.model, "module", self.model) if self.distributed else self.model
         )
+        model_state = model_for_state.state_dict()
 
         checkpoint = {
             "step": self.global_step,
@@ -499,10 +503,10 @@ class Trainer:
         if self.rank == 0:
             log.info(f"Loading checkpoint: {path}")
 
-        checkpoint = torch.load(path, map_location=self.device)
+        checkpoint = cast(dict[str, Any], torch.load(path, map_location=self.device))
 
-        model = self.model.module if self.distributed else self.model
-        model.load_state_dict(checkpoint["model_state_dict"])  # type: ignore[union-attr]
+        model = getattr(self.model, "module", self.model) if self.distributed else self.model
+        model.load_state_dict(checkpoint["model_state_dict"])
 
         self.global_step = checkpoint["step"]
         self.epoch = checkpoint.get("epoch", 0)
