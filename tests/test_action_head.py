@@ -1,4 +1,4 @@
-"""Tests for action head contracts and utilities (Phase 3.2.0).
+"""Tests for action head contracts and utilities.
 
 Test classes:
     TestActionChunkContract  -- Frozen constants, config, chunking.   Marker: action_head
@@ -43,7 +43,7 @@ class TestActionChunkContract:
     """Frozen constants, config dataclass, and chunking utilities."""
 
     def test_constants_match_frozen(self):
-        """Frozen constants have the correct values from Phase 1.1 contracts."""
+        """Frozen constants have the correct values from the Alex action/state contracts."""
         assert ACTION_CHUNK_SIZE == 16
         assert ACTION_DIM == 17
         assert STATE_DIM == 52
@@ -172,9 +172,9 @@ class TestActionChunkContract:
 class TestContextBudget:
     """Verify action chunk tokens fit within the 8K context window."""
 
-    def test_single_placement_fits_8k(self):
-        """Single-placement episode (~200 steps, 16 images, V=200) fits in 8K."""
-        # Worst-case vision token estimate for 320×320 (Phase 3.1.2 expected 130–260)
+    def test_typical_episode_fits_8k(self):
+        """Typical door-open episode (~200 steps, 16 images, V=200) fits in 8K."""
+        # Worst-case vision token estimate for 320×320 (expected 130–260)
         V = 200  # vision tokens per image
         n_images = 16
         text_task = 40
@@ -192,12 +192,12 @@ class TestContextBudget:
             + n_state_tokens
             + action_tokens
         )
-        assert total < 8192, f"Single-placement total {total} exceeds 8K context"
+        assert total < 8192, f"Typical episode total {total} exceeds 8K context"
 
-    def test_level3_episode_fits_8k(self):
-        """Level 3 multi-placement worst case (~600 steps, 32 images, V=200) fits in 8K."""
+    def test_long_episode_fits_8k(self):
+        """Long/multi-attempt door episode worst case (~600 steps, 32 images, V=200) fits in 8K."""
         V = 200
-        n_images = 32  # more images for multi-placement
+        n_images = 32  # more images for a long/recovery episode
         text_task = 40
         text_narration = 16 * 25  # more segments
         text_outcome = 5
@@ -213,18 +213,18 @@ class TestContextBudget:
             + n_state_tokens
             + action_tokens
         )
-        # Level 3 may be tight — document the budget
+        # Long episode may be tight — document the budget
         max_ctx = 8192
         if total > max_ctx:
-            # Not a failure — just documents the constraint for Phase 2.3/3.3
+            # Not a failure — just documents the 8K-context constraint.
             pytest.skip(
-                f"Level 3 worst case ({total} tokens) exceeds 8K. "
-                f"Phase 2.3 must limit image count or use shorter episodes."
+                f"Long door episode ({total} tokens) exceeds 8K. "
+                f"Limit image count or use shorter episodes to fit 8K."
             )
         assert total < max_ctx
 
-    def test_budget_with_phase31_compute(self):
-        """Cross-check with Phase 3.1.2 compute_context_budget()."""
+    def test_budget_with_context_budget_helper(self):
+        """Cross-check with compute_context_budget()."""
         from models.vlm_backbone import compute_context_budget
 
         # Default budget (4 images, no action tokens accounted for)
@@ -253,11 +253,11 @@ class TestContextBudget:
 
 @pytest.mark.action_head
 class TestTensorInterfaceShapes:
-    """Shape contracts for all Phase 3.2 components.
+    """Shape contracts for all action-head components.
 
-    These tests verify the tensor shapes documented in the 3.2.0 contract
+    These tests verify the tensor shapes documented in the action-head contract
     table. They use simple placeholder tensors — no actual modules.
-    Components will be tested against these contracts in 3.2.1–3.2.4.
+    Components are tested against these contracts in the unit tests below.
     """
 
     @pytest.fixture
@@ -323,7 +323,7 @@ class TestTensorInterfaceShapes:
 
 
 # ---------------------------------------------------------------------------
-# Flow matching module (Phase 3.2.1)
+# Flow matching module
 # ---------------------------------------------------------------------------
 
 
@@ -642,13 +642,13 @@ class TestFlowMatchingModule:
 
 
 # ---------------------------------------------------------------------------
-# Robot state projector (Phase 3.2.2)
+# Robot state projector
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.action_head
 class TestRobotStateProjector:
-    """Unit tests for RobotStateProjector (Phase 3.2.2).
+    """Unit tests for RobotStateProjector.
 
     All CPU-only. No backbone or GPU required.
     Tests cover: output shape, numerical stability, gradient flow,
@@ -768,7 +768,7 @@ class TestRobotStateProjector:
 
 
 # ---------------------------------------------------------------------------
-# Sinusoidal timestep embedding (Phase 3.2.3)
+# Sinusoidal timestep embedding
 # ---------------------------------------------------------------------------
 
 
@@ -825,13 +825,13 @@ class TestSinusoidalTimestepEmbedding:
 
 
 # ---------------------------------------------------------------------------
-# Noisy action projector (Phase 3.2.3)
+# Noisy action projector
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.action_head
 class TestNoisyActionProjector:
-    """Unit tests for NoisyActionProjector (Phase 3.2.3).
+    """Unit tests for NoisyActionProjector.
 
     All CPU-only. No backbone or GPU required.
     Tests cover: output shape, numerical stability, gradient flow,
@@ -966,13 +966,13 @@ class TestNoisyActionProjector:
 
 
 # ---------------------------------------------------------------------------
-# Action output head (Phase 3.2.3)
+# Action output head
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.action_head
 class TestActionOutputHead:
-    """Unit tests for ActionOutputHead (Phase 3.2.3).
+    """Unit tests for ActionOutputHead.
 
     All CPU-only. No backbone or GPU required.
     Tests cover: output shape, numerical stability, gradient flow,

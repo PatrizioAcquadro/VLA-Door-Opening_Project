@@ -1,4 +1,4 @@
-"""Tests for SAKE EZGripper Gen2 integration (Phase 1.1.3).
+"""Tests for SAKE EZGripper Gen2 integration.
 
 Run:
     pytest tests/test_ezgripper.py -v
