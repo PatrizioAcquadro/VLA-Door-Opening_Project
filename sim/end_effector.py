@@ -1,4 +1,4 @@
-"""End-effector abstraction layer (Phase 1.1.3).
+"""End-effector abstraction layer.
 
 Provides a uniform command interface for different end-effectors.
 EZGripper (1-DoF grasp) and future Ability Hand (6-DoF) implement

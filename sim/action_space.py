@@ -1,4 +1,4 @@
-"""Frozen 17-D action space for the Alex robot (Phase 1.1.5).
+"""Frozen 17-D action space for the Alex robot.
 
 Defines the canonical action vector layout, normalization, and the
 action-to-control pipeline that converts normalized policy outputs
@@ -31,6 +31,7 @@ from __future__ import annotations
 import numpy as np
 
 from sim.control import JOINT_VELOCITY_LIMITS, AlexController
+from sim.end_effector import EZGripperInterface
 
 try:
     import mujoco
@@ -78,8 +79,8 @@ _ACTUATOR_TO_JOINT: dict[str, str] = {
 #: EZGripper actuator names (left, right).
 GRIPPER_ACTUATOR_NAMES: list[str] = ["left_ezgripper", "right_ezgripper"]
 
-#: EZGripper joint range [0, 1.94] rad — from EZGripperInterface.
-EZGRIPPER_JOINT_RANGE_HI: float = 1.94
+#: EZGripper joint range upper bound [rad] — single source of truth in EZGripperInterface.
+EZGRIPPER_JOINT_RANGE_HI: float = EZGripperInterface.JOINT_RANGE_HI
 
 #: Default policy control rate (Hz).
 DEFAULT_CONTROL_HZ: float = 20.0
