@@ -2,11 +2,11 @@
 Model architectures module.
 
 This module contains:
-- Transformer architectures
-- World model components
-- Flow matching modules
-- VLM backbone (lazy import; requires ``pip install -e ".[vlm]"``)
-- VLA model (lazy import; requires ``pip install -e ".[vlm]"``)
+- TransformerModel fallback (models/transformer.py)
+- Action-head components and flow-matching math (models/action_head.py)
+- Dual-loss modules (models/losses.py)
+- VLM backbone wrapper for Qwen3.5-4B (lazy import; requires ``pip install -e ".[vlm]"``)
+- VLA model assembly with flow-matching action head (lazy import; requires ``pip install -e ".[vlm]"``)
 
 The VLM backbone and VLA model are not included in __all__ because they require
 the optional ``transformers`` dependency. Import them directly when needed:

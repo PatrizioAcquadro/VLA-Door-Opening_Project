@@ -1,8 +1,8 @@
 """Interactive MuJoCo viewer for debug inspection.
 
 Launch:
-    python sim/viewer.py sim/assets/scenes/test_scene.xml
-    vla-viewer sim/assets/scenes/test_scene.xml --show-contacts --show-joints
+    python sim/viewer.py sim/assets/scenes/alex_door_workspace.xml
+    vla-viewer sim/assets/scenes/alex_door_workspace.xml --show-contacts --show-joints
 
 This module is for interactive debugging ONLY and must never be imported
 by training or runtime code paths.
@@ -55,7 +55,7 @@ def parse_args(argv: list[str] | None = None) -> ViewerConfig:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent("""\
             Examples:
-              vla-viewer sim/assets/scenes/test_scene.xml
+              vla-viewer sim/assets/scenes/alex_door_workspace.xml
               vla-viewer robot.xml --show-contacts --show-joints
               vla-viewer robot.xml --passive --duration 10
         """),

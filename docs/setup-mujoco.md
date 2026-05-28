@@ -1,4 +1,4 @@
-# MuJoCo Setup Guide (Phase 0.2.1)
+# MuJoCo Setup Guide
 
 Reproduce a working MuJoCo runtime on the lab PC in under 60 minutes.
 
@@ -11,7 +11,7 @@ Reproduce a working MuJoCo runtime on the lab PC in under 60 minutes.
 
 ## 1. Install system-level OpenGL dependencies
 
-These are needed for MuJoCo's rendering backends (interactive viewer in Phase 0.2.2, headless in Phase 0.2.3). Install them now to avoid revisiting later.
+These are needed for MuJoCo's rendering backends (interactive viewer and headless rendering). Install them now to avoid revisiting later.
 
 ```bash
 sudo apt-get update && sudo apt-get install -y \
@@ -139,7 +139,7 @@ pip install -e ".[sim]"
 ### `mujoco.FatalError` when loading MJCF
 Check that `sim/assets/scenes/test_scene.xml` exists and is valid XML. Re-clone or `git checkout` if corrupted.
 
-## 6. Interactive Viewer (Phase 0.2.2)
+## 6. Interactive Viewer
 
 Once validation passes, you can open the interactive viewer to visually inspect scenes:
 

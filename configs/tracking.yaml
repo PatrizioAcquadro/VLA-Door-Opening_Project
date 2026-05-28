@@ -51,7 +51,7 @@ tracking:
     # Required tags for experiment organization
     # These should be set per-experiment
     tags:
-      # Model architecture (e.g., "eo1", "vla-base")
+      # Model architecture (e.g., "vla", "vla_dev", "vlm")
       model: null
 
       # Training dataset (e.g., "door-opening", "alex-door")
@@ -61,7 +61,7 @@ tracking:
       objective: null
 
       # Experiment group for organizing related runs
-      # (e.g., "phase0-smoke", "ablation-lr", "baseline")
+      # (e.g., "smoke", "ablation-lr", "baseline")
       experiment_group: null
 
 
@@ -69,7 +69,7 @@ tracking:
 # tracking:
 #   run:
 #     tags:
-#       model: "eo1"
+#       model: "vla"
 #       dataset: "door-opening"
 #       objective: "ar+fm"
-#       experiment_group: "phase0-smoke"
+#       experiment_group: "smoke"

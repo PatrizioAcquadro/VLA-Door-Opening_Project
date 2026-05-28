@@ -1,6 +1,6 @@
 # EO-1 Repository Reference
 
-Reference for the EO-1 (EmbodiedOne) VLA robot model. Use this for targeted lookups during future phase implementations instead of re-exploring the full repo online.
+Reference for the EO-1 (EmbodiedOne) VLA architecture this model was derived from. Use this for targeted architecture lookups instead of re-exploring the full upstream repo online.
 
 **Repo**: https://github.com/EO-Robotics/EO1 (archived, read-only since 2025-11-12)
 **Paper**: arXiv:2508.21112
@@ -115,11 +115,11 @@ SYSTEM_MESSAGE = "..."   # default system prompt
 | num_hidden_layers | ~28 | 32 |
 | vocab_size | ~151,000+ | 248,320 |
 | vision encoder | Qwen2.5-VL ViT | Qwen3.5 native vision |
-| action_chunk_size | 50 | TBD (Phase 3.2) |
+| action_chunk_size | 50 | 16 |
 | action_dim | up to 32 | 17 (frozen) |
-| denoising steps | 10 | TBD (Phase 3.2) |
-| flow matching loss | MSE(u_t, v_t) | TBD (Phase 3.2) |
-| action head | 2-layer MLP | TBD (Phase 3.2) |
+| denoising steps | 10 | 10 |
+| flow matching loss | MSE(u_t, v_t) | flow matching (MSE velocity loss) |
+| action head | 2-layer MLP | 2-layer MLP projector |
 | inference VRAM | ~6–6.5 GB (bf16) | ~8 GB (bf16) |
 
 ---
@@ -134,14 +134,14 @@ EO-1 has minimal testing — no pytest, no assertions, no CI:
 
 ---
 
-## Phase-Specific Lookup Guide
+## Topic Lookup Guide
 
-| VLA-Door-Opening Phase | What to check in EO-1 |
+| Topic | What to check in EO-1 |
 |---|---|
-| **3.1** (backbone) | `modeling_eo1.py` init, `configuration_eo1.py`, `processing_eo1.py` |
-| **3.2** (action head) | `modeling_eo1.py`: action head MLP, `embed_suffix()`, `sample_actions()`, `constants.py` special tokens |
-| **3.3** (training) | `eo/train/`, `scripts/train.py`, flow matching loss in `forward()` |
-| **3.4** (inference) | `sample_actions()`, `select_action()`, KV cache in `test_vlm.py` |
+| **backbone** | `modeling_eo1.py` init, `configuration_eo1.py`, `processing_eo1.py` |
+| **action head** | `modeling_eo1.py`: action head MLP, `embed_suffix()`, `sample_actions()`, `constants.py` special tokens |
+| **training** | `eo/train/`, `scripts/train.py`, flow matching loss in `forward()` |
+| **inference** | `sample_actions()`, `select_action()`, KV cache in `test_vlm.py` |
 
 ---
 
@@ -152,8 +152,8 @@ EO-1 has minimal testing — no pytest, no assertions, no CI:
 | Synthetic image testing | `eval_policy.py` | Inference sanity checks when MuJoCo unavailable |
 | Raw numpy uint8 input | `processing_eo1.py` | Already adopted in `preprocess_images()` |
 | Chat template formatting | `processor.apply_chat_template()` | Already adopted in `preprocess_images()` |
-| Flow matching denoising | `sample_actions()` | Phase 3.2 action head |
-| Action head MLP | 2-layer `hidden → hidden → action_dim` | Phase 3.2 |
-| Action/state special tokens | `<\|action_start\|>`, `<\|state_start\|>` | Phase 3.2 token design |
-| Prefix/suffix embedding split | `embed_prefix()` + `embed_suffix()` | Phase 3.2 efficient inference |
-| KV cache across turns | `test_vlm.py` past_key_values | Phase 3.3+ multi-step |
+| Flow matching denoising | `sample_actions()` | action head |
+| Action head MLP | 2-layer `hidden → hidden → action_dim` | action head |
+| Action/state special tokens | `<\|action_start\|>`, `<\|state_start\|>` | token design |
+| Prefix/suffix embedding split | `embed_prefix()` + `embed_suffix()` | efficient inference |
+| KV cache across turns | `test_vlm.py` past_key_values | multi-step inference |

@@ -167,7 +167,7 @@ git commit -m "refactor(data): simplify dataloader creation"
    ruff check .
 
    # Type check
-   mypy sim models train eval --ignore-missing-imports
+   mypy sim models train eval tracking --ignore-missing-imports
 
    # Run tests
    pytest

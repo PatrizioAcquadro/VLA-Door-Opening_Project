@@ -1,10 +1,1 @@
-"""
-Simulation module for world modeling.
-
-This module contains:
-- Environment simulation components
-- Physics engines
-- State representations
-"""
-
-__version__ = "0.1.0"
+"""MuJoCo runtime and Alex action/state/control/camera contracts for door-opening simulation."""

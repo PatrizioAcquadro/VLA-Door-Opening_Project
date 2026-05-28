@@ -11,7 +11,10 @@ infra/gilbreth/
 │   ├── 02_smoke_2gpu_ddp.sh # 2 GPU DDP test
 │   ├── 03_smoke_deepspeed_z1.sh # DeepSpeed ZeRO-1 test
 │   ├── 04_smoke_8gpu_deepspeed.sh # Multi-node 8 GPU test
-│   └── 05_smoke_tracking.sh # DeepSpeed + W&B tracking
+│   ├── 05_smoke_tracking.sh # DeepSpeed + W&B tracking
+│   ├── 06_smoke_sim_headless.sh # Headless MuJoCo door-scene render
+│   ├── 07_download_vlm_weights.sh # Pre-cache Qwen3.5-4B weights (no GPU)
+│   └── 09_validate_action_head.sh # VLA action-head + flow-matching validation
 ├── scripts/                # Setup and utility scripts
 │   ├── 00_discovery.sh     # Cluster resource discovery
 │   ├── 01_setup_env.sh     # Environment setup
@@ -58,6 +61,9 @@ sbatch infra/gilbreth/job_templates/01_smoke_1gpu.sh
 | `03_smoke_deepspeed_z1.sh` | 2 | DeepSpeed ZeRO-1 on single node |
 | `04_smoke_8gpu_deepspeed.sh` | 8 | Multi-node (4 nodes x 2 GPUs) |
 | `05_smoke_tracking.sh` | 2 | DeepSpeed + W&B integration |
+| `06_smoke_sim_headless.sh` | 1 | Headless MuJoCo door-scene render smoke |
+| `07_download_vlm_weights.sh` | 0 | Pre-cache Qwen3.5-4B weights |
+| `09_validate_action_head.sh` | 1 | VLA action-head + flow-matching validation |
 
 ## NCCL Configuration
 
@@ -82,4 +88,4 @@ export NCCL_TIMEOUT=600       # 10 minute timeout
 ## Documentation
 
 For comprehensive cluster documentation, see:
-- [Gilbreth Training Guide](../docs/cluster/gilbreth-training-guide.md)
+- [Gilbreth Training Guide](../../docs/cluster/gilbreth-training-guide.md)

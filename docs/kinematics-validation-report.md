@@ -1,4 +1,4 @@
-# Kinematics Validation Report — Alex V1 Upper-Body (Phase 1.1.4)
+# Kinematics Validation Report — Alex V1 Upper-Body
 
 **Date**: 2026-02-27
 **Model source**: `ihmc-alex-sdk` commit `be25a395e35238bc6385a58bcc50aa047d936a25`
@@ -157,9 +157,9 @@ The original SDK MJCF (`alex_v1_full_body_mjx.xml`) uses row-major `fullinertia`
 - Workspace covers target door-handle region
 - EE positions at home are perfectly symmetric
 
-The SDK clone is at `/tmp/ihmc-alex-sdk` (pinned commit `be25a395`). To re-verify:
+The SDK clone is at `../ihmc-alex-sdk` (pinned commit `be25a395`). To re-verify:
 ```bash
-ALEX_SDK_PATH=/tmp/ihmc-alex-sdk python scripts/validate_kinematics.py
+ALEX_SDK_PATH=../ihmc-alex-sdk python scripts/validate_kinematics.py
 ```
 
 ---
