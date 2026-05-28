@@ -401,6 +401,9 @@ jobs:
     needs: [should-build-container, build-container]
     runs-on: ubuntu-22.04
     if: needs.should-build-container.outputs.should_build == 'true'
+    permissions:
+      contents: read
+      packages: read
 
     steps:
       - name: Checkout code
@@ -436,6 +439,9 @@ jobs:
         run: df -h
 
       - name: Build Apptainer image from Docker
+        env:
+          APPTAINER_DOCKER_USERNAME: ${{ github.actor }}
+          APPTAINER_DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           apptainer build vla-door-opening.sif docker://${{ env.REGISTRY }}/${{ needs.build-container.outputs.image_name }}@${{ needs.build-container.outputs.digest }}
 
