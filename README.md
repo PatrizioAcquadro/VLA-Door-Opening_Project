@@ -151,6 +151,12 @@ python scripts/validate_cameras.py
 python scripts/validate_action_head.py
 ```
 
+Run the gated first Isaac backend proof on the lab PC:
+
+```bash
+python3 scripts/run_isaac_proof.py
+```
+
 Run active VLA training with recorded door episode manifests:
 
 ```bash
@@ -245,6 +251,7 @@ Apptainer:
 | Document | Description |
 |----------|-------------|
 | [docs/door-opening-project-brief.md](docs/door-opening-project-brief.md) | Door-opening task scope and migration map |
+| [docs/isaac_backend_first_slice.md](docs/isaac_backend_first_slice.md) | First Isaac backend slice, proof command, evidence, and limits |
 | [docs/setup-mujoco.md](docs/setup-mujoco.md) | MuJoCo setup guide |
 | [docs/kinematics-validation-report.md](docs/kinematics-validation-report.md) | Alex kinematics validation report |
 | [docs/eo1-reference.md](docs/eo1-reference.md) | EO-1 architecture reference (provenance) |

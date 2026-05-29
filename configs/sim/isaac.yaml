@@ -1,0 +1,54 @@
+# First Isaac Sim backend slice.
+# This config references Isaac without replacing the MuJoCo door scaffold.
+
+backend: isaac
+reference_backend: mujoco
+proof_script: scripts/run_isaac_proof.py
+evidence_dir: logs/isaac_proof
+
+runtime:
+  isaac_wrapper: /home/pacquadr/Desktop/isaac_suitcase/bin/isaaclab-run
+  headless: true
+  require_live_proof: true
+  allow_mujoco_fallback: false
+
+asset_order:
+  - existing_alex_usd
+  - urdf_import
+  - mjcf_conversion
+
+control:
+  control_hz: 20.0
+  rate_limit_factor: 0.8
+
+action:
+  dim: 17
+  arm_dim: 15
+  gripper_dim: 2
+  normalize_range: [-1.0, 1.0]
+  gripper_range: [0.0, 1.0]
+
+state:
+  dim: 52
+  q_dim: 15
+  q_dot_dim: 15
+  gripper_dim: 2
+  ee_pose_dim: 14
+  ee_vel_dim: 6
+  frame: world
+  quat_convention: wxyz
+
+camera:
+  views: ["overhead", "left_wrist_cam", "right_wrist_cam", "third_person"]
+  width: 320
+  height: 320
+  capture_hz: 20.0
+
+metrics:
+  handle_contact_success: true
+  latch_release_success: true
+  max_door_angle_rad: true
+  final_angle_error_rad: true
+  contact_stability: true
+  force_limit_violation: true
+  recovery_success: true

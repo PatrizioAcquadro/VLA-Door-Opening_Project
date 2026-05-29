@@ -34,6 +34,7 @@ ALEX_SDK_PATH=../ihmc-alex-sdk python scripts/validate_kinematics.py
 python scripts/validate_action_space.py
 python scripts/validate_robot_state.py
 python scripts/validate_cameras.py
+python scripts/run_isaac_proof.py
 ```
 
 ### Model Validation
@@ -87,6 +88,7 @@ pre-commit run --all-files
 - `train/` - trainer entry point and distributed training logic.
 - `data/` - dataset and dataloader utilities.
 - `sim/` - MuJoCo runtime, Alex action/state contracts, controller, renderer, viewer, and assets.
+- `sim/isaac/` - first import-safe Isaac backend contract layer and live proof worker.
 - `sim/assets/scenes/alex_door_workspace.xml` - active door-opening workspace.
 - `archive/legacy/` - historical LEGO baseline material only.
 - `tracking/` - W&B tracking with `vla-door-opening` defaults.
