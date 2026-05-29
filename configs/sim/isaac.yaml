@@ -6,6 +6,20 @@ reference_backend: mujoco
 proof_script: scripts/run_isaac_proof.py
 evidence_dir: logs/isaac_proof
 
+native_door:
+  proof_script: scripts/run_isaac_native_door_proof.py
+  evidence_dir: logs/isaac_native_door
+  hallway_scene: /home/pacquadr/Desktop/HallwayScene/Hallway.usdc
+  door_asset: /home/pacquadr/Desktop/HallwayScene/Objects/DoorObject_v2.usda
+  hallway_stage_root: /
+  task_root: /World/IsaacNativeDoorTask
+  target_open_angle_rad: 1.0472
+  angle_tolerance_rad: 0.0873
+  latch_release_angle_rad: 0.35
+  hinge_limits_deg: [-90.0, 0.0]
+  live_camera_views: ["overhead", "third_person"]
+  alex_dependent_views_not_live_yet: ["left_wrist_cam", "right_wrist_cam"]
+
 runtime:
   isaac_wrapper: /home/pacquadr/Desktop/isaac_suitcase/bin/isaaclab-run
   headless: true

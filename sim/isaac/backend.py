@@ -32,6 +32,8 @@ class IsaacDoorAdapter(Protocol):
 
     def render_views(self) -> Mapping[str, Any]: ...
 
+    def record_episode(self, *args: Any, **kwargs: Any) -> Any: ...
+
 
 class IsaacDoorBackend:
     """Thin contract-checking facade for the first Isaac vertical slice.

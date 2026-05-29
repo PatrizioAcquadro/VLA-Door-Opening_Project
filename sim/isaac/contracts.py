@@ -62,14 +62,16 @@ def validate_door_metrics(metrics: Mapping[str, Any]) -> dict[str, float | bool]
     """Validate that all frozen door metric names are present.
 
     Extra keys are allowed so downstream code can carry diagnostics such as
-    ``target_reached`` without mutating the frozen metric surface.
+    ``target_angle_error`` without mutating the frozen metric surface.
     """
     missing = [name for name in DOOR_METRIC_NAMES if name not in metrics]
     if missing:
         raise IsaacContractError(f"Missing door metric(s): {missing}")
 
     validated: dict[str, float | bool] = {}
-    for name in DOOR_METRIC_NAMES:
+    for name in tuple(DOOR_METRIC_NAMES) + tuple(
+        name for name in metrics if name not in DOOR_METRIC_NAMES
+    ):
         value = metrics[name]
         if isinstance(value, (bool, np.bool_)):
             validated[name] = bool(value)
